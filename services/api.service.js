@@ -15,6 +15,7 @@ const ApiGateway = {
                 path: "",
                 aliases: {
                     "GET /test": "fhirservice.test",
+                    "GET /demographics/:nhsNumber": "demographicsservice.demographics",
                 },
             },
         ],

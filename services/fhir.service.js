@@ -28,11 +28,66 @@ async function testActionHandler(ctx) {
     return result
 }
 
+/**
+ * @this {Service}
+ * @param {Context} ctx
+ * @returns {Promise<fhir.Bundle>}
+ * */
+async function searchActionHandler(ctx) {
+    const { logger } = this
+
+    const auth = new AuthProvider(getFhirAuthConfig(), logger)
+    const tokenProvider = new TokenProvider(auth, logger)
+    const fhirStore = new FhirStoreDataProvider(getFhirStoreConfig(), logger)
+
+    const token = await tokenProvider.getAccessToken()
+
+    const { resourceType, query } = ctx.params
+
+    const result = await fhirStore.search(resourceType, query, token)
+
+    return result
+}
+
+/**
+ * @this {Service}
+ * @param {Context} ctx
+ * @returns {Promise<fhir.Resource>}
+ * */
+async function readActionHandler(ctx) {
+    const { logger } = this
+
+    const auth = new AuthProvider(getFhirAuthConfig(), logger)
+    const tokenProvider = new TokenProvider(auth, logger)
+    const fhirStore = new FhirStoreDataProvider(getFhirStoreConfig(), logger)
+
+    const token = await tokenProvider.getAccessToken()
+
+    const { resourceType, resourceId } = ctx.params
+
+    const result = await fhirStore.read(resourceType, resourceId, token)
+
+    return result
+}
+
 /** @type {ServiceSchema} */
 const FhirService = {
     name: "fhirservice",
     actions: {
         test: testActionHandler,
+        search: {
+            params: {
+                resourceType: { type: "string" },
+            },
+            handler: searchActionHandler,
+        },
+        read: {
+            params: {
+                resourceType: { type: "string" },
+                resourceId: { type: "string" },
+            },
+            handler: readActionHandler,
+        },
     },
 }
 

@@ -18,7 +18,7 @@ class FhirStoreDataProvider {
      * @param {string} resourceType
      * @param {string} resourceID
      * @param {string} authorization
-     * @returns {Promise<FullResponse>} response
+     * @returns {Promise<fhir.Resource>} response
      */
     async read(resourceType, resourceID, authorization) {
         try {
@@ -45,7 +45,7 @@ class FhirStoreDataProvider {
      * @param {string} resourceType
      * @param {Object} query
      * @param {string} authorization
-     * @returns {Promise<FullResponse>} response
+     * @returns {Promise<fhir.Bundle>} response
      */
     async search(resourceType, query, authorization) {
         try {

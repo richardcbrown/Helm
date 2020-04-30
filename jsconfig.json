@@ -2,7 +2,8 @@
     "compilerOptions": {
         "checkJs": true,
         "target": "es2020",
-        "module": "commonjs"
+        "module": "commonjs",
+        "strictNullChecks": true
     },
-    "include": ["./services", "./providers", "./config"]
+    "include": ["./services", "./providers", "./config", "./models"]
 }
