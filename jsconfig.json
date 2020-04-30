@@ -2,8 +2,7 @@
     "compilerOptions": {
         "checkJs": true,
         "target": "es2020",
-        "rootDir": "src"
+        "module": "commonjs"
     },
-    "exclude": ["node_modules", "**/node_modules/*"],
-    "include": ["./src"]
+    "include": ["./services", "./providers", "./config"]
 }
