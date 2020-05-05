@@ -16,6 +16,8 @@ const ApiGateway = {
                 aliases: {
                     "GET /test": "fhirservice.test",
                     "GET /demographics/:nhsNumber": "demographicsservice.demographics",
+                    "GET /redirect": "oidcclientservice.getRedirect",
+                    "GET /token": "oidcclientservice.callback",
                 },
             },
         ],
