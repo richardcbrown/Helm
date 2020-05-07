@@ -5,5 +5,13 @@
         "module": "commonjs",
         "strictNullChecks": true
     },
-    "include": ["./services", "./providers", "./config", "./models", "./clients"]
+    "include": [
+        "./services", 
+        "./providers", 
+        "./config", 
+        "./models", 
+        "./clients", 
+        "./generators", 
+        "./requestutilities"
+    ]
 }

@@ -70,6 +70,32 @@ async function readActionHandler(ctx) {
     return result
 }
 
+/**
+ * @this {Service}
+ * @param {Context} ctx
+ * @returns {Promise<void>}
+ * */
+async function createActionHandler(ctx) {
+    const { logger } = this
+
+    const auth = new AuthProvider(getFhirAuthConfig(), logger)
+    const tokenProvider = new TokenProvider(auth, logger)
+    const fhirStore = new FhirStoreDataProvider(getFhirStoreConfig(), logger)
+
+    const token = await tokenProvider.getAccessToken()
+
+    /** @type {fhir.Resource} */
+    const resource = ctx.params.resource
+
+    const resourceType = resource.resourceType
+
+    if (!resourceType) {
+        throw Error("Resource type missing from resource")
+    }
+
+    await fhirStore.create(resourceType, resource, token)
+}
+
 /** @type {ServiceSchema} */
 const FhirService = {
     name: "fhirservice",
@@ -87,6 +113,12 @@ const FhirService = {
                 resourceId: { type: "string" },
             },
             handler: readActionHandler,
+        },
+        create: {
+            params: {
+                resource: { type: "object" },
+            },
+            handler: createActionHandler,
         },
     },
 }

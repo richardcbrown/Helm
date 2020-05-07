@@ -52,6 +52,18 @@ const ApiGateway = {
                 },
             },
             {
+                path: "/api",
+                use: [passport.initialize(), userAuthHandler],
+                bodyParsers: {
+                    json: true,
+                },
+                aliases: {
+                    "GET /initialise": "consentservice.initialise",
+                    "GET /initialise/terms": "consentservice.getTerms",
+                    "POST /initialise/terms/accept": "consentservice.acceptTerms",
+                },
+            },
+            {
                 path: "/",
                 use: [passport.initialize(), userAuthHandler],
                 async onBeforeCall(ctx, route, req, res) {
