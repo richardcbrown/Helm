@@ -9,7 +9,7 @@ const ApiGateway = {
     name: "apiservice",
     mixins: [ApiService],
     settings: {
-        port: 3000,
+        port: 8080,
         routes: [
             {
                 path: "",
