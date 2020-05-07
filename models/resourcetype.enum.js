@@ -6,6 +6,8 @@ const ResourceType = {
     Practitioner: "Practitioner",
     PractitionerRole: "PractitionerRole",
     Organization: "Organization",
+    Policy: "Policy",
+    Consent: "Consent",
 }
 
 module.exports = { ResourceType }

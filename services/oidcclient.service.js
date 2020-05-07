@@ -28,7 +28,7 @@ async function getRedirectHandler(ctx) {
 
     const client = await provisionClient(getOidcConfiguration())
 
-    ctx.meta.$statusCode = 302
+    ctx.meta.$statusCode = 301
     ctx.meta.$location = client.getRedirectUrl()
 }
 

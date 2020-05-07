@@ -29,4 +29,13 @@ function splitReference(reference) {
     }
 }
 
-module.exports = { getResourceTypeReference, splitReference }
+/**
+ * Creates a fhir reference for a resource
+ * @param {fhir.Resource} resource
+ * @returns {string} resource reference
+ */
+function makeReference(resource) {
+    return `${resource.resourceType}/${resource.id}`
+}
+
+module.exports = { getResourceTypeReference, splitReference, makeReference }

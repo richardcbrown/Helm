@@ -11,7 +11,12 @@ function getFromBundle(bundle, resourceType) {
         return []
     }
 
-    return entry.filter((e) => e.resource && e.resource.resourceType === resourceType).map((e) => e.resource)
+    const resources = /** @type {fhir.Resource[]} */ (entry
+        .filter((e) => e.resource && e.resource.resourceType === resourceType)
+        .map((e) => e.resource)
+        .filter((r) => !!r))
+
+    return resources
 }
 
 module.exports = { getFromBundle }

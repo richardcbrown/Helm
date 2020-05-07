@@ -48,4 +48,10 @@
  * @property {string} redirectUrl
  */
 
+/**
+ * @typedef {Object} ConsentConfiguration
+ * @property {Array<string>} policyNames
+ * @property {Array<string>} policyFriendlyNames
+ */
+
 module.exports = {}
