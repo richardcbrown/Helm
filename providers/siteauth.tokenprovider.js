@@ -27,8 +27,8 @@ class SiteAuthTokenProvider {
 
         const decodedId = jwt.decode(idToken, null, true)
 
-        const iat = decodedId.iat || new Date().getTime()
-        const exp = jwtExpiry ? moment(iat).add(jwtExpiry, "s").toDate().getTime() : decodedId.exp
+        const iat = decodedId.iat || Math.floor(Date.now() / 1000)
+        const exp = jwtExpiry ? iat + jwtExpiry : decodedId.exp
 
         const tokenPayload = {
             iat,
@@ -62,6 +62,7 @@ class SiteAuthTokenProvider {
         return {
             jwtFromRequest: this.extractTokenFromRequest,
             secretOrKey: jwtSigningSecret,
+            ignoreExpies: false,
             issuer,
             audience,
         }

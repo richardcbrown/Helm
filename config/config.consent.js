@@ -2,9 +2,24 @@
 
 /** @returns {ConsentConfig} */
 function getConfig() {
+    const policyNamesConfig = process.env.CONSENT_POLICYNAMES
+    const policyFriendlyNamesConfig = process.env.CONSENT_POLICYFRIENDLYNAMES
+
+    if (!policyNamesConfig) {
+        throw Error("Site policies not set")
+    }
+
+    const policyNames = policyNamesConfig.split(",")
+
+    if (!policyNames.length) {
+        throw Error("Site policies not set")
+    }
+
+    const policyFriendlyNames = policyFriendlyNamesConfig ? policyFriendlyNamesConfig.split(",") : []
+
     return {
-        policyFriendlyNames: ["Helm Terms and Conditions", "Helm Privacy Notice"],
-        policyNames: ["v1h Test Helm Terms", "v1h Helm Privacy"],
+        policyFriendlyNames,
+        policyNames,
     }
 }
 

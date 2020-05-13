@@ -49,9 +49,23 @@ class PatientConsentProvider {
      * @returns {Promise<fhir.Resource[]>} policy resources
      */
     async getPolicies() {
-        const { policyNames } = this.configuration
+        const { policyNames, policyFriendlyNames } = this.configuration
 
-        return getPolicies(policyNames, this.ctx)
+        const policies = await getPolicies(policyNames, this.ctx)
+
+        policyNames.forEach((pn, index) => {
+            const policy = policies.find((policy) => policy.name === pn)
+
+            if (!policy) {
+                throw Error("Mismatched Policies")
+            }
+
+            const policyFriendlyName = policyFriendlyNames[index]
+
+            policy.name = policyFriendlyName || policy.name
+        })
+
+        return policies
     }
 
     /**

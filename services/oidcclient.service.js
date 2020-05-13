@@ -22,6 +22,25 @@ const SiteTokenProvider = require("../providers/siteauth.tokenprovider")
 const getSiteAuthConfiguration = require("../config/config.siteauth")
 
 /**
+ * Handle logout
+ * At present NHS Login only, does not have
+ * end session mechanism
+ * redirect back to login
+ * @this {Service}
+ * @param {Context} ctx
+ * @returns {Promise<any>}
+ * */
+async function logoutHandler(ctx) {
+    const { logger } = this
+
+    const client = await provisionClient(getOidcConfiguration())
+
+    return {
+        redirectURL: client.getRedirectUrl(),
+    }
+}
+
+/**
  * @this {Service}
  * @param {Context} ctx
  * @returns {Promise<any>}
@@ -30,9 +49,6 @@ async function getRedirectHandler(ctx) {
     const { logger } = this
 
     const client = await provisionClient(getOidcConfiguration())
-
-    // ctx.meta.$statusCode = 301
-    // ctx.meta.$location = client.getRedirectUrl()
 
     return {
         redirectURL: client.getRedirectUrl(),
@@ -71,6 +87,7 @@ const OidcClientService = {
     actions: {
         getRedirect: getRedirectHandler,
         callback: callbackHandler,
+        logout: logoutHandler,
     },
 }
 

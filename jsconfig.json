@@ -12,6 +12,7 @@
         "./models", 
         "./clients", 
         "./generators", 
-        "./requestutilities"
+        "./requestutilities",
+        "./handlers"
     ]
 }

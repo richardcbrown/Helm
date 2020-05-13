@@ -53,7 +53,6 @@ class PatientConsentGenerator {
 
             consents.push({
                 resourceType: ResourceType.Consent,
-                status: "active",
                 policyRule: policyReference,
                 patient: { reference: patientReference },
                 consentingParty: [

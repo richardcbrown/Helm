@@ -7,10 +7,10 @@ const ApiService = require("moleculer-web")
 
 const cookieParser = require("cookie-parser")
 const JwtStrategy = require("passport-jwt").Strategy
-const CustomStrategy = require("passport-custom").Strategy
 
 const SiteTokenProvider = require("../providers/siteauth.tokenprovider")
 const getSiteAuthConfiguration = require("../config/config.siteauth")
+const { populateContextWithUser } = require("../handlers/handler.helpers")
 
 passport.use(
     new JwtStrategy(new SiteTokenProvider(getSiteAuthConfiguration()).getSiteTokenStrategyOptions(), function (
@@ -31,8 +31,6 @@ const userAuthHandler = (req, res, next) => {
             req.user = user
             next()
         }
-
-        //next()
     })(req, res, next)
 }
 
@@ -48,43 +46,41 @@ const ApiGateway = {
                 aliases: {
                     "GET /redirect": "oidcclientservice.getRedirect",
                     "GET /token": "oidcclientservice.callback",
-                },
-            },
-            {
-                path: "/api",
-                use: [cookieParser(), passport.initialize(), userAuthHandler],
-                bodyParsers: {
-                    json: true,
-                },
-                aliases: {
-                    "GET /initialise": "consentservice.initialise",
-                    "GET /initialise/terms": "consentservice.getTerms",
-                    "GET /initialise/terms/check": "consentservice.getTerms",
-                    "POST /initialise/terms/accept": "consentservice.check",
+                    "GET /logout": "oidcclientservice.logout",
                 },
             },
             {
                 path: "/api",
                 use: [cookieParser(), passport.initialize(), userAuthHandler],
                 async onBeforeCall(ctx, route, req, res) {
-                    // Set request headers to context meta
-                    if (!req.user || !req.user.sub || !req.user.role) {
-                        throw Error("User has not been populated")
-                    }
-
-                    ctx.meta.user = {
-                        sub: req.user.sub,
-                        role: req.user.role,
-                    }
-
-                    console.log("on-before")
+                    populateContextWithUser(ctx, req)
+                },
+                bodyParsers: {
+                    json: true,
+                },
+                aliases: {
+                    "GET /initialise": "consentservice.initialise",
+                    "GET /initialise/terms": "consentservice.getTerms",
+                    "GET /initialise/terms/check": "consentservice.check",
+                    "POST /initialise/terms/accept": "consentservice.acceptTerms",
+                },
+            },
+            {
+                path: "/api",
+                use: [cookieParser(), passport.initialize(), userAuthHandler],
+                async onBeforeCall(ctx, route, req, res) {
+                    populateContextWithUser(ctx, req)
 
                     const consented = await ctx.call("consentservice.patientConsented")
 
-                    console.log(consented)
+                    if (consented) {
+                        return
+                    }
+
+                    res.writeHead(200, { "Content-Type": "application/json" })
+                    res.end(JSON.stringify({ status: "sign_terms" }))
                 },
                 aliases: {
-                    "GET /test": "fhirservice.test",
                     "GET /demographics": "demographicsservice.demographics",
                 },
             },

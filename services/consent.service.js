@@ -11,6 +11,8 @@
 const PatientConsentProvider = require("../providers/patientconsent.provider")
 const PatientConsentGenerator = require("../generators/patientconsent.generator")
 const getConsentConfig = require("../config/config.consent")
+const { phrUserCheckHooks } = require("../handlers/phruser.hooks")
+const { getUserSubFromContext } = require("../handlers/handler.helpers")
 
 /**
  * @this {Service}
@@ -21,7 +23,7 @@ async function patientConsentedHandler(ctx) {
     const patientConsentProvider = new PatientConsentProvider(ctx, getConsentConfig())
 
     /** @type {number | string} */
-    const nhsNumber = ctx.params.nhsNumber
+    const nhsNumber = getUserSubFromContext(ctx)
 
     return await patientConsentProvider.patientHasConsented(nhsNumber)
 }
@@ -35,7 +37,7 @@ async function initialiseHandler(ctx) {
     const patientConsentProvider = new PatientConsentProvider(ctx, getConsentConfig())
 
     /** @type {number | string} */
-    const nhsNumber = 9657702151 //ctx.params.nhsNumber
+    const nhsNumber = getUserSubFromContext(ctx)
 
     const consent = await patientConsentProvider.patientHasConsented(nhsNumber)
 
@@ -69,7 +71,7 @@ async function acceptTermsHandler(ctx) {
     const patientConsentGenerator = new PatientConsentGenerator(ctx, getConsentConfig())
 
     /** @type {number | string} */
-    const nhsNumber = 9657702151 //ctx.params.nhsNumber
+    const nhsNumber = getUserSubFromContext(ctx)
 
     /** @type {fhir.Resource[]} */
     const policies = [ctx.params["0"], ctx.params["1"]]
@@ -93,11 +95,31 @@ async function acceptTermsHandler(ctx) {
 const ConsentService = {
     name: "consentservice",
     actions: {
-        patientConsented: patientConsentedHandler,
-        check: initialiseHandler,
-        initialise: initialiseHandler,
-        getTerms: getTermsHandler,
-        acceptTerms: acceptTermsHandler,
+        patientConsented: {
+            role: "phrUser",
+            handler: patientConsentedHandler,
+        },
+        check: {
+            role: "phrUser",
+            handler: initialiseHandler,
+        },
+        initialise: {
+            role: "phrUser",
+            handler: initialiseHandler,
+        },
+        getTerms: {
+            role: "phrUser",
+            handler: getTermsHandler,
+        },
+        acceptTerms: {
+            role: "phrUser",
+            handler: acceptTermsHandler,
+        },
+    },
+    hooks: {
+        before: {
+            "*": phrUserCheckHooks,
+        },
     },
 }
 

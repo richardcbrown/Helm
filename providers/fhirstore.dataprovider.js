@@ -29,11 +29,13 @@ class FhirStoreDataProvider {
                 method: "GET",
                 uri: `${configuration.host}/${resourceType}/${resourceID}`,
                 json: true,
-                simple: false,
+                simple: true,
                 auth: { bearer: authorization },
                 rejectUnauthorized: false,
             }
-            return await request(options)
+            const result = await request(options)
+
+            return result.body
         } catch (err) {
             this.logger.error(err)
 
@@ -57,12 +59,15 @@ class FhirStoreDataProvider {
                 uri: `${configuration.host}/${resourceType}`,
                 json: true,
                 qs: query,
-                simple: false,
+                simple: true,
+                resolveWithFullResponse: true,
                 auth: { bearer: authorization, sendImmediately: true },
                 rejectUnauthorized: false,
             }
 
-            return await request(options)
+            const result = await request(options)
+
+            return result.body
         } catch (err) {
             console.log(err)
             throw err
@@ -86,10 +91,14 @@ class FhirStoreDataProvider {
                 json: true,
                 body: resource,
                 simple: false,
+                headers: { "Content-Type": "application/json; charset=utf-8;" },
+                resolveWithFullResponse: true,
                 auth: { bearer: authorization, sendImmediately: true },
                 rejectUnauthorized: false,
             }
-            return await request(options)
+            const result = await request(options)
+
+            return result
         } catch (err) {
             this.logger.error(err)
             throw err
@@ -114,6 +123,8 @@ class FhirStoreDataProvider {
                 json: true,
                 body: resource,
                 simple: false,
+                headers: { "Content-Type": "application/json; charset=utf-8;" },
+                resolveWithFullResponse: true,
                 auth: { bearer: authorization, sendImmediately: true },
                 rejectUnauthorized: false,
             }
