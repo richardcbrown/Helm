@@ -5,35 +5,34 @@
 const passport = require("passport")
 const ApiService = require("moleculer-web")
 
+const cookieParser = require("cookie-parser")
+const JwtStrategy = require("passport-jwt").Strategy
 const CustomStrategy = require("passport-custom").Strategy
 
-passport.use(
-    "custom",
-    new CustomStrategy(function (req, done) {
-        const authCookie = (req.cookies && req.cookies["JSESSIONID"]) || null
+const SiteTokenProvider = require("../providers/siteauth.tokenprovider")
+const getSiteAuthConfiguration = require("../config/config.siteauth")
 
-        /**
-         * @todo need proper checking of auth cookie
-         */
-        if (!authCookie) {
-            done({ error: "no-cookie" })
-        } else {
-            done(null)
-        }
+passport.use(
+    new JwtStrategy(new SiteTokenProvider(getSiteAuthConfiguration()).getSiteTokenStrategyOptions(), function (
+        jwtPayload,
+        done
+    ) {
+        done(null, jwtPayload)
     })
 )
 
 const userAuthHandler = (req, res, next) => {
-    passport.authenticate("custom", (error, user, info) => {
-        // not authenticated, redirect
-        // if (error) {
-        //     res.writeHead(301, { Location: "/auth/redirect" })
-        //     res.end()
-        // } else {
-        //     next()
-        // }
+    passport.authenticate("jwt", (error, user, info) => {
+        //not authenticated, redirect
+        if (error || info instanceof Error) {
+            res.writeHead(301, { Location: "/auth/redirect" })
+            res.end()
+        } else {
+            req.user = user
+            next()
+        }
 
-        next()
+        //next()
     })(req, res, next)
 }
 
@@ -53,21 +52,31 @@ const ApiGateway = {
             },
             {
                 path: "/api",
-                use: [passport.initialize(), userAuthHandler],
+                use: [cookieParser(), passport.initialize(), userAuthHandler],
                 bodyParsers: {
                     json: true,
                 },
                 aliases: {
                     "GET /initialise": "consentservice.initialise",
                     "GET /initialise/terms": "consentservice.getTerms",
-                    "POST /initialise/terms/accept": "consentservice.acceptTerms",
+                    "GET /initialise/terms/check": "consentservice.getTerms",
+                    "POST /initialise/terms/accept": "consentservice.check",
                 },
             },
             {
-                path: "/",
-                use: [passport.initialize(), userAuthHandler],
+                path: "/api",
+                use: [cookieParser(), passport.initialize(), userAuthHandler],
                 async onBeforeCall(ctx, route, req, res) {
                     // Set request headers to context meta
+                    if (!req.user || !req.user.sub || !req.user.role) {
+                        throw Error("User has not been populated")
+                    }
+
+                    ctx.meta.user = {
+                        sub: req.user.sub,
+                        role: req.user.role,
+                    }
+
                     console.log("on-before")
 
                     const consented = await ctx.call("consentservice.patientConsented")
@@ -76,7 +85,7 @@ const ApiGateway = {
                 },
                 aliases: {
                     "GET /test": "fhirservice.test",
-                    "GET /demographics/:nhsNumber": "demographicsservice.demographics",
+                    "GET /demographics": "demographicsservice.demographics",
                 },
             },
         ],

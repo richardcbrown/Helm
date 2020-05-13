@@ -18,24 +18,31 @@
 const provisionClient = require("../clients/oidc.client")
 const getOidcConfiguration = require("../config/config.oidc")
 
+const SiteTokenProvider = require("../providers/siteauth.tokenprovider")
+const getSiteAuthConfiguration = require("../config/config.siteauth")
+
 /**
  * @this {Service}
  * @param {Context} ctx
- * @returns {Promise<void>}
+ * @returns {Promise<any>}
  * */
 async function getRedirectHandler(ctx) {
     const { logger } = this
 
     const client = await provisionClient(getOidcConfiguration())
 
-    ctx.meta.$statusCode = 301
-    ctx.meta.$location = client.getRedirectUrl()
+    // ctx.meta.$statusCode = 301
+    // ctx.meta.$location = client.getRedirectUrl()
+
+    return {
+        redirectURL: client.getRedirectUrl(),
+    }
 }
 
 /**
  * @this {Service}
  * @param {Context} ctx
- * @returns {Promise<string>}
+ * @returns {Promise<void>}
  * */
 async function callbackHandler(ctx) {
     const { logger } = this
@@ -44,7 +51,18 @@ async function callbackHandler(ctx) {
 
     const client = await provisionClient(getOidcConfiguration())
 
-    return await client.authorisationCallback({ code, state })
+    const tokenSet = await client.authorisationCallback({ code, state })
+
+    const tokenProvider = new SiteTokenProvider(getSiteAuthConfiguration())
+
+    const token = tokenProvider.generateSiteToken(tokenSet)
+
+    ctx.meta.$responseHeaders = {
+        "Set-Cookie": `JSESSIONID=${token}; Path=/;`,
+    }
+
+    ctx.meta.$location = "/"
+    ctx.meta.$statusCode = 302
 }
 
 /** @type {ServiceSchema} */

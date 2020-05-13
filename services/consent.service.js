@@ -94,6 +94,7 @@ const ConsentService = {
     name: "consentservice",
     actions: {
         patientConsented: patientConsentedHandler,
+        check: initialiseHandler,
         initialise: initialiseHandler,
         getTerms: getTermsHandler,
         acceptTerms: acceptTermsHandler,

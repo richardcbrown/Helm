@@ -202,13 +202,12 @@ class DemographicsProvider {
     }
 
     /**
-     *
+     * Gets demographics by patient NHS number
+     * @param {string | number} nhsNumber
      * @param {Context} ctx
      * @returns {Promise<Demographics>}
      */
-    async demographics(ctx) {
-        const { nhsNumber } = ctx.params
-
+    async demographics(nhsNumber, ctx) {
         /** @type {fhir.Bundle} */
         const patientBundle = await ctx.call("fhirservice.search", {
             resourceType: ResourceType.Patient,

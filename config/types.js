@@ -49,6 +49,15 @@
  */
 
 /**
+ * @typedef {Object} SiteAuthConfiguration
+ * @property {string} jwtSigningSecret
+ * @property {number} jwtExpiry
+ * @property {string} issuer
+ * @property {string} audience
+ * @property {"HS256" | "HS384" | "HS512" | "RS256" | undefined} jwtSigningAlgorithm
+ */
+
+/**
  * @typedef {Object} ConsentConfiguration
  * @property {Array<string>} policyNames
  * @property {Array<string>} policyFriendlyNames

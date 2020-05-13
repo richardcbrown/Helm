@@ -25,7 +25,7 @@ function getConfig() {
         tokenEndpointAuthMethod: "private_key_jwt",
         tokenEndpointAuthSigningAlg: "RS512",
         privateKeyFilePath: path.join(__dirname, "../keys/nhsLoginPrivateKey.pem"),
-        redirectUrl: "http://localhost:3000/token",
+        redirectUrl: "http://helm-local.com/auth/token",
     }
 }
 

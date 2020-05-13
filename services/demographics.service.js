@@ -10,12 +10,14 @@ const DemographicsProvider = require("../providers/demographics.provider")
 /**
  * @this {Service}
  * @param {Context} ctx
- * @returns {Promise<Demographics>}
+ * @returns {Promise<{ demographics: Demographics }>}
  * */
 async function getDemographicsHandler(ctx) {
+    const nhsNumber = ctx.meta.user.sub
+
     const demographicsProvider = new DemographicsProvider()
 
-    return demographicsProvider.demographics(ctx)
+    return { demographics: await demographicsProvider.demographics(nhsNumber, ctx) }
 }
 
 /** @type {ServiceSchema} */
@@ -23,10 +25,24 @@ const DemographicsService = {
     name: "demographicsservice",
     actions: {
         demographics: {
-            params: {
-                nhsNumber: { type: "string" },
-            },
+            role: "phrUser",
             handler: getDemographicsHandler,
+        },
+    },
+    hooks: {
+        before: {
+            "*": [
+                (ctx) => {
+                    if (!ctx.meta.user || !ctx.meta.user.role || !ctx.meta.user.sub) {
+                        throw Error("Forbidden")
+                    }
+                },
+                (ctx) => {
+                    if (ctx.meta.user.role !== ctx.action.role) {
+                        throw Error("User does not have the required role")
+                    }
+                },
+            ],
         },
     },
 }
