@@ -2,6 +2,41 @@
 /** @typedef {import("moleculer-web")} MoleculerWeb */
 /** @typedef {import("moleculer").ServiceSchema<Settings>} ServiceSchema */
 
+const { Provider } = require("oidc-provider")
+
+const configuration = {
+    clients: [
+        {
+            client_id: "foo",
+            client_secret: "bar",
+            redirect_uris: ["http://localhost:8080/token"],
+            grant_types: ["client_credentials", "authorization_code"],
+        },
+        {
+            client_id: "foo1",
+            client_secret: "bar1",
+            redirect_uris: ["http://localhost:8080/token"],
+            grant_types: ["client_credentials", "authorization_code"],
+        },
+    ],
+    features: {
+        clientCredentials: {
+            enabled: true,
+        },
+        introspection: {
+            enabled: true,
+        },
+        sessionManagement: {
+            enabled: true,
+        },
+    },
+    routes: {
+        authorization: "/tttt",
+    },
+}
+
+const oidc = new Provider("http://localhost:8080", configuration)
+
 const passport = require("passport")
 const ApiService = require("moleculer-web")
 
@@ -48,6 +83,10 @@ const ApiGateway = {
                     "GET /token": "oidcclientservice.callback",
                     "GET /logout": "oidcclientservice.logout",
                 },
+            },
+            {
+                path: "/",
+                use: [oidc.callback],
             },
             {
                 path: "/api",
