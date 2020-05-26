@@ -4,7 +4,7 @@
   "description": "Helm PHR",
   "main": "index.js",
   "scripts": {
-    "debug": "node --inspect=0.0.0.0:9229 node_modules/moleculer/bin/moleculer-runner -e services",
+    "debug": "node --inspect=0.0.0.0:9230 node_modules/moleculer/bin/moleculer-runner -e services",
     "dev": "moleculer-runner --repl --hot -e services"
   },
   "author": "",

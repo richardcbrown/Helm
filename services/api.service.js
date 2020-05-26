@@ -84,6 +84,12 @@ const ApiGateway = {
                     "GET /demographics": "demographicsservice.demographics",
                 },
             },
+            {
+                path: "/test",
+                aliases: {
+                    "GET /test/:resourceType/:resourceId": "internalfhirservice.read",
+                },
+            },
         ],
     },
 }

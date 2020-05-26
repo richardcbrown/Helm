@@ -1,7 +1,7 @@
 const moment = require("moment")
 
 /** @typedef {import("request-promise-native").RequestPromiseOptions} RequestPromiseOptions */
-/** @typedef {import("request-promise-native").Options} Options */
+/** @typedef {import("request-promise-native").Options} RequestOptions */
 /** @typedef {import("./types").Token} Token */
 /** @typedef {import("moleculer").LoggerInstance} Logger */
 
@@ -25,6 +25,7 @@ class FhirStoreTokenProvider {
     }
 
     /**
+     * @private
      * Get access token
      * @returns {Promise<string>}
      */
@@ -62,6 +63,17 @@ class FhirStoreTokenProvider {
         // check token expiry hasnt been hit
         // with small buffer in time to prevent expiry during request
         return !moment(moment.now()).isAfter(moment(this.expires).subtract(1, "minute"))
+    }
+
+    /**
+     * @public
+     * @param {RequestOptions} request
+     * @returns {Promise<void>}
+     */
+    async authorize(request) {
+        const token = await this.getAccessToken()
+
+        request.auth = { bearer: token }
     }
 }
 

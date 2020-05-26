@@ -9,18 +9,19 @@ const request = require("request-promise-native")
 class FhirStoreDataProvider {
     /** @param {Logger} logger */
     /** @param {FhirStoreConfig} configuration */
-    constructor(configuration, logger) {
+    /** @param {import("./types").RequestAuthProvider} authProvider */
+    constructor(configuration, logger, authProvider) {
         this.logger = logger
         this.configuration = configuration
+        this.authProvider = authProvider
     }
 
     /**
      * @param {string} resourceType
      * @param {string} resourceID
-     * @param {string} authorization
      * @returns {Promise<fhir.Resource>} response
      */
-    async read(resourceType, resourceID, authorization) {
+    async read(resourceType, resourceID) {
         try {
             const { configuration } = this
 
@@ -30,9 +31,11 @@ class FhirStoreDataProvider {
                 uri: `${configuration.host}/${resourceType}/${resourceID}`,
                 json: true,
                 simple: true,
-                auth: { bearer: authorization },
                 rejectUnauthorized: false,
             }
+
+            await this.authProvider.authorize(options)
+
             const result = await request(options)
 
             return result.body
@@ -46,10 +49,9 @@ class FhirStoreDataProvider {
     /**
      * @param {string} resourceType
      * @param {Object} query
-     * @param {string} authorization
      * @returns {Promise<fhir.Bundle>} response
      */
-    async search(resourceType, query, authorization) {
+    async search(resourceType, query) {
         try {
             const { configuration } = this
 
@@ -61,9 +63,10 @@ class FhirStoreDataProvider {
                 qs: query,
                 simple: true,
                 resolveWithFullResponse: true,
-                auth: { bearer: authorization, sendImmediately: true },
                 rejectUnauthorized: false,
             }
+
+            await this.authProvider.authorize(options)
 
             const result = await request(options)
 
@@ -77,10 +80,9 @@ class FhirStoreDataProvider {
     /**
      * @param {string} resourceType
      * @param {Object} resource
-     * @param {string} authorization
      * @returns {Promise<FullResponse>} response
      */
-    async create(resourceType, resource, authorization) {
+    async create(resourceType, resource) {
         try {
             const { configuration } = this
 
@@ -93,9 +95,11 @@ class FhirStoreDataProvider {
                 simple: false,
                 headers: { "Content-Type": "application/json; charset=utf-8;" },
                 resolveWithFullResponse: true,
-                auth: { bearer: authorization, sendImmediately: true },
                 rejectUnauthorized: false,
             }
+
+            await this.authProvider.authorize(options)
+
             const result = await request(options)
 
             return result
@@ -109,10 +113,9 @@ class FhirStoreDataProvider {
      * @param {string} resourceType
      * @param {string} resourceID
      * @param {Object} resource
-     * @param {string} authorization
      * @returns {Promise<FullResponse>} response
      */
-    async update(resourceType, resourceID, resource, authorization) {
+    async update(resourceType, resourceID, resource) {
         try {
             const { configuration } = this
 
@@ -125,9 +128,11 @@ class FhirStoreDataProvider {
                 simple: false,
                 headers: { "Content-Type": "application/json; charset=utf-8;" },
                 resolveWithFullResponse: true,
-                auth: { bearer: authorization, sendImmediately: true },
                 rejectUnauthorized: false,
             }
+
+            await this.authProvider.authorize(options)
+
             return await request(options)
         } catch (err) {
             this.logger.error(err)
@@ -138,10 +143,9 @@ class FhirStoreDataProvider {
     /**
      * @param {string} resourceType
      * @param {string} resourceID
-     * @param {string} authorization
      * @returns {Promise<FullResponse>} response
      */
-    async remove(resourceType, resourceID, authorization) {
+    async remove(resourceType, resourceID) {
         try {
             const { configuration } = this
 
@@ -151,9 +155,11 @@ class FhirStoreDataProvider {
                 uri: `${configuration.host}/${resourceType}/${resourceID}`,
                 simple: false,
                 resolveWithFullResponse: true,
-                auth: { bearer: authorization, sendImmediately: true },
                 rejectUnauthorized: false,
             }
+
+            await this.authProvider.authorize(options)
+
             return await request(options)
         } catch (err) {
             this.logger.error(err)

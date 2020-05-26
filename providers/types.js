@@ -4,4 +4,9 @@
  * @property {number} expires
  */
 
+/**
+ * @typedef {Object} RequestAuthProvider
+ * @property {(request) => Promise<void>} authorize
+ */
+
 module.exports = {}
