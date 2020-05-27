@@ -10,7 +10,7 @@ const JwtStrategy = require("passport-jwt").Strategy
 
 const SiteTokenProvider = require("../providers/siteauth.tokenprovider")
 const getSiteAuthConfiguration = require("../config/config.siteauth")
-const { populateContextWithUser } = require("../handlers/handler.helpers")
+const { populateContextWithUser, checkUserConsent } = require("../handlers/handler.helpers")
 
 passport.use(
     new JwtStrategy(new SiteTokenProvider(getSiteAuthConfiguration()).getSiteTokenStrategyOptions(), function (
@@ -70,24 +70,31 @@ const ApiGateway = {
                 use: [cookieParser(), passport.initialize(), userAuthHandler],
                 async onBeforeCall(ctx, route, req, res) {
                     populateContextWithUser(ctx, req)
-
-                    const consented = await ctx.call("consentservice.patientConsented")
-
-                    if (consented) {
-                        return
-                    }
-
-                    res.writeHead(200, { "Content-Type": "application/json" })
-                    res.end(JSON.stringify({ status: "sign_terms" }))
+                    checkUserConsent(ctx, res)
                 },
                 aliases: {
                     "GET /demographics": "demographicsservice.demographics",
                 },
             },
             {
-                path: "/test",
+                path: "/api/patient/fhir",
+                use: [cookieParser(), passport.initialize(), userAuthHandler],
+                async onBeforeCall(ctx, route, req, res) {
+                    populateContextWithUser(ctx, req)
+                    checkUserConsent(ctx, res)
+
+                    req.$params = {
+                        resource: req.$params.body,
+                        ...req.$params.query,
+                        ...req.$params.params,
+                    }
+                },
+                mergeParams: false,
+                bodyParsers: {
+                    json: true,
+                },
                 aliases: {
-                    "GET /test/:resourceType/:resourceId": "internalfhirservice.read",
+                    "POST /:resourceType": "patientfhirservice.create",
                 },
             },
         ],

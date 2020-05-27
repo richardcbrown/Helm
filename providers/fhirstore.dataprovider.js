@@ -90,10 +90,9 @@ class FhirStoreDataProvider {
             const options = {
                 method: "POST",
                 uri: `${configuration.host}/${resourceType}`,
-                json: true,
                 body: resource,
                 simple: false,
-                headers: { "Content-Type": "application/json; charset=utf-8;" },
+                json: true,
                 resolveWithFullResponse: true,
                 rejectUnauthorized: false,
             }

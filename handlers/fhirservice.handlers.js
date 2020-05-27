@@ -1,4 +1,4 @@
-/** @typedef {import("./types").Settings} Settings */
+/** @typedef {import("../services/types").Settings} Settings */
 /** @typedef {import("moleculer").ServiceSchema<Settings>} ServiceSchema */
 /** @typedef {import("moleculer").Service<ServiceSchema>} Service */
 /** @typedef {import("moleculer").Context<any, any>} Context */

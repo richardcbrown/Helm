@@ -3,7 +3,7 @@
 /** @typedef {import("moleculer").Service<ServiceSchema>} Service */
 /** @typedef {import("moleculer").Context<any, any>} Context */
 
-const { searchActionHandler, readActionHandler, createActionHandler } = require("./fhirservice.handlers")
+const { searchActionHandler, readActionHandler, createActionHandler } = require("../handlers/fhirservice.handlers")
 const getFhirStoreConfig = require("../config/config.fhirstore")
 const getFhirAuthConfig = require("../config/config.fhirauth")
 const TokenProvider = require("../providers/fhirstore.tokenprovider")
@@ -17,7 +17,9 @@ const FhirService = {
             params: {
                 resourceType: { type: "string" },
             },
-            handler: (ctx) => this.searchActionHandler(ctx),
+            handler(ctx) {
+                return this.searchActionHandler(ctx)
+            },
         },
         read: {
             params: {
@@ -29,10 +31,9 @@ const FhirService = {
             },
         },
         create: {
-            params: {
-                resource: { type: "object" },
+            handler(ctx) {
+                return this.createActionHandler(ctx)
             },
-            handler: (ctx) => this.createActionHandler(ctx),
         },
     },
     methods: {

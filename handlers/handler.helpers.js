@@ -31,4 +31,20 @@ function populateContextWithUser(ctx, req) {
     }
 }
 
-module.exports = { getUserSubFromContext, populateContextWithUser }
+/**
+ * Populates user information from request into context
+ * @param {Context} ctx
+ * @param {Response} res
+ */
+async function checkUserConsent(ctx, res) {
+    const consented = await ctx.call("consentservice.patientConsented")
+
+    if (consented) {
+        return
+    }
+
+    res.writeHead(200, { "Content-Type": "application/json" })
+    res.end(JSON.stringify({ status: "sign_terms" }))
+}
+
+module.exports = { getUserSubFromContext, populateContextWithUser, checkUserConsent }
