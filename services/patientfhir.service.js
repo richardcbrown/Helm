@@ -38,6 +38,7 @@ function matchIdentifier(sourceIdentifier, targetIdentifier) {
  * @typedef {Object} PatientResourceChecker
  * @property {(resource: fhir.Resource & ResourceWithSubject, identifier: fhir.Identifier) => boolean} isAccessibleResource
  * @property {(resource: fhir.Resource & ResourceWithSubject, identifier: fhir.Identifier) => fhir.Resource & ResourceWithSubject} setAsPatientResource
+ * @property {(params: any, identifier: fhir.Identifier) => any} applyIdentifierToSearch
  */
 
 /** @type {PatientResourceChecker} */
@@ -78,6 +79,12 @@ class PatientSubjectResourceChecker {
         }
 
         return resource
+    }
+
+    applyIdentifierToSearch(params, patientIdentifier) {
+        params.subject = `Patient/1234`
+
+        return params
     }
 }
 
@@ -120,13 +127,13 @@ class PatientFhirResourceChecker {
             return false
         }
 
-        const resourceChecker = this.getResourceChecker(resource)
+        const resourceChecker = this.getResourceChecker(resource.resourceType)
 
         return resourceChecker.isAccessibleResource(resource, patientIdentifier)
     }
 
     setAsPatientResource(resource, patientIdentifier) {
-        const checker = this.getResourceChecker(resource)
+        const checker = this.getResourceChecker(resource.resourceType)
 
         return checker.setAsPatientResource(resource, patientIdentifier)
     }
@@ -149,6 +156,16 @@ class PatientFhirResourceChecker {
         return bundle
     }
 
+    applyIdentifierToSearch(params, patientIdentifier) {
+        if (!params.resourceType) {
+            throw Error("No resourceType found in params")
+        }
+
+        const checker = this.getResourceChecker(params.resourceType)
+
+        return checker.applyIdentifierToSearch(params, patientIdentifier)
+    }
+
     checkResource(resource, patientIdentifier) {
         if (!this.isAccessibleResource(resource, patientIdentifier)) {
             return null
@@ -157,11 +174,11 @@ class PatientFhirResourceChecker {
         return resource
     }
 
-    getResourceChecker(resource) {
-        const checker = this.resourceCheckers[resource.resourceType]
+    getResourceChecker(resourceType) {
+        const checker = this.resourceCheckers[resourceType]
 
         if (!checker) {
-            throw Error(`No resource checker defined for resource ${resource.resourceType}`)
+            throw Error(`No resource checker defined for resource ${resourceType}`)
         }
 
         return checker
@@ -180,6 +197,19 @@ const patientResourceChecker = new PatientFhirResourceChecker(
     }
 )
 
+function buildSearchQuery(params) {
+    const { resourceType } = params
+
+    delete params.resourceType
+
+    return {
+        resourceType,
+        query: {
+            ...params,
+        },
+    }
+}
+
 /** @type {ServiceSchema} */
 const PatientFhirService = {
     name: "patientfhirservice",
@@ -192,8 +222,19 @@ const PatientFhirService = {
                 throw Error(`Attempt to access blocked resource`)
             }
 
+            let sanitisedQuery = null
+
+            if (ctx.params._queryId) {
+                /** @todo need to check query id */
+                sanitisedQuery = buildSearchQuery(ctx.params)
+            } else {
+                sanitisedQuery = buildSearchQuery(
+                    patientResourceChecker.applyIdentifierToSearch(ctx.params, identifier)
+                )
+            }
+
             /** @type {fhir.Bundle} */
-            const searchResult = await ctx.call("internalfhirservice.search", ...ctx.params)
+            const searchResult = await ctx.call("internalfhirservice.search", sanitisedQuery)
 
             return patientResourceChecker.checkBundle(searchResult, identifier)
         },
@@ -205,7 +246,7 @@ const PatientFhirService = {
             }
 
             /** @type {fhir.Resource} */
-            const searchResult = await ctx.call("internalfhirservice.read", ...ctx.params)
+            const searchResult = await ctx.call("internalfhirservice.read", ctx.params)
 
             return patientResourceChecker.checkResource(searchResult, identifier)
         },

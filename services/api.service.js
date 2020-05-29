@@ -25,8 +25,21 @@ const userAuthHandler = (req, res, next) => {
     passport.authenticate("jwt", (error, user, info) => {
         //not authenticated, redirect
         if (error || info instanceof Error) {
+            res.writeHead(403, { "Content-Type": "application/json" })
+            res.end(JSON.stringify({ error: "Login Expired" }))
+        } else {
+            req.user = user
+            next()
+        }
+    })(req, res, next)
+}
+
+const userAuthInitialiseHandler = (req, res, next) => {
+    passport.authenticate("jwt", (error, user, info) => {
+        //not authenticated, redirect
+        if (error || info instanceof Error) {
             res.writeHead(301, { Location: "/auth/redirect" })
-            res.end()
+            res.end(JSON.stringify({ error: "Login Expired" }))
         } else {
             req.user = user
             next()
@@ -51,7 +64,7 @@ const ApiGateway = {
             },
             {
                 path: "/api",
-                use: [cookieParser(), passport.initialize(), userAuthHandler],
+                use: [cookieParser(), passport.initialize(), userAuthInitialiseHandler],
                 async onBeforeCall(ctx, route, req, res) {
                     populateContextWithUser(ctx, req)
                 },
@@ -95,6 +108,8 @@ const ApiGateway = {
                 },
                 aliases: {
                     "POST /:resourceType": "patientfhirservice.create",
+                    "GET /:resourceType": "patientfhirservice.search",
+                    "GET /:resourceType/:resourceId": "patientfhirservice.read",
                 },
             },
         ],

@@ -32,6 +32,7 @@ class FhirStoreDataProvider {
                 json: true,
                 simple: true,
                 rejectUnauthorized: false,
+                resolveWithFullResponse: true,
             }
 
             await this.authProvider.authorize(options)
