@@ -45,7 +45,7 @@ const JwtStrategy = require("passport-jwt").Strategy
 
 const SiteTokenProvider = require("../providers/siteauth.tokenprovider")
 const getSiteAuthConfiguration = require("../config/config.siteauth")
-const { populateContextWithUser } = require("../handlers/handler.helpers")
+const { populateContextWithUser, checkUserConsent, PatientNotConsentedError } = require("../handlers/handler.helpers")
 
 passport.use(
     new JwtStrategy(new SiteTokenProvider(getSiteAuthConfiguration()).getSiteTokenStrategyOptions(), function (
@@ -60,8 +60,21 @@ const userAuthHandler = (req, res, next) => {
     passport.authenticate("jwt", (error, user, info) => {
         //not authenticated, redirect
         if (error || info instanceof Error) {
+            res.writeHead(403, { "Content-Type": "application/json" })
+            res.end(JSON.stringify({ error: "Login Expired" }))
+        } else {
+            req.user = user
+            next()
+        }
+    })(req, res, next)
+}
+
+const userAuthInitialiseHandler = (req, res, next) => {
+    passport.authenticate("jwt", (error, user, info) => {
+        //not authenticated, redirect
+        if (error || info instanceof Error) {
             res.writeHead(301, { Location: "/auth/redirect" })
-            res.end()
+            res.end(JSON.stringify({ error: "Login Expired" }))
         } else {
             req.user = user
             next()
@@ -89,8 +102,15 @@ const ApiGateway = {
                 use: [oidc.callback],
             },
             {
+                path: "/api/hscn",
+                use: [],
+                aliases: {
+                    "GET /:site/top3Things/:patientId": "externalservice.topThreeThings",
+                },
+            },
+            {
                 path: "/api",
-                use: [cookieParser(), passport.initialize(), userAuthHandler],
+                use: [cookieParser(), passport.initialize(), userAuthInitialiseHandler],
                 async onBeforeCall(ctx, route, req, res) {
                     populateContextWithUser(ctx, req)
                 },
@@ -109,21 +129,45 @@ const ApiGateway = {
                 use: [cookieParser(), passport.initialize(), userAuthHandler],
                 async onBeforeCall(ctx, route, req, res) {
                     populateContextWithUser(ctx, req)
-
-                    const consented = await ctx.call("consentservice.patientConsented")
-
-                    if (consented) {
-                        return
-                    }
-
-                    res.writeHead(200, { "Content-Type": "application/json" })
-                    res.end(JSON.stringify({ status: "sign_terms" }))
+                    await checkUserConsent(ctx, res)
                 },
                 aliases: {
                     "GET /demographics": "demographicsservice.demographics",
                 },
             },
+            {
+                path: "/api/patient/fhir",
+                use: [cookieParser(), passport.initialize(), userAuthHandler],
+                async onBeforeCall(ctx, route, req, res) {
+                    populateContextWithUser(ctx, req)
+                    await checkUserConsent(ctx, res)
+
+                    req.$params = {
+                        resource: req.$params.body,
+                        ...req.$params.query,
+                        ...req.$params.params,
+                    }
+                },
+                mergeParams: false,
+                bodyParsers: {
+                    json: true,
+                },
+                aliases: {
+                    "POST /:resourceType": "patientfhirservice.create",
+                    "GET /:resourceType": "patientfhirservice.search",
+                    "GET /:resourceType/:resourceId": "patientfhirservice.read",
+                },
+            },
         ],
+        onError(req, res, err) {
+            if (err instanceof PatientNotConsentedError) {
+                res.writeHead(200, { "Content-Type": "application/json" })
+                res.end(JSON.stringify({ status: "sign_terms" }))
+            } else {
+                res.writeHead(500, { "Content-Type": "application/json" })
+                res.end(JSON.stringify({ error: "Error" }))
+            }
+        },
     },
 }
 

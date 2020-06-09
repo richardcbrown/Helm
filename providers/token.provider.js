@@ -5,8 +5,8 @@ const moment = require("moment")
 /** @typedef {import("./types").Token} Token */
 /** @typedef {import("moleculer").LoggerInstance} Logger */
 
-/** FhirStoreTokenProvider */
-class FhirStoreTokenProvider {
+/** TokenProvider */
+class TokenProvider {
     /** @param {Logger} logger */
     /** @param {import("./fhirstore.authprovider")} authProvider */
     constructor(authProvider, logger) {
@@ -77,4 +77,4 @@ class FhirStoreTokenProvider {
     }
 }
 
-module.exports = FhirStoreTokenProvider
+module.exports = TokenProvider

@@ -19,4 +19,24 @@ function getFromBundle(bundle, resourceType) {
     return resources
 }
 
-module.exports = { getFromBundle }
+/**
+ *
+ * @param {fhir.Bundle} bundle
+ * @param {string} resourceType
+ * @returns {Array<fhir.BundleEntry>} matching bundle entries
+ */
+function getEntriesFromBundle(bundle, resourceType) {
+    const { entry } = bundle
+
+    if (!entry) {
+        return []
+    }
+
+    const entries = /** @type {fhir.BundleEntry[]} */ (entry.filter(
+        (e) => e.resource && e.resource.resourceType === resourceType
+    ))
+
+    return entries
+}
+
+module.exports = { getFromBundle, getEntriesFromBundle }
