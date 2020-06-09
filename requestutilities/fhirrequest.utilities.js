@@ -1,7 +1,7 @@
 /** @typedef {import("moleculer").Context<any, any>} Context */
 
 const { ResourceType } = require("../models/resourcetype.enum")
-const { getFromBundle } = require("../models/bundle.helpers")
+const { getFromBundle, getEntriesFromBundle } = require("../models/bundle.helpers")
 
 /**
  * get policies
@@ -46,6 +46,27 @@ const getPatientByNhsNumber = async (nhsNumber, ctx) => {
 }
 
 /**
+ * @param {number | string} nhsNumber
+ * @param {Context} ctx
+ * @returns {Promise<fhir.BundleEntry>} the patient bundle entry
+ */
+const getPatientEntryByNhsNumber = async (nhsNumber, ctx) => {
+    /** @type {fhir.Bundle} */
+    const patientsBundle = await ctx.call("fhirservice.search", {
+        resourceType: ResourceType.Patient,
+        query: { identifier: nhsNumber },
+    })
+
+    const entries = getEntriesFromBundle(patientsBundle, ResourceType.Patient)
+
+    if (!entries.length) {
+        throw Error("Patient bundle entry not found")
+    }
+
+    return entries[0]
+}
+
+/**
  * Request creation of fhir resource
  * @param {fhir.Resource} resource
  * @param {Context} ctx
@@ -55,4 +76,4 @@ const createResource = async (resource, ctx) => {
     await ctx.call("fhirservice.create", { resource })
 }
 
-module.exports = { getPolicies, getPatientByNhsNumber, createResource }
+module.exports = { getPolicies, getPatientByNhsNumber, createResource, getPatientEntryByNhsNumber }

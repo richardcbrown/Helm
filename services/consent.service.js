@@ -1,6 +1,5 @@
 /**
  * Consent Moleculer Service
- * @todo Proper handling of nhsNumber when posting consent
  */
 
 /** @typedef {import("./types").Settings} Settings */
@@ -8,11 +7,21 @@
 /** @typedef {import("moleculer").Service<ServiceSchema>} Service */
 /** @typedef {import("moleculer").Context<any, any>} Context */
 
+const path = require("path")
+const fs = require("fs")
+const pg = require("pg")
 const PatientConsentProvider = require("../providers/patientconsent.provider")
 const PatientConsentGenerator = require("../generators/patientconsent.generator")
+const { PendingConsentGenerator } = require("../generators/pendingconsent.generator")
 const getConsentConfig = require("../config/config.consent")
 const { phrUserCheckHooks } = require("../handlers/phruser.hooks")
 const { getUserSubFromContext } = require("../handlers/handler.helpers")
+const { CronJobManager } = require("../jobs/cronjobmanager")
+const { NotifyPatientConsentJob } = require("../jobs/notifypatientconsent.job")
+const AuthProvider = require("../providers/auth.provider")
+const TokenProvider = require("../providers/token.provider")
+const LcrPatientConsentGenerator = require("../generators/lcrpatientconsent.generator")
+const lcrConfig = require("../config/config.lcrconsent")
 
 /**
  * @this {Service}
@@ -66,9 +75,10 @@ async function getTermsHandler(ctx) {
  * @param {Context} ctx
  * @returns {Promise<any>}
  * */
-async function acceptTermsHandler(ctx) {
+async function acceptTermsHandler(ctx, databaseClient) {
     const patientConsentProvider = new PatientConsentProvider(ctx, getConsentConfig())
     const patientConsentGenerator = new PatientConsentGenerator(ctx, getConsentConfig())
+    const pendingConsentGenerator = new PendingConsentGenerator(ctx, databaseClient)
 
     /** @type {number | string} */
     const nhsNumber = getUserSubFromContext(ctx)
@@ -76,7 +86,8 @@ async function acceptTermsHandler(ctx) {
     /** @type {fhir.Resource[]} */
     const policies = [ctx.params["0"], ctx.params["1"]]
 
-    await patientConsentGenerator.generatePatientConsent(nhsNumber, policies)
+    //await patientConsentGenerator.generatePatientConsent(nhsNumber, policies)
+    await pendingConsentGenerator.generatePendingConsent(nhsNumber)
 
     const consent = await patientConsentProvider.patientHasConsented(nhsNumber)
 
@@ -113,13 +124,51 @@ const ConsentService = {
         },
         acceptTerms: {
             role: "phrUser",
-            handler: acceptTermsHandler,
+            handler(ctx) {
+                acceptTermsHandler(ctx, this.connectionPool)
+            },
         },
     },
     hooks: {
         before: {
             "*": phrUserCheckHooks,
         },
+    },
+    async created() {
+        const initFile = path.join(__dirname, "helmdatabase.init.sql")
+
+        const sql = fs.readFileSync(initFile, "utf-8")
+
+        this.connectionPool = new pg.Pool({ max: 10 })
+
+        await this.connectionPool.query(sql)
+    },
+    async started() {
+        try {
+            const { logger } = this
+
+            const authProvider = new AuthProvider(lcrConfig.getAuthConfig(), logger)
+
+            const tokenProvider = new TokenProvider(authProvider, logger)
+
+            const lcrGenerator = new LcrPatientConsentGenerator(lcrConfig.getConfig(), tokenProvider)
+
+            const notifyConsentJob = new NotifyPatientConsentJob(this.connectionPool, lcrGenerator)
+
+            this.jobManager = new CronJobManager([
+                {
+                    pattern: "30 * * * * *",
+                    process: notifyConsentJob.process,
+                },
+            ])
+
+            this.jobManager.process()
+        } catch (error) {
+            /** @todo logging */
+        }
+    },
+    async stopped() {
+        this.jobManager.stop()
     },
 }
 

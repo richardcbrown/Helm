@@ -10,7 +10,7 @@ const JwtStrategy = require("passport-jwt").Strategy
 
 const SiteTokenProvider = require("../providers/siteauth.tokenprovider")
 const getSiteAuthConfiguration = require("../config/config.siteauth")
-const { populateContextWithUser, checkUserConsent } = require("../handlers/handler.helpers")
+const { populateContextWithUser, checkUserConsent, PatientNotConsentedError } = require("../handlers/handler.helpers")
 
 passport.use(
     new JwtStrategy(new SiteTokenProvider(getSiteAuthConfiguration()).getSiteTokenStrategyOptions(), function (
@@ -83,7 +83,7 @@ const ApiGateway = {
                 use: [cookieParser(), passport.initialize(), userAuthHandler],
                 async onBeforeCall(ctx, route, req, res) {
                     populateContextWithUser(ctx, req)
-                    checkUserConsent(ctx, res)
+                    await checkUserConsent(ctx, res)
                 },
                 aliases: {
                     "GET /demographics": "demographicsservice.demographics",
@@ -94,7 +94,7 @@ const ApiGateway = {
                 use: [cookieParser(), passport.initialize(), userAuthHandler],
                 async onBeforeCall(ctx, route, req, res) {
                     populateContextWithUser(ctx, req)
-                    checkUserConsent(ctx, res)
+                    await checkUserConsent(ctx, res)
 
                     req.$params = {
                         resource: req.$params.body,
@@ -113,6 +113,15 @@ const ApiGateway = {
                 },
             },
         ],
+        onError(req, res, err) {
+            if (err instanceof PatientNotConsentedError) {
+                res.writeHead(200, { "Content-Type": "application/json" })
+                res.end(JSON.stringify({ status: "sign_terms" }))
+            } else {
+                res.writeHead(500, { "Content-Type": "application/json" })
+                res.end(JSON.stringify({ error: "Error" }))
+            }
+        },
     },
 }
 

@@ -31,6 +31,13 @@ function populateContextWithUser(ctx, req) {
     }
 }
 
+class PatientNotConsentedError extends Error {
+    constructor(message) {
+        super(message)
+        this.name = "PatientNotConsentedError"
+    }
+}
+
 /**
  * Populates user information from request into context
  * @param {Context} ctx
@@ -43,8 +50,7 @@ async function checkUserConsent(ctx, res) {
         return
     }
 
-    res.writeHead(200, { "Content-Type": "application/json" })
-    res.end(JSON.stringify({ status: "sign_terms" }))
+    throw new PatientNotConsentedError()
 }
 
-module.exports = { getUserSubFromContext, populateContextWithUser, checkUserConsent }
+module.exports = { getUserSubFromContext, populateContextWithUser, checkUserConsent, PatientNotConsentedError }

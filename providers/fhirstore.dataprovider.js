@@ -73,7 +73,7 @@ class FhirStoreDataProvider {
 
             return result.body
         } catch (err) {
-            console.log(err)
+            /** @todo logging */
             throw err
         }
     }
@@ -91,9 +91,9 @@ class FhirStoreDataProvider {
             const options = {
                 method: "POST",
                 uri: `${configuration.host}/${resourceType}`,
-                body: resource,
+                body: JSON.stringify(resource),
                 simple: false,
-                json: true,
+                headers: { "Content-Type": "application/json; charset=utf-8;" },
                 resolveWithFullResponse: true,
                 rejectUnauthorized: false,
             }
@@ -123,8 +123,7 @@ class FhirStoreDataProvider {
             const options = {
                 method: "PUT",
                 uri: `${configuration.host}/${resourceType}/${resourceID}`,
-                json: true,
-                body: resource,
+                body: JSON.stringify(resource),
                 simple: false,
                 headers: { "Content-Type": "application/json; charset=utf-8;" },
                 resolveWithFullResponse: true,
