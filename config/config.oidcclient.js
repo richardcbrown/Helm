@@ -5,16 +5,16 @@ const path = require("path")
 /** @returns {OidcClientConfiguration} */
 function getConfig() {
     return {
-        oidcProviderHost: "https://oidc.mock.signin.nhs.uk",
+        oidcProviderHost: process.env.OIDCCLIENT_ISSUER,
         urls: {
-            issuer: "https://oidc.mock.signin.nhs.uk",
+            issuer: process.env.OIDCCLIENT_ISSUER,
             authorizationEndpoint: "/client",
             tokenEndpoint: "/token",
             userInfoEndpoint: "/userinfo",
             jwksEndpoint: "/.well-known/jwks.json",
         },
-        clientId: "test",
-        clientSecret: "test",
+        clientId: process.env.CLIENTID,
+        clientSecret: process.env.CLIENTSECRET,
         scope: {
             login: "openid",
         },
@@ -24,8 +24,8 @@ function getConfig() {
         },
         tokenEndpointAuthMethod: "private_key_jwt",
         tokenEndpointAuthSigningAlg: "RS512",
-        privateKeyFilePath: path.join(__dirname, "../keys/nhsLoginPrivateKey.pem"),
-        redirectUrl: "http://helm-local.com/auth/token",
+        privateKeyFilePath: path.join(__dirname, process.env.OIDCCLIENT_PRIVATE_KEY_FILE),
+        redirectUrl: OIDC_CLIENT_REDIRECT_URI,
     }
 }
 

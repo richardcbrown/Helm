@@ -16,7 +16,7 @@
 /** @typedef {import("moleculer").Context<any, any>} Context */
 
 const provisionClient = require("../clients/oidc.client")
-const getOidcConfiguration = require("../config/config.oidc")
+const getOidcConfiguration = require("../config/config.oidcclient")
 
 const SiteTokenProvider = require("../providers/siteauth.tokenprovider")
 const getSiteAuthConfiguration = require("../config/config.siteauth")

@@ -2,50 +2,19 @@
 /** @typedef {import("moleculer-web")} MoleculerWeb */
 /** @typedef {import("moleculer").ServiceSchema<Settings>} ServiceSchema */
 
-const { Provider } = require("oidc-provider")
-
-const configuration = {
-    clients: [
-        {
-            client_id: "foo",
-            client_secret: "bar",
-            redirect_uris: ["http://localhost:8080/token"],
-            grant_types: ["client_credentials", "authorization_code"],
-        },
-        {
-            client_id: "foo1",
-            client_secret: "bar1",
-            redirect_uris: ["http://localhost:8080/token"],
-            grant_types: ["client_credentials", "authorization_code"],
-        },
-    ],
-    features: {
-        clientCredentials: {
-            enabled: true,
-        },
-        introspection: {
-            enabled: true,
-        },
-        sessionManagement: {
-            enabled: true,
-        },
-    },
-    routes: {
-        authorization: "/tttt",
-    },
-}
-
-const oidc = new Provider("http://localhost:8080", configuration)
-
+const OidcProvider = require("../providers/oidc.provider")
+const request = require("request-promise-native")
 const passport = require("passport")
 const ApiService = require("moleculer-web")
-
 const cookieParser = require("cookie-parser")
 const JwtStrategy = require("passport-jwt").Strategy
 
 const SiteTokenProvider = require("../providers/siteauth.tokenprovider")
 const getSiteAuthConfiguration = require("../config/config.siteauth")
 const { populateContextWithUser, checkUserConsent, PatientNotConsentedError } = require("../handlers/handler.helpers")
+const getDatabaseConfiguration = require("../config/config.database")
+const getOidcProviderConfiguration = require("../config/config.oidcprovider")
+const getSequelizeAdapter = require("../adapters/oidcsequelize.adapter")
 
 passport.use(
     new JwtStrategy(new SiteTokenProvider(getSiteAuthConfiguration()).getSiteTokenStrategyOptions(), function (
@@ -67,6 +36,60 @@ const userAuthHandler = (req, res, next) => {
             next()
         }
     })(req, res, next)
+}
+
+/** @typedef {import("request-promise-native").RequestPromiseOptions} RequestPromiseOptions */
+/** @typedef {import("request-promise-native").Options} Options */
+
+/**
+ *
+ * @param {import("../config/types").OidcProviderConfiguration} configuration
+ */
+const systemAuthHandler = (configuration) => async (req, res, next) => {
+    const unauthorised = (res) => {
+        res.writeHead(401)
+        res.end()
+    }
+
+    try {
+        const auth = req.headers.authorization
+
+        if (!auth) {
+            return unauthorised(res)
+        }
+
+        const token = auth.split(" ")[1]
+
+        /** @type {Options} */
+        /** @type {Options} */
+        let options = {
+            url: `${configuration.issuer}${configuration.verifyUrl}`,
+            method: "POST",
+            headers: {
+                authorization: `Basic ${Buffer.from(
+                    `${configuration.verifyClientId}:${configuration.verifyClientSecret}`
+                ).toString("base64")}`,
+            },
+            form: {
+                token,
+            },
+            simple: false,
+            json: true,
+            resolveWithFullResponse: true,
+        }
+
+        const response = await request(options)
+
+        const result = response.body
+
+        if (!result.active) {
+            unauthorised(res)
+        } else {
+            next()
+        }
+    } catch (error) {
+        next(error)
+    }
 }
 
 const userAuthInitialiseHandler = (req, res, next) => {
@@ -99,11 +122,16 @@ const ApiGateway = {
             },
             {
                 path: "/",
-                use: [oidc.callback],
+                use: [
+                    new OidcProvider(
+                        getOidcProviderConfiguration(),
+                        getSequelizeAdapter(getDatabaseConfiguration())
+                    ).getProvider(),
+                ],
             },
             {
                 path: "/api/hscn",
-                use: [],
+                use: [systemAuthHandler(getOidcProviderConfiguration())],
                 aliases: {
                     "GET /:site/top3Things/:patientId": "externalservice.topThreeThings",
                 },

@@ -13,6 +13,8 @@
         "./clients", 
         "./generators", 
         "./requestutilities",
-        "./handlers"
+        "./handlers",
+        "./adapters",
+        "./jobs"
     ]
 }

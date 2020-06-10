@@ -62,6 +62,25 @@
  */
 
 /**
+ * @typedef {Object} OidcProviderConfiguration
+ * @property {string} issuer
+ * @property {string} privateKeyFilePath
+ * @property {string} verifyUrl
+ * @property {string} verifyClientId
+ * @property {string} verifyClientSecret
+ */
+
+/**
+ * @typedef {Object} DatabaseConfiguration
+ * @property {string} host
+ * @property {string} username
+ * @property {string} password
+ * @property {number} port
+ * @property {string} database
+ * @property {string} schema
+ */
+
+/**
  * @typedef {Object} SiteAuthConfiguration
  * @property {string} jwtSigningSecret
  * @property {number} jwtExpiry
