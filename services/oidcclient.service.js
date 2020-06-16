@@ -21,6 +21,9 @@ const getOidcConfiguration = require("../config/config.oidcclient")
 const SiteTokenProvider = require("../providers/siteauth.tokenprovider")
 const getSiteAuthConfiguration = require("../config/config.siteauth")
 
+const { PatientCacheProvider, PendingPatientStatus } = require("../providers/patientcache.provider")
+const { JobType } = require("../jobs/jobproducer.provider")
+
 /**
  * Handle logout
  * At present NHS Login only, does not have
@@ -71,7 +74,22 @@ async function callbackHandler(ctx) {
 
     const tokenProvider = new SiteTokenProvider(getSiteAuthConfiguration())
 
-    const token = tokenProvider.generateSiteToken(tokenSet)
+    const { payload, token } = tokenProvider.generateSiteToken(tokenSet)
+
+    const cacher = ctx.broker.cacher
+
+    if (cacher) {
+        const cacheProvider = new PatientCacheProvider(cacher)
+
+        await cacheProvider.setPendingPatientStatus(payload.sub, PendingPatientStatus.Received)
+
+        const status = await cacheProvider.getPendingPatientStatus(payload.sub)
+
+        console.log(status)
+    }
+
+    // send token off to process patient information
+    ctx.call("jobservice.addjob", { jobType: JobType.PendingPatientJob, payload: { token: tokenSet.access_token } })
 
     ctx.meta.$responseHeaders = {
         "Set-Cookie": `JSESSIONID=${token}; Path=/;`,

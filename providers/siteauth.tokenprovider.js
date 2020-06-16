@@ -14,7 +14,7 @@ class SiteAuthTokenProvider {
      * Generates a site jwt with configured secret and expiry
      * @public
      * @param {TokenSet} tokenSet
-     * @returns {string} jwt
+     * @returns {{ payload: any, token: string }} jwt
      */
     generateSiteToken(tokenSet) {
         const { jwtSigningSecret, jwtExpiry, jwtSigningAlgorithm, issuer, audience } = this.configuration
@@ -39,7 +39,7 @@ class SiteAuthTokenProvider {
             sub: decodedId.nhs_number.split(" ").join(""),
         }
 
-        return jwt.encode(tokenPayload, jwtSigningSecret, jwtSigningAlgorithm)
+        return { payload: tokenPayload, token: jwt.encode(tokenPayload, jwtSigningSecret, jwtSigningAlgorithm) }
     }
 
     /**

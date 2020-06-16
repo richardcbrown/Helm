@@ -105,6 +105,10 @@ const userAuthInitialiseHandler = (req, res, next) => {
     })(req, res, next)
 }
 
+const fhirStoreVerify = (req, res, next) => {
+    const { access_token } = {}
+}
+
 const provider = new OidcProvider(getOidcProviderConfiguration(), getSequelizeAdapter(getDatabaseConfiguration()))
 
 /** @type {ServiceSchema} */

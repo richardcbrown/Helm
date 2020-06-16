@@ -96,4 +96,9 @@
  * @property {Array<string>} policyFriendlyNames
  */
 
+/**
+ * @typedef {Object} RedisConfiguration
+ * @property {number} port
+ */
+
 module.exports = {}

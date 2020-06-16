@@ -30,32 +30,36 @@ class LcrPatientConsentGenerator {
      * @param {fhir.Patient} patient
      */
     async generatePatientConsent(patientIdentifier, patient, fullUrl) {
-        const { resourceType, id, identifier, birthDate } = mapPatientResource(patientIdentifier, patient)
+        try {
+            const { resourceType, id, identifier, birthDate } = mapPatientResource(patientIdentifier, patient)
 
-        const options = {
-            url: this.configuration.host,
-            method: this.configuration.method,
-            body: {
-                fullUrl,
-                resource: {
-                    resourceType,
-                    id,
-                    identifier,
-                    birthDate,
-                    extension: [
-                        {
-                            url: "https://fhir.leedsth.nhs.uk/ValueSet/phr-consent-1",
-                            valueBoolean: true,
-                        },
-                    ],
+            const options = {
+                url: this.configuration.host,
+                method: this.configuration.method,
+                body: {
+                    fullUrl,
+                    resource: {
+                        resourceType,
+                        id,
+                        identifier,
+                        birthDate,
+                        extension: [
+                            {
+                                url: "https://fhir.leedsth.nhs.uk/ValueSet/phr-consent-1",
+                                valueBoolean: true,
+                            },
+                        ],
+                    },
                 },
-            },
-            json: true,
+                json: true,
+            }
+
+            await this.authProvider.authorize(options)
+
+            await request(options)
+        } catch (error) {
+            /** @todo logging */
         }
-
-        await this.authProvider.authorize(options)
-
-        await request(options)
     }
 }
 
