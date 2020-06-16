@@ -105,6 +105,8 @@ const userAuthInitialiseHandler = (req, res, next) => {
     })(req, res, next)
 }
 
+const provider = new OidcProvider(getOidcProviderConfiguration(), getSequelizeAdapter(getDatabaseConfiguration()))
+
 /** @type {ServiceSchema} */
 const ApiGateway = {
     name: "apiservice",
@@ -122,12 +124,11 @@ const ApiGateway = {
             },
             {
                 path: "/",
-                use: [
-                    new OidcProvider(
-                        getOidcProviderConfiguration(),
-                        getSequelizeAdapter(getDatabaseConfiguration())
-                    ).getProvider(),
-                ],
+                use: [provider.getProvider()],
+            },
+            {
+                path: "/verify",
+                use: [fhirStoreVerify],
             },
             {
                 path: "/api/hscn",

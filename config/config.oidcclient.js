@@ -13,8 +13,8 @@ function getConfig() {
             userInfoEndpoint: "/userinfo",
             jwksEndpoint: "/.well-known/jwks.json",
         },
-        clientId: process.env.CLIENTID,
-        clientSecret: process.env.CLIENTSECRET,
+        clientId: process.env.OIDCCLIENT_CLIENTID,
+        clientSecret: process.env.OIDCCLIENT_CLIENTSECRET,
         scope: {
             login: "openid",
         },
@@ -25,7 +25,7 @@ function getConfig() {
         tokenEndpointAuthMethod: "private_key_jwt",
         tokenEndpointAuthSigningAlg: "RS512",
         privateKeyFilePath: path.join(__dirname, process.env.OIDCCLIENT_PRIVATE_KEY_FILE),
-        redirectUrl: OIDC_CLIENT_REDIRECT_URI,
+        redirectUrl: process.env.OIDCCLIENT_REDIRECT_URI,
     }
 }
 

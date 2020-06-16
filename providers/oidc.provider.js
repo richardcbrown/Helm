@@ -18,16 +18,13 @@ class OidcProvider {
         this.configuration = configuration
         this.adapter = adapter
         this.keystore = new KeyStore()
-    }
-
-    getProvider() {
-        const { configuration, adapter } = this
 
         const key = fs.readFileSync(configuration.privateKeyFilePath)
         this.keystore.add(JWK.asKey(key))
 
-        const oidc = new Provider(configuration.issuer, {
+        this.oidc = new Provider(configuration.issuer, {
             adapter: adapter,
+            scopes: ["internal", "external"],
             features: {
                 registration: {
                     enabled: false,
@@ -37,16 +34,14 @@ class OidcProvider {
                 },
                 introspection: {
                     enabled: true,
-                    allowedPolicy: async (ctx, client, token) => {
-                        console.log("introspect")
+                    async allowedPolicy(ctx, client, token) {
+                        const introspectingClient = client.clientId
 
-                        if (
-                            client.introspectionEndpointAuthMethod === "none" &&
-                            token.clientId !== ctx.oidc.client.clientId
-                        ) {
-                            return false
-                        }
-                        return true
+                        return (
+                            client.introspectionEndpointAuthMethod === "none" ||
+                            !introspectingClient ||
+                            configuration.introspectionAllowedClients.includes(introspectingClient)
+                        )
                     },
                 },
                 devInteractions: {
@@ -55,8 +50,10 @@ class OidcProvider {
             },
             jwks: this.keystore.toJWKS(true),
         })
+    }
 
-        return oidc.callback
+    getProvider() {
+        return this.oidc.callback
     }
 }
 

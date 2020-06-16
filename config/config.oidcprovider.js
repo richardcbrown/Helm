@@ -10,6 +10,10 @@ function getConfig() {
         verifyUrl: process.env.OIDCPROVIDER_VERIFY_URL,
         verifyClientId: process.env.OIDCPROVIDER_VERIFY_CLIENTID,
         verifyClientSecret: process.env.OIDCPROVIDER_VERIFY_CLIENTSECRET,
+        introspectionAllowedClients:
+            (process.env.OIDCPROVIDER_INTROSPECTION_ALLOWED_CLIENTIDS &&
+                process.env.OIDCPROVIDER_INTROSPECTION_ALLOWED_CLIENTIDS.split(" ")) ||
+            [],
     }
 }
 

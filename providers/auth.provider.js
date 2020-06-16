@@ -41,6 +41,10 @@ class AuthProvider {
                 rejectUnauthorized: false,
             }
 
+            if (configuration.scope) {
+                options.form.scope = configuration.scope
+            }
+
             /** @todo proxy config */
             // if (this.hostConfig.proxy) {
             //     options.proxy = this.hostConfig.proxy

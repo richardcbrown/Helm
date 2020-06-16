@@ -83,10 +83,16 @@ async function acceptTermsHandler(ctx, databaseClient) {
     /** @type {number | string} */
     const nhsNumber = getUserSubFromContext(ctx)
 
+    const alreadyConsented = await patientConsentProvider.patientHasConsented(nhsNumber)
+
+    if (alreadyConsented) {
+        return { status: "login" }
+    }
+
     /** @type {fhir.Resource[]} */
     const policies = [ctx.params["0"], ctx.params["1"]]
 
-    //await patientConsentGenerator.generatePatientConsent(nhsNumber, policies)
+    await patientConsentGenerator.generatePatientConsent(nhsNumber, policies)
     await pendingConsentGenerator.generatePendingConsent(nhsNumber)
 
     const consent = await patientConsentProvider.patientHasConsented(nhsNumber)
@@ -125,7 +131,7 @@ const ConsentService = {
         acceptTerms: {
             role: "phrUser",
             handler(ctx) {
-                acceptTermsHandler(ctx, this.connectionPool)
+                return acceptTermsHandler(ctx, this.connectionPool)
             },
         },
     },

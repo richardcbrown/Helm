@@ -68,6 +68,7 @@
  * @property {string} verifyUrl
  * @property {string} verifyClientId
  * @property {string} verifyClientSecret
+ * @property {Array<string>} introspectionAllowedClients
  */
 
 /**
