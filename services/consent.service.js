@@ -22,6 +22,9 @@ const AuthProvider = require("../providers/auth.provider")
 const TokenProvider = require("../providers/token.provider")
 const LcrPatientConsentGenerator = require("../generators/lcrpatientconsent.generator")
 const lcrConfig = require("../config/config.lcrconsent")
+const RedisDataProvider = require("../providers/redis.dataprovider")
+const getRedisConfig = require("../config/config.redis")
+const { PatientCacheProvider, PendingPatientStatus } = require("../providers/patientcache.provider")
 
 /**
  * @this {Service}
@@ -43,6 +46,16 @@ async function patientConsentedHandler(ctx) {
  * @returns {Promise<any>}
  * */
 async function initialiseHandler(ctx) {
+    const cacher = new RedisDataProvider(getRedisConfig())
+
+    const cacheProvider = new PatientCacheProvider(cacher)
+
+    const patientStatus = await cacheProvider.getPendingPatientStatus(ctx.meta.user.sub)
+
+    if (patientStatus !== PendingPatientStatus.Found) {
+        return { status: patientStatus }
+    }
+
     const patientConsentProvider = new PatientConsentProvider(ctx, getConsentConfig())
 
     /** @type {number | string} */

@@ -45,18 +45,16 @@ const JobService = {
 
             const { nhsNumber, token } = ctx.params
 
-            if (cacher) {
-                const cacheProvider = new PatientCacheProvider(cacher)
+            const cacheProvider = new PatientCacheProvider(cacher)
 
-                const status = await cacheProvider.getPendingPatientStatus(nhsNumber)
+            const status = await cacheProvider.getPendingPatientStatus(nhsNumber)
 
-                await cacheProvider.setPendingPatientStatus(nhsNumber, PendingPatientStatus.Received)
-                // send token off to process patient information
-                ctx.call("jobservice.addjob", {
-                    jobType: JobType.RegisterPatientJob,
-                    payload: { token, nhsNumber },
-                })
-            }
+            await cacheProvider.setPendingPatientStatus(nhsNumber, PendingPatientStatus.Received)
+            // send token off to process patient information
+            ctx.call("jobservice.addjob", {
+                jobType: JobType.RegisterPatientJob,
+                payload: { token, nhsNumber },
+            })
         },
     },
     async started() {

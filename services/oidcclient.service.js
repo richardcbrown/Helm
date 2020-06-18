@@ -79,7 +79,7 @@ async function callbackHandler(ctx) {
         "Set-Cookie": `JSESSIONID=${token}; Path=/;`,
     }
 
-    ctx.meta.$location = "/"
+    ctx.meta.$location = "/#/login"
     ctx.meta.$statusCode = 302
 }
 

@@ -15,7 +15,19 @@ const { matchCoding } = require("../models/coding.helpers")
  * @param {fhir.Patient} patient
  */
 function isResolved(patient) {
-    const { extension } = patient
+    const { identifier } = patient
+
+    if (!identifier) {
+        return false
+    }
+
+    const nhsNumberIdentifier = identifier.find((id) => id.system === "https://fhir.nhs.uk/Id/nhs-number")
+
+    if (!nhsNumberIdentifier) {
+        return false
+    }
+
+    const { extension } = nhsNumberIdentifier
 
     if (!extension) {
         return false
@@ -76,6 +88,8 @@ class LookupPatientConsumer {
                 throw Error(`Message payload is missing patient reference`)
             }
 
+            this.patientCache.setPendingPatientStatus(payload.nhsNumber, PendingPatientStatus.Searching)
+
             const referenceComps = payload.reference.split("/")
 
             const [resourceType, resourceId] = referenceComps.slice(Math.max(referenceComps.length - 2, 0))
@@ -95,6 +109,8 @@ class LookupPatientConsumer {
                 }
             }
         } catch (error) {
+            this.logger.error(error.message, error.stack)
+
             return {
                 success: false,
                 message: error.message,
@@ -188,7 +204,7 @@ class RegisterPatientConsumer {
                 }
             }
 
-            const patientDetails = await request("http://localhost:9999/userinfo", {
+            const patientDetails = await request(`http://localhost:9999/userinfo?nhsNumber=${payload.nhsNumber}`, {
                 auth: {
                     bearer: payload.token,
                 },
@@ -258,6 +274,8 @@ class RegisterPatientConsumer {
                 success: true,
             }
         } catch (error) {
+            this.logger.error(error.message, error.stack)
+
             return {
                 success: false,
                 message: error.message,
@@ -268,10 +286,11 @@ class RegisterPatientConsumer {
 }
 
 class RabbitJobConsumer {
-    constructor(configuration, jobType, consumer) {
+    constructor(configuration, jobType, consumer, logger) {
         this.configuration = configuration
         this.consumer = consumer
         this.jobType = jobType
+        this.logger = logger
     }
 
     async consumeJob() {
@@ -301,7 +320,7 @@ class RabbitJobConsumer {
 
                     count += 1
 
-                    if (count <= 3) {
+                    if (count <= 20) {
                         const channel = await this.getDelayExchange(this.jobType)
 
                         channel.publish(this.jobType, this.jobType, message.content, {
@@ -321,6 +340,7 @@ class RabbitJobConsumer {
         } catch (error) {
             queue.reject(message, false)
             this.consumer.error(message)
+            this.logger.error(error.message, error.stack)
         }
     }
 
@@ -381,7 +401,7 @@ class JobConsumerProvider {
                     this.logger
                 )
 
-                return new RabbitJobConsumer(this.configuration.rabbit, jobType, registerPatientConsumer)
+                return new RabbitJobConsumer(this.configuration.rabbit, jobType, registerPatientConsumer, this.logger)
             }
             case JobType.LookupPatientJob: {
                 const lookupPatientConsumer = new LookupPatientConsumer(
@@ -391,7 +411,7 @@ class JobConsumerProvider {
                     this.fhirDataProvider
                 )
 
-                return new RabbitJobConsumer(this.configuration.rabbit, jobType, lookupPatientConsumer)
+                return new RabbitJobConsumer(this.configuration.rabbit, jobType, lookupPatientConsumer, this.logger)
             }
             default: {
                 throw Error(`Job type ${jobType} does not exist`)

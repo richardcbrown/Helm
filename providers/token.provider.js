@@ -33,7 +33,7 @@ class TokenProvider {
         try {
             if (!this.token || this.hasExpired()) {
                 this.token = await this.getToken()
-                this.expires = moment(moment.now()).add(this.token.expires, "s").toDate()
+                this.expires = moment(moment.now()).add(this.token.expires_in, "s").toDate()
             }
 
             return this.token.access_token
@@ -62,7 +62,10 @@ class TokenProvider {
         }
         // check token expiry hasnt been hit
         // with small buffer in time to prevent expiry during request
-        return !moment(moment.now()).isAfter(moment(this.expires).subtract(1, "minute"))
+        const now = moment(moment.now())
+        const expires = moment(this.expires).subtract(1, "minute")
+
+        return now.isAfter(expires)
     }
 
     /**
