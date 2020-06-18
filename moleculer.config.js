@@ -5,10 +5,7 @@ module.exports = {
     cacher: {
         type: "Redis",
         options: {
-            // Prefix for keys
             prefix: "MOL",
-            // set Time-to-live to 30sec.
-            ttl: 30,
             // Turns Redis client monitoring on.
             monitor: false,
             // Redis settings

@@ -22,6 +22,14 @@
  * @property {string} clientId
  * @property {string} clientSecret
  * @property {string} grantType
+ * @property {string} scope
+ * @property {string} ods
+ * @property {string} rsn
+ * @property {string} rol
+ * @property {string} aud
+ * @property {string} sub
+ * @property {string} iss
+ * @property {string} azp
  */
 
 /**

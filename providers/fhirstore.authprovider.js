@@ -5,6 +5,7 @@
 /** @typedef {import("request-promise-native").Options} Options */
 
 const request = require("request-promise-native")
+const uuid = require("uuid")
 
 class AuthProvider {
     /** @param {Logger} logger */
@@ -31,6 +32,7 @@ class AuthProvider {
                 method: "POST",
                 form: {
                     grant_type: configuration.grantType,
+                    assertion: this.getAssertion(),
                 },
                 headers: {
                     authorization: `Basic ${Buffer.from(
@@ -52,6 +54,33 @@ class AuthProvider {
 
             throw error
         }
+    }
+
+    /**
+     * @private
+     * @returns {string}
+     */
+    getAssertion() {
+        const { scope, ods, aud, rol, rsn, sub, iss, azp } = this.configuration
+
+        const iat = new Date().getTime() / 1000
+        const exp = iat + 3600
+
+        const jwtAssertion = {
+            iss,
+            scope,
+            aud,
+            ods,
+            usr: { rol, org: ods },
+            sub,
+            rsn,
+            exp,
+            iat,
+            azp,
+            jti: uuid.v4(),
+        }
+
+        return JSON.stringify(jwtAssertion)
     }
 }
 

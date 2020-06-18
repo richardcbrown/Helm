@@ -191,6 +191,12 @@ const ApiGateway = {
                     "GET /:resourceType/:resourceId": "patientfhirservice.read",
                 },
             },
+            {
+                path: "/test",
+                aliases: {
+                    "GET jobs/:nhsNumber/:token": "jobservice.patientlogin",
+                },
+            },
         ],
         onError(req, res, err) {
             if (err instanceof PatientNotConsentedError) {

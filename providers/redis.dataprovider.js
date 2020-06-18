@@ -21,7 +21,7 @@ class RedisDataProvider {
                 if (error) {
                     reject(error)
                 } else {
-                    resolve(result)
+                    resolve(JSON.parse(result))
                 }
             })
         })

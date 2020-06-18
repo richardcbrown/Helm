@@ -1,7 +1,8 @@
 const amqplib = require("amqplib")
 
 const JobType = {
-    PendingPatientJob: "pending_patient_job",
+    RegisterPatientJob: "register_patient_job",
+    LookupPatientJob: "lookup_patient_job",
 }
 
 class RabbitJobProducer {
@@ -33,7 +34,8 @@ class JobProducerProvider {
 
     getJobProducer(jobType) {
         switch (jobType) {
-            case JobType.PendingPatientJob: {
+            case JobType.RegisterPatientJob:
+            case JobType.LookupPatientJob: {
                 return new RabbitJobProducer(this.configuration.rabbit)
             }
             default: {

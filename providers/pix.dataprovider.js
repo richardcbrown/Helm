@@ -31,7 +31,7 @@ class PixDataProvider {
                 uri: `${configuration.host}/${resourceType}`,
                 body: JSON.stringify(resource),
                 simple: false,
-                headers: { "Content-Type": "application/json; charset=utf-8;" },
+                headers: { "Content-Type": "application/json" },
                 resolveWithFullResponse: true,
                 rejectUnauthorized: false,
             }

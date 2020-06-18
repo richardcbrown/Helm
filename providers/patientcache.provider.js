@@ -1,6 +1,8 @@
 /**
  * @typedef {Object} PatientCacheKeysEnum
  * @property {"pending_patient_status"} PendingPatientStatus
+ * @property {"patient_linkage"} PatientLinkage
+ * @property {"patient_reference"} PatientReference
  */
 
 /**
@@ -15,6 +17,8 @@
 /** @type {PatientCacheKeysEnum} */
 const PatientCacheKeys = {
     PendingPatientStatus: "pending_patient_status",
+    PatientLinkage: "patient_linkage",
+    PatientReference: "patient_reference",
 }
 
 /** @type {PendingPatientStatusEnum} */
@@ -50,15 +54,29 @@ class PatientCacheProvider {
      * @returns {Promise<"searching" | "found" | "notfound" | "received" | "registered" | null>}
      */
     async getPendingPatientStatus(nhsNumber) {
-        const result = await this.cacher.get(this.createCacheKey(nhsNumber, PatientCacheKeys.PendingPatientStatus))
+        return await this.cacher.get(this.createCacheKey(nhsNumber, PatientCacheKeys.PendingPatientStatus))
+    }
 
-        return result
+    async getPatientLinkage(nhsNumber) {
+        return await this.cacher.get(this.createCacheKey(nhsNumber, PatientCacheKeys.PatientLinkage))
+    }
+
+    async getPatientReference(nhsNumber) {
+        return await this.cacher.get(this.createCacheKey(nhsNumber, PatientCacheKeys.PatientReference))
+    }
+
+    setPatientLinkage(nhsNumber, linkage) {
+        return this.cacher.set(this.createCacheKey(nhsNumber, PatientCacheKeys.PatientLinkage), linkage)
+    }
+
+    setPatientReference(nhsNumber, reference) {
+        return this.cacher.set(this.createCacheKey(nhsNumber, PatientCacheKeys.PatientReference), reference)
     }
 
     /**
      * @private
      * @param {string} nhsNumber
-     * @param {"pending_patient_status"} cacheItem
+     * @param {"pending_patient_status" | "patient_linkage" | "patient_reference"} cacheItem
      * @returns {string}
      */
     createCacheKey(nhsNumber, cacheItem) {
