@@ -6,15 +6,21 @@
 
 const request = require("request-promise-native")
 const uuid = require("uuid")
+const https = require("https")
+const path = require("path")
+const fs = require("fs")
+const jwt = require("jsonwebtoken")
 
 class AuthProvider {
     /** @param {Logger} logger */
     /** @param {FhirAuthConfig} configuration */
-    constructor(configuration, logger) {
+    constructor(configuration, logger, rsn) {
         /** @private */
         this.configuration = configuration
         /** @private */
         this.logger = logger
+
+        this.rsn = rsn
     }
 
     /**
@@ -22,7 +28,7 @@ class AuthProvider {
      *
      * @return {Promise.<Token>}
      */
-    async authenticate() {
+    async authenticate(nhsNumber) {
         try {
             const { configuration } = this
 
@@ -32,7 +38,7 @@ class AuthProvider {
                 method: "POST",
                 form: {
                     grant_type: configuration.grantType,
-                    assertion: this.getAssertion(),
+                    assertion: this.getAssertion(nhsNumber),
                 },
                 headers: {
                     authorization: `Basic ${Buffer.from(
@@ -40,13 +46,25 @@ class AuthProvider {
                     ).toString("base64")}`,
                 },
                 json: true,
-                rejectUnauthorized: false,
             }
 
-            /** @todo proxy config */
-            // if (this.hostConfig.proxy) {
-            //     options.proxy = this.hostConfig.proxy
-            // }
+            if (configuration.env !== "local") {
+                options.agent = new https.Agent({
+                    host: configuration.agentHost,
+                    port: configuration.agentPort,
+                    passphrase: configuration.passphrase,
+                    rejectUnauthorized: true,
+                    cert: fs.readFileSync(path.join(__dirname, "../", configuration.certFile)),
+                    key: fs.readFileSync(path.join(__dirname, "../", configuration.keyFile)),
+                    ca: fs.readFileSync(path.join(__dirname, "../", configuration.caFile)),
+                })
+            } else {
+                options.rejectUnauthorized = false
+            }
+
+            if (configuration.proxy) {
+                options.proxy = configuration.proxy
+            }
 
             return await request(options)
         } catch (error) {
@@ -60,8 +78,10 @@ class AuthProvider {
      * @private
      * @returns {string}
      */
-    getAssertion() {
-        const { scope, ods, aud, rol, rsn, sub, iss, azp } = this.configuration
+    getAssertion(nhsNumber) {
+        const { scope, ods, aud, rol, sub, iss, azp, env } = this.configuration
+
+        const { rsn } = this
 
         const iat = new Date().getTime() / 1000
         const exp = iat + 3600
@@ -80,7 +100,30 @@ class AuthProvider {
             jti: uuid.v4(),
         }
 
-        return JSON.stringify(jwtAssertion)
+        if (rsn === 2 && !nhsNumber) {
+            throw Error("patient id required for rsn: 2")
+        }
+
+        if (nhsNumber && rsn !== 5) {
+            jwtAssertion.pat = { nhs: nhsNumber }
+        }
+
+        if (env === "local") {
+            return JSON.stringify(jwtAssertion)
+        } else {
+            const signed = jwt.sign(
+                jwtAssertion,
+                {
+                    key: fs.readFileSync(path.join(__dirname, "../", this.configuration.keyFile)),
+                    passphrase: this.configuration.passphrase,
+                },
+                {
+                    algorithm: "RS256",
+                }
+            )
+
+            return signed
+        }
     }
 }
 

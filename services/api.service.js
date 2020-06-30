@@ -11,7 +11,12 @@ const JwtStrategy = require("passport-jwt").Strategy
 
 const SiteTokenProvider = require("../providers/siteauth.tokenprovider")
 const getSiteAuthConfiguration = require("../config/config.siteauth")
-const { populateContextWithUser, checkUserConsent, PatientNotConsentedError } = require("../handlers/handler.helpers")
+const {
+    populateContextWithUser,
+    checkUserConsent,
+    PatientNotConsentedError,
+    populateContextWithUserReference,
+} = require("../handlers/handler.helpers")
 const getDatabaseConfiguration = require("../config/config.database")
 const getOidcProviderConfiguration = require("../config/config.oidcprovider")
 const getSequelizeAdapter = require("../adapters/oidcsequelize.adapter")
@@ -162,7 +167,8 @@ const ApiGateway = {
                 use: [cookieParser(), passport.initialize(), userAuthHandler],
                 async onBeforeCall(ctx, route, req, res) {
                     populateContextWithUser(ctx, req)
-                    await checkUserConsent(ctx, res)
+                    await checkUserConsent(ctx)
+                    await populateContextWithUserReference(ctx, req)
                 },
                 aliases: {
                     "GET /demographics": "demographicsservice.demographics",
@@ -173,7 +179,8 @@ const ApiGateway = {
                 use: [cookieParser(), passport.initialize(), userAuthHandler],
                 async onBeforeCall(ctx, route, req, res) {
                     populateContextWithUser(ctx, req)
-                    await checkUserConsent(ctx, res)
+                    await checkUserConsent(ctx)
+                    await populateContextWithUserReference(ctx, req)
 
                     req.$params = {
                         resource: req.$params.body,

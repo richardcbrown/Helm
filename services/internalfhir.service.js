@@ -10,6 +10,7 @@ const { searchActionHandler, readActionHandler, createActionHandler } = require(
 const getFhirStoreConfig = require("../config/config.internalfhirstore")
 const EmptyAuthProvider = require("../providers/fhirstore.emptyauthprovider")
 const AuthProvider = require("../providers/auth.provider")
+const InternalFhirDataProvider = require("../providers/internalfhirstore.dataprovider")
 
 /** @type {ServiceSchema} */
 const InternalFhirService = {
@@ -17,8 +18,6 @@ const InternalFhirService = {
     mixins: [fhirservice],
     methods: {
         async searchActionHandler(ctx) {
-            //const authProvider = new EmptyAuthProvider()
-
             const authProvider = new AuthProvider(
                 {
                     clientId: "helm",
@@ -31,11 +30,11 @@ const InternalFhirService = {
             )
             const tokenProvider = new TokenProvider(authProvider, this.logger)
 
-            return await searchActionHandler.call(this, ctx, getFhirStoreConfig, tokenProvider)
+            const fhirStore = new InternalFhirDataProvider(getFhirStoreConfig(), this.logger, tokenProvider)
+
+            return await searchActionHandler.call(this, ctx, fhirStore)
         },
         async readActionHandler(ctx) {
-            //const authProvider = new EmptyAuthProvider()
-
             const authProvider = new AuthProvider(
                 {
                     clientId: "helm",
@@ -49,11 +48,11 @@ const InternalFhirService = {
 
             const tokenProvider = new TokenProvider(authProvider, this.logger)
 
-            return await readActionHandler.call(this, ctx, getFhirStoreConfig, tokenProvider)
+            const fhirStore = new InternalFhirDataProvider(getFhirStoreConfig(), this.logger, tokenProvider)
+
+            return await readActionHandler.call(this, ctx, fhirStore)
         },
         async createActionHandler(ctx) {
-            //const authProvider = new EmptyAuthProvider()
-
             const authProvider = new AuthProvider(
                 {
                     clientId: "helm",
@@ -67,7 +66,9 @@ const InternalFhirService = {
 
             const tokenProvider = new TokenProvider(authProvider, this.logger)
 
-            return await createActionHandler.call(this, ctx, getFhirStoreConfig, tokenProvider)
+            const fhirStore = new InternalFhirDataProvider(getFhirStoreConfig(), this.logger, tokenProvider)
+
+            return await createActionHandler.call(this, ctx, fhirStore)
         },
     },
 }

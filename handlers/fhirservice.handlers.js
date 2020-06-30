@@ -8,18 +8,16 @@ const FhirStoreDataProvider = require("../providers/fhirstore.dataprovider")
 /**
  * @this {Service}
  * @param {Context} ctx
- * @param {() => import("../config/types").FhirStoreConfig} getFhirStoreConfig
- * @param {import("../providers/types").RequestAuthProvider} authProvider
  * @returns {Promise<fhir.Bundle>}
  * */
-async function searchActionHandler(ctx, getFhirStoreConfig, authProvider) {
+async function searchActionHandler(ctx, fhirStore) {
     const { logger } = this
 
-    const fhirStore = new FhirStoreDataProvider(getFhirStoreConfig(), logger, authProvider)
+    const { sub } = ctx.meta.user
 
     const { resourceType, query } = ctx.params
 
-    const result = await fhirStore.search(resourceType, query)
+    const result = await fhirStore.search(resourceType, query, sub)
 
     return result
 }
@@ -27,18 +25,16 @@ async function searchActionHandler(ctx, getFhirStoreConfig, authProvider) {
 /**
  * @this {Service}
  * @param {Context} ctx
- * @param {() => import("../config/types").FhirStoreConfig} getFhirStoreConfig
- * @param {import("../providers/types").RequestAuthProvider} authProvider
  * @returns {Promise<fhir.Resource>}
  * */
-async function readActionHandler(ctx, getFhirStoreConfig, authProvider) {
+async function readActionHandler(ctx, fhirStore) {
     const { logger } = this
 
-    const fhirStore = new FhirStoreDataProvider(getFhirStoreConfig(), logger, authProvider)
+    const { sub } = ctx.meta.user
 
     const { resourceType, resourceId } = ctx.params
 
-    const result = await fhirStore.read(resourceType, resourceId)
+    const result = await fhirStore.read(resourceType, resourceId, sub)
 
     return result
 }
@@ -46,14 +42,10 @@ async function readActionHandler(ctx, getFhirStoreConfig, authProvider) {
 /**
  * @this {Service}
  * @param {Context} ctx
- * @param {() => import("../config/types").FhirStoreConfig} getFhirStoreConfig
- * @param {import("../providers/types").RequestAuthProvider} authProvider
  * @returns {Promise<void>}
  * */
-async function createActionHandler(ctx, getFhirStoreConfig, authProvider) {
+async function createActionHandler(ctx, fhirStore) {
     const { logger } = this
-
-    const fhirStore = new FhirStoreDataProvider(getFhirStoreConfig(), logger, authProvider)
 
     /** @type {fhir.Resource} */
     const resource = ctx.params.resource
@@ -64,7 +56,9 @@ async function createActionHandler(ctx, getFhirStoreConfig, authProvider) {
         throw Error("Resource type missing from resource")
     }
 
-    await fhirStore.create(resourceType, resource)
+    const { sub } = ctx.meta.user
+
+    await fhirStore.create(resourceType, resource, sub)
 }
 
 module.exports = {

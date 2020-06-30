@@ -36,9 +36,9 @@ function matchIdentifier(sourceIdentifier, targetIdentifier) {
 
 /**
  * @typedef {Object} PatientResourceChecker
- * @property {(resource: fhir.Resource & ResourceWithSubject, identifier: fhir.Identifier) => boolean} isAccessibleResource
- * @property {(resource: fhir.Resource & ResourceWithSubject, identifier: fhir.Identifier) => fhir.Resource & ResourceWithSubject} setAsPatientResource
- * @property {(params: any, identifier: fhir.Identifier) => any} applyIdentifierToSearch
+ * @property {(resource: fhir.Resource & ResourceWithSubject, reference: string, identifier: fhir.Identifier) => boolean} isAccessibleResource
+ * @property {(resource: fhir.Resource & ResourceWithSubject, reference: string, identifier: fhir.Identifier) => fhir.Resource & ResourceWithSubject} setAsPatientResource
+ * @property {(params: any, reference: string, identifier: fhir.Identifier) => any} applyIdentifierToSearch
  */
 
 /** @type {PatientResourceChecker} */
@@ -48,7 +48,7 @@ class PatientSubjectResourceChecker {
      * @param {fhir.Identifier} patientIdentifier
      * @returns {boolean}
      */
-    isAccessibleResource(resource, patientIdentifier) {
+    isAccessibleResource(resource, patientReference, patientIdentifier) {
         // resource has no subject
         if (!resource.subject) {
             throw Error(`Resource ${resource.resourceType} has no subject`)
@@ -59,8 +59,12 @@ class PatientSubjectResourceChecker {
         const { identifier, reference } = subject
 
         // check the identifier
-        if (identifier) {
-            return matchIdentifier(identifier, patientIdentifier)
+        if (identifier && !matchIdentifier(identifier, patientIdentifier)) {
+            return false
+        }
+
+        if (reference && reference === patientReference) {
+            return true
         }
 
         // return false
@@ -72,17 +76,17 @@ class PatientSubjectResourceChecker {
      * @param {fhir.Identifier} patientIdentifier
      * @returns {fhir.Resource & ResourceWithSubject}
      */
-    setAsPatientResource(resource, patientIdentifier) {
+    setAsPatientResource(resource, patientReference, patientIdentifier) {
         resource.subject = {
-            reference: "Patient/1234",
+            reference: patientReference,
             identifier: patientIdentifier,
         }
 
         return resource
     }
 
-    applyIdentifierToSearch(params, patientIdentifier) {
-        params.subject = `Patient/1234`
+    applyIdentifierToSearch(params, patientReference, patientIdentifier) {
+        params.subject = patientReference
 
         return params
     }
@@ -121,7 +125,7 @@ class PatientFhirResourceChecker {
         return allowedResources.some((allowedResource) => allowedResource === resourceType)
     }
 
-    isAccessibleResource(resource, patientIdentifier) {
+    isAccessibleResource(resource, patientReference, patientIdentifier) {
         // is the resource type allowed to patients?
         if (!this.isAllowedResource(resource.resourceType)) {
             return false
@@ -129,26 +133,26 @@ class PatientFhirResourceChecker {
 
         const resourceChecker = this.getResourceChecker(resource.resourceType)
 
-        return resourceChecker.isAccessibleResource(resource, patientIdentifier)
+        return resourceChecker.isAccessibleResource(resource, patientReference, patientIdentifier)
     }
 
-    setAsPatientResource(resource, patientIdentifier) {
+    setAsPatientResource(resource, patientReference, patientIdentifier) {
         const checker = this.getResourceChecker(resource.resourceType)
 
-        return checker.setAsPatientResource(resource, patientIdentifier)
+        return checker.setAsPatientResource(resource, patientReference, patientIdentifier)
     }
 
     /**
      *
      * @param {fhir.Bundle} bundle
      */
-    checkBundle(bundle, patientIdentifier) {
+    checkBundle(bundle, patientReference, patientIdentifier) {
         if (bundle.entry) {
             bundle.entry = bundle.entry.filter((entry) => {
                 if (!entry.resource) {
                     return true
                 } else {
-                    return this.isAccessibleResource(entry.resource, patientIdentifier)
+                    return this.isAccessibleResource(entry.resource, patientReference, patientIdentifier)
                 }
             })
         }
@@ -156,18 +160,18 @@ class PatientFhirResourceChecker {
         return bundle
     }
 
-    applyIdentifierToSearch(params, patientIdentifier) {
+    applyIdentifierToSearch(params, patientReference, patientIdentifier) {
         if (!params.resourceType) {
             throw Error("No resourceType found in params")
         }
 
         const checker = this.getResourceChecker(params.resourceType)
 
-        return checker.applyIdentifierToSearch(params, patientIdentifier)
+        return checker.applyIdentifierToSearch(params, patientReference, patientIdentifier)
     }
 
-    checkResource(resource, patientIdentifier) {
-        if (!this.isAccessibleResource(resource, patientIdentifier)) {
+    checkResource(resource, patientReference, patientIdentifier) {
+        if (!this.isAccessibleResource(resource, patientReference, patientIdentifier)) {
             return null
         }
 
@@ -216,6 +220,12 @@ const PatientFhirService = {
     mixins: [fhirservice],
     methods: {
         async searchActionHandler(ctx) {
+            const { reference } = ctx.meta.user
+
+            if (!reference) {
+                throw Error(`User ${ctx.meta.user.sub} has no reference`)
+            }
+
             const identifier = patientResourceChecker.identifierFromContext(ctx)
 
             if (!patientResourceChecker.isAllowedResource(ctx.params.resourceType)) {
@@ -229,16 +239,22 @@ const PatientFhirService = {
                 sanitisedQuery = buildSearchQuery(ctx.params)
             } else {
                 sanitisedQuery = buildSearchQuery(
-                    patientResourceChecker.applyIdentifierToSearch(ctx.params, identifier)
+                    patientResourceChecker.applyIdentifierToSearch(ctx.params, reference, identifier)
                 )
             }
 
             /** @type {fhir.Bundle} */
             const searchResult = await ctx.call("internalfhirservice.search", sanitisedQuery)
 
-            return patientResourceChecker.checkBundle(searchResult, identifier)
+            return patientResourceChecker.checkBundle(searchResult, reference, identifier)
         },
         async readActionHandler(ctx) {
+            const { reference } = ctx.meta.user
+
+            if (!reference) {
+                throw Error(`User ${ctx.meta.user.sub} has no reference`)
+            }
+
             const identifier = patientResourceChecker.identifierFromContext(ctx)
 
             if (!patientResourceChecker.isAllowedResource(ctx.params.resourceType)) {
@@ -248,9 +264,15 @@ const PatientFhirService = {
             /** @type {fhir.Resource} */
             const searchResult = await ctx.call("internalfhirservice.read", ctx.params)
 
-            return patientResourceChecker.checkResource(searchResult, identifier)
+            return patientResourceChecker.checkResource(searchResult, reference, identifier)
         },
         async createActionHandler(ctx) {
+            const { reference } = ctx.meta.user
+
+            if (!reference) {
+                throw Error(`User ${ctx.meta.user.sub} has no reference`)
+            }
+
             const identifier = patientResourceChecker.identifierFromContext(ctx)
 
             if (!patientResourceChecker.isAllowedResource(ctx.params.resourceType)) {
@@ -263,7 +285,7 @@ const PatientFhirService = {
                 throw Error("No resource")
             }
 
-            resource = patientResourceChecker.setAsPatientResource(resource, identifier)
+            resource = patientResourceChecker.setAsPatientResource(resource, reference, identifier)
 
             await ctx.call("internalfhirservice.create", { ...ctx.params, resource })
         },

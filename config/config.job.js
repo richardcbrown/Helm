@@ -1,4 +1,5 @@
 const path = require("path")
+const getNhsLoginConfig = require("./config.nhsauth")
 
 function getConsumerConfig() {
     return {
@@ -9,6 +10,7 @@ function getConsumerConfig() {
             frameMax: 0,
             heartbeat: 60,
         },
+        registerpatientconsumer: { ...getNhsLoginConfig(), orgReference: process.env.PIX_SOS_ORG_REFERENCE },
     }
 }
 

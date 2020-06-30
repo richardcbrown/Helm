@@ -20,28 +20,7 @@ class FhirStoreDataProvider {
     }
 
     /** @private */
-    configure(request) {
-        const { configuration } = this
-
-        if (configuration.env !== "local") {
-            request.agent = new https.Agent({
-                host: configuration.agentHost,
-                port: configuration.agentPort,
-                passphrase: configuration.passphrase,
-                rejectUnauthorized: true,
-                cert: fs.readFileSync(path.join(__dirname, "../", configuration.certFile)),
-                key: fs.readFileSync(path.join(__dirname, "../", configuration.keyFile)),
-                ca: fs.readFileSync(path.join(__dirname, "../", configuration.caFile)),
-            })
-            request.rejectUnauthorized = true
-        } else {
-            request.rejectUnauthorized = false
-        }
-
-        if (configuration.proxy) {
-            request.proxy = configuration.proxy
-        }
-    }
+    configure(request) {}
 
     /**
      * @param {string} resourceType
@@ -126,7 +105,7 @@ class FhirStoreDataProvider {
                 uri: `${configuration.host}/${resourceType}`,
                 body: JSON.stringify(resource),
                 simple: false,
-                headers: { "Content-Type": "application/json; charset=utf-8;" },
+                headers: { "Content-Type": "application/fhir+json" },
                 resolveWithFullResponse: true,
                 rejectUnauthorized: false,
             }
@@ -160,7 +139,7 @@ class FhirStoreDataProvider {
                 uri: `${configuration.host}/${resourceType}/${resourceID}`,
                 body: JSON.stringify(resource),
                 simple: false,
-                headers: { "Content-Type": "application/json; charset=utf-8;" },
+                headers: { "Content-Type": "application/fhir+json" },
                 resolveWithFullResponse: true,
                 rejectUnauthorized: false,
             }

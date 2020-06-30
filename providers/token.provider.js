@@ -29,10 +29,10 @@ class TokenProvider {
      * Get access token
      * @returns {Promise<string>}
      */
-    async getAccessToken() {
+    async getAccessToken(nhsNumber) {
         try {
-            if (!this.token || this.hasExpired()) {
-                this.token = await this.getToken()
+            if (!this.token || this.hasExpired() || nhsNumber) {
+                this.token = await this.getToken(nhsNumber)
                 this.expires = moment(moment.now()).add(this.token.expires_in, "s").toDate()
             }
 
@@ -48,8 +48,8 @@ class TokenProvider {
      * @private
      * @returns {Promise<Token>}
      */
-    async getToken() {
-        return await this.authProvider.authenticate()
+    async getToken(nhsNumber) {
+        return await this.authProvider.authenticate(nhsNumber)
     }
 
     /**
@@ -73,8 +73,8 @@ class TokenProvider {
      * @param {RequestOptions} request
      * @returns {Promise<void>}
      */
-    async authorize(request) {
-        const token = await this.getAccessToken()
+    async authorize(request, nhsNumber) {
+        const token = await this.getAccessToken(nhsNumber)
 
         request.auth = { bearer: token }
     }

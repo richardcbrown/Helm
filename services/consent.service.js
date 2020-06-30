@@ -25,6 +25,7 @@ const lcrConfig = require("../config/config.lcrconsent")
 const RedisDataProvider = require("../providers/redis.dataprovider")
 const getRedisConfig = require("../config/config.redis")
 const { PatientCacheProvider, PendingPatientStatus } = require("../providers/patientcache.provider")
+const { InternalPatientGenerator } = require("../generators/internalpatient.generator")
 
 /**
  * @this {Service}
@@ -66,6 +67,10 @@ async function initialiseHandler(ctx) {
     if (!consent) {
         return { status: "sign_terms" }
     } else {
+        const internalPatientGenerator = new InternalPatientGenerator(ctx, cacheProvider)
+
+        await internalPatientGenerator.generateInternalPatient(nhsNumber)
+
         return { status: "login" }
     }
 }

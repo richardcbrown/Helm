@@ -8,6 +8,22 @@ const getFhirStoreConfig = require("../config/config.fhirstore")
 const getFhirAuthConfig = require("../config/config.fhirauth")
 const TokenProvider = require("../providers/fhirstore.tokenprovider")
 const AuthProvider = require("../providers/fhirstore.authprovider")
+const FhirDataProvider = require("../providers/fhirstore.dataprovider")
+
+const adminResources = ["Consent", "Policy"]
+
+function getAuthProviderForResourceType(resourceType, configProvider, logger) {
+    let rsn = 2
+
+    console.log(resourceType)
+
+    if (adminResources.includes(resourceType)) {
+        rsn = 5
+    }
+
+    const auth = new AuthProvider(configProvider(), logger, rsn)
+    return new TokenProvider(auth, logger)
+}
 
 /** @type {ServiceSchema} */
 const FhirService = {
@@ -40,26 +56,29 @@ const FhirService = {
         async searchActionHandler(ctx) {
             const { logger } = this
 
-            const auth = new AuthProvider(getFhirAuthConfig(), logger)
-            const tokenProvider = new TokenProvider(auth, logger)
+            const tokenProvider = getAuthProviderForResourceType(ctx.params.resourceType, getFhirAuthConfig, logger)
 
-            return await searchActionHandler.call(this, ctx, getFhirStoreConfig, tokenProvider)
+            const fhirStore = new FhirDataProvider(getFhirStoreConfig(), this.logger, tokenProvider)
+
+            return await searchActionHandler.call(this, ctx, fhirStore)
         },
         async readActionHandler(ctx) {
             const { logger } = this
 
-            const auth = new AuthProvider(getFhirAuthConfig(), logger)
-            const tokenProvider = new TokenProvider(auth, logger)
+            const tokenProvider = getAuthProviderForResourceType(ctx.params.resourceType, getFhirAuthConfig, logger)
 
-            return await readActionHandler.call(this, ctx, getFhirStoreConfig, tokenProvider)
+            const fhirStore = new FhirDataProvider(getFhirStoreConfig(), this.logger, tokenProvider)
+
+            return await readActionHandler.call(this, ctx, fhirStore)
         },
         async createActionHandler(ctx) {
             const { logger } = this
 
-            const auth = new AuthProvider(getFhirAuthConfig(), logger)
-            const tokenProvider = new TokenProvider(auth, logger)
+            const tokenProvider = getAuthProviderForResourceType(ctx.params.resourceType, getFhirAuthConfig, logger)
 
-            return await createActionHandler.call(this, ctx, getFhirStoreConfig, tokenProvider)
+            const fhirStore = new FhirDataProvider(getFhirStoreConfig(), this.logger, tokenProvider)
+
+            return await createActionHandler.call(this, ctx, fhirStore)
         },
     },
 }

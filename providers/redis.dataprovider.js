@@ -6,7 +6,23 @@ class RedisDataProvider {
 
         const { host, port } = configuration
 
-        this.client = redis.createClient({ host, port })
+        this.client = redis.createClient({
+            host,
+            port,
+            retry_strategy: function (options) {
+                if (options.total_retry_time > 1000 * 60 * 60) {
+                    // End reconnecting after a specific timeout and flush all commands
+                    // with a individual error
+                    return new Error("Retry time exhausted")
+                }
+                if (options.attempt > 10) {
+                    // End reconnecting with built in error
+                    return new Error("Maximum retry attempts reached")
+                }
+                // reconnect after
+                return Math.min(options.attempt * 100, 3000)
+            },
+        })
     }
 
     /**

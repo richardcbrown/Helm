@@ -33,7 +33,7 @@ const getPatientByNhsNumber = async (nhsNumber, ctx) => {
     /** @type {fhir.Bundle} */
     const patientsBundle = await ctx.call("fhirservice.search", {
         resourceType: ResourceType.Patient,
-        query: { identifier: nhsNumber },
+        query: { identifier: `https://fhir.nhs.uk/Id/nhs-number|${nhsNumber}` },
     })
 
     const patients = /** @type {fhir.Patient[]} */ (getFromBundle(patientsBundle, ResourceType.Patient))
@@ -54,7 +54,7 @@ const getPatientEntryByNhsNumber = async (nhsNumber, ctx) => {
     /** @type {fhir.Bundle} */
     const patientsBundle = await ctx.call("fhirservice.search", {
         resourceType: ResourceType.Patient,
-        query: { identifier: nhsNumber },
+        query: { identifier: `https://fhir.nhs.uk/Id/nhs-number|${nhsNumber}` },
     })
 
     const entries = getEntriesFromBundle(patientsBundle, ResourceType.Patient)
