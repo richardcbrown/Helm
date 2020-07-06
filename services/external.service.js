@@ -27,17 +27,17 @@ const ExternalService = {
             handler: getTopThreeThingsHandler,
         },
     },
-    // hooks: {
-    //     before: {
-    //         "*": [
-    //             (ctx) => {
-    //                 if (ctx.meta.user.role !== ctx.action.role) {
-    //                     throw Error("User does not have the required role")
-    //                 }
-    //             },
-    //         ],
-    //     },
-    // },
+    hooks: {
+        before: {
+            "*": [
+                (ctx) => {
+                    if (ctx.meta.user.role !== ctx.action.role) {
+                        throw Error("User does not have the required role")
+                    }
+                },
+            ],
+        },
+    },
 }
 
 module.exports = ExternalService
