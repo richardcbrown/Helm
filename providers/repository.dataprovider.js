@@ -234,7 +234,9 @@ class RepositoryDataProvider {
     async searchServices(query) {
         const args = this.buildRequest("serviceSearch", this.buildQuery(query))
 
-        return await request(args)
+        const result = await request(args)
+
+        return JSON.parse(result)
     }
 
     /**
@@ -243,7 +245,9 @@ class RepositoryDataProvider {
     async searchResources(query) {
         const args = this.buildRequest("resourceSearch", this.buildQuery(query))
 
-        return await request(args)
+        const result = await request(args)
+
+        return JSON.parse(result)
     }
 
     /**

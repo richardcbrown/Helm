@@ -172,6 +172,7 @@ const ApiGateway = {
                 },
                 aliases: {
                     "GET /demographics": "demographicsservice.demographics",
+                    "GET /repository": "repositoryservice.search",
                 },
             },
             {

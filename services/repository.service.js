@@ -7,6 +7,7 @@ const getRedisConfig = require("../config/config.redis")
 const RedisDataProvider = require("../providers/redis.dataprovider")
 const { RepositoryCacheProvider } = require("../providers/respositorycache.provider")
 const RepositoryDataProvider = require("../providers/repository.dataprovider")
+const getRepositoryConfig = require("../config/config.repository")
 
 /**
  * @this {Service}
@@ -15,33 +16,23 @@ const RepositoryDataProvider = require("../providers/repository.dataprovider")
  * */
 async function searchRespositoryHandler(ctx) {
     const cacheProvider = new RepositoryCacheProvider(new RedisDataProvider(getRedisConfig()))
-    
+
     const query = ctx.params
 
-    let { query } = args.req
+    const cachedQueryResult = await cacheProvider.getRepositoryData(query)
 
-    const currentPage = Number(query.page)
-
-    const queryHash = crypto
-        .createHash("md5")
-        .update(JSON.stringify({ q: query.q, tags: query.tags, page: currentPage }))
-        .digest("hex")
-
-    if (queryCache.$(queryHash).exists) {
-        return finished({ results: queryCache.$(queryHash).getDocument(true) })
+    if (cachedQueryResult) {
+        return cachedQueryResult
     }
 
     query.meta = {}
 
+    const currentPage = Number(query.page)
+
     if (currentPage > 1) {
-        const previousQueryHash = crypto
-            .createHash("md5")
-            .update(JSON.stringify({ q: query.q, tags: query.tags, page: currentPage - 1 }))
-            .digest("hex")
+        const previousQuery = await cacheProvider.getRepositoryData({ ...query, page: currentPage - 1 })
 
-        if (queryCache.$(previousQueryHash).exists) {
-            const previousQuery = queryCache.$(previousQueryHash).getDocument(true)
-
+        if (previousQuery) {
             query.meta = {
                 servicePage: previousQuery.servicePage,
                 resourcePage: previousQuery.resourcePage,
@@ -51,15 +42,13 @@ async function searchRespositoryHandler(ctx) {
         }
     }
 
-    const repositoryService = new RepositoryService(this.userDefined.serviceConfig)
+    const repositoryProvider = new RepositoryDataProvider(getRepositoryConfig())
 
-    const results = await repositoryService.search(query)
+    const results = await repositoryProvider.search(query)
 
-    queryCache.$(queryHash).setDocument(results)
+    await cacheProvider.setRepositoryData(query, results)
 
-    finished({
-        results,
-    })
+    return results
 }
 
 /** @type {ServiceSchema} */
