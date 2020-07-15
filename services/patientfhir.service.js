@@ -4,9 +4,6 @@
 /** @typedef {import("moleculer").Context<any, any>} Context */
 
 const fhirservice = require("./fhir.service")
-const { searchActionHandler, readActionHandler, createActionHandler } = require("../handlers/fhirservice.handlers")
-const getFhirStoreConfig = require("../config/config.internalfhirstore")
-const EmptyAuthProvider = require("../providers/fhirstore.emptyauthprovider")
 
 /**
  * @typedef {Object} PatientFhirResourceConfig

@@ -176,37 +176,46 @@ class RegisterPatientConsumer {
     }
 
     async rebuildLinkage(nhsNumber) {
-        const linkagesWithPatients = await this.fhirDataProvider.search(
-            "Linkage",
-            { author: this.configuration.orgReference, _include: "Linkage:source" },
+        /** @type {fhir.Bundle} */
+        const patients = await this.fhirDataProvider.search(
+            "Patient",
+            { identifier: `https://fhir.nhs.uk/Id/nhs-number|${nhsNumber}` },
             nhsNumber
         )
 
-        const bundle = linkagesWithPatients
+        const { entry } = patients
 
-        const patientEntry = bundle.entry.find((e) => {
-            return e.resource.identifier && e.resource.identifier.some((id) => id.value === nhsNumber)
-        })
+        if (!entry || !entry.length) {
+            throw Error(`No Patient results for ${nhsNumber}`)
+        }
+
+        const patientEntry = entry.find((e) => e.resource && e.resource.resourceType === "Patient")
 
         if (!patientEntry) {
-            throw Error("No patient entries")
+            throw Error(`No Patient resource for ${nhsNumber}`)
         }
 
-        const patientReference = patientEntry.fullUrl
+        const linkages = await this.fhirDataProvider.search(
+            "Linkage",
+            { source: patientEntry.fullUrl, author: this.configuration.orgReference },
+            nhsNumber
+        )
 
-        if (!patientReference) {
-            throw Error("Linkage patient not found")
+        console.log(linkages)
+
+        const linkageEntries = linkages.entry
+
+        if (!linkageEntries || !linkageEntries) {
+            throw Error(`No Linkage results for ${nhsNumber}`)
         }
 
-        const linkageEntry = bundle.entry.find((e) => {
-            return e.resource.resourceType === "Linkage" && getReferenceFromLinkage(e.resource) === patientReference
-        })
+        const linkageEntry = linkageEntries.find((e) => e.resource && e.resource.resourceType === "Linkage")
 
         if (!linkageEntry) {
-            throw Error("Linkage not found for patient")
+            throw Error(`No Linkage resource for ${nhsNumber}`)
         }
 
-        return linkageEntry.resource
+        this.patientCache.setPatientLinkage(nhsNumber, linkageEntry.resource)
     }
 
     /**
@@ -310,7 +319,17 @@ class RegisterPatientConsumer {
             let result
 
             if (body.resourceType !== "Linkage") {
-                result = await this.rebuildLinkage(nhs_number)
+                console.log("Rebuilding Linkage")
+
+                await this.rebuildLinkage(nhs_number)
+
+                console.log("Linkage rebuild")
+
+                result = await this.patientCache.getPatientLinkage(nhs_number)
+
+                if (!result) {
+                    throw Error(`Patient ${nhs_number} not found after Linkage rebuild`)
+                }
             } else {
                 result = /** @type {fhir.Linkage} */ (body)
             }
@@ -404,39 +423,63 @@ class RabbitJobConsumer {
     }
 
     async getQueue(jobType) {
-        const queueConnection = await amqplib.connect(this.configuration)
+        try {
+            const queueConnection = await amqplib.connect(this.configuration)
 
-        const channel = await queueConnection.createChannel()
+            const channel = await queueConnection.createChannel()
 
-        await channel.assertQueue(jobType)
+            await channel.assertQueue(jobType)
 
-        return channel
+            return channel
+        } catch (error) {
+            console.log("Error getting queue")
+
+            await new Promise((resolve) => setTimeout(() => resolve(), 5000))
+
+            return await this.getQueue(jobType)
+        }
     }
 
     async getDelayExchange(jobType) {
-        const queueConnection = await amqplib.connect(this.configuration)
+        try {
+            const queueConnection = await amqplib.connect(this.configuration)
 
-        const channel = await queueConnection.createChannel()
+            const channel = await queueConnection.createChannel()
 
-        await channel.assertExchange(jobType, "x-delayed-message", { arguments: { "x-delayed-type": "direct" } })
-        await channel.assertQueue(jobType)
+            await channel.assertExchange(jobType, "x-delayed-message", { arguments: { "x-delayed-type": "direct" } })
+            await channel.assertQueue(jobType)
 
-        await channel.bindQueue(jobType, jobType, jobType)
+            await channel.bindQueue(jobType, jobType, jobType)
 
-        return channel
+            return channel
+        } catch (error) {
+            console.log("Error getting queue")
+
+            await new Promise((resolve) => setTimeout(() => resolve(), 5000))
+
+            return await this.getDelayExchange(jobType)
+        }
     }
 
     async getExchange(exchange) {
-        const queueConnection = await amqplib.connect(this.configuration)
+        try {
+            const queueConnection = await amqplib.connect(this.configuration)
 
-        const channel = await queueConnection.createChannel()
+            const channel = await queueConnection.createChannel()
 
-        await channel.assertExchange(exchange, "direct")
-        await channel.assertQueue(exchange)
+            await channel.assertExchange(exchange, "direct")
+            await channel.assertQueue(exchange)
 
-        await channel.bindQueue(exchange, exchange, exchange)
+            await channel.bindQueue(exchange, exchange, exchange)
 
-        return channel
+            return channel
+        } catch (error) {
+            console.log("Error getting queue")
+
+            await new Promise((resolve) => setTimeout(() => resolve(), 5000))
+
+            return await this.getExchange(exchange)
+        }
     }
 }
 

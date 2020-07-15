@@ -8,6 +8,7 @@ const passport = require("passport")
 const ApiService = require("moleculer-web")
 const cookieParser = require("cookie-parser")
 const JwtStrategy = require("passport-jwt").Strategy
+const bodyParser = require("body-parser")
 
 const SiteTokenProvider = require("../providers/siteauth.tokenprovider")
 const getSiteAuthConfiguration = require("../config/config.siteauth")
@@ -46,62 +47,11 @@ const userAuthHandler = (req, res, next) => {
 /** @typedef {import("request-promise-native").RequestPromiseOptions} RequestPromiseOptions */
 /** @typedef {import("request-promise-native").Options} Options */
 
-/**
- *
- * @param {import("../config/types").OidcProviderConfiguration} configuration
- */
-const systemAuthHandler = (configuration) => async (req, res, next) => {
-    const unauthorised = (res) => {
-        res.writeHead(401)
-        res.end()
-    }
-
-    try {
-        const auth = req.headers.authorization
-
-        if (!auth) {
-            return unauthorised(res)
-        }
-
-        const token = auth.split(" ")[1]
-
-        /** @type {Options} */
-        /** @type {Options} */
-        let options = {
-            url: `${configuration.issuer}${configuration.verifyUrl}`,
-            method: "POST",
-            headers: {
-                authorization: `Basic ${Buffer.from(
-                    `${configuration.verifyClientId}:${configuration.verifyClientSecret}`
-                ).toString("base64")}`,
-            },
-            form: {
-                token,
-            },
-            simple: false,
-            json: true,
-            resolveWithFullResponse: true,
-        }
-
-        const response = await request(options)
-
-        const result = response.body
-
-        if (!result.active) {
-            unauthorised(res)
-        } else {
-            next()
-        }
-    } catch (error) {
-        next(error)
-    }
-}
-
 const userAuthInitialiseHandler = (req, res, next) => {
     passport.authenticate("jwt", (error, user, info) => {
         //not authenticated, redirect
         if (error || info instanceof Error) {
-            res.writeHead(301, { Location: "/auth/redirect" })
+            res.writeHead(301, { Location: "/auth/redirect", "Content-Type": "application/json" })
             res.end(JSON.stringify({ error: "Login Expired" }))
         } else {
             req.user = user
@@ -110,8 +60,46 @@ const userAuthInitialiseHandler = (req, res, next) => {
     })(req, res, next)
 }
 
-const fhirStoreVerify = (req, res, next) => {
-    const { access_token } = {}
+const verify = async (req, res) => {
+    const { access_token } = req.body
+
+    try {
+        const result = await request({
+            uri: "http://localhost:8080/token/introspection",
+            method: "POST",
+            headers: {
+                authorization: req.headers.authorization,
+            },
+            form: {
+                token: access_token.split(" ")[1],
+            },
+            json: true,
+        })
+
+        const token_payload = {
+            rsn: "5",
+        }
+
+        res.writeHead(200, { "Content-Type": "application/json" })
+        res.end(JSON.stringify({ token_valid: result.active ? 1 : 0, token_payload }))
+    } catch (error) {
+        res.writeHead(200, { "Content-Type": "application/json" })
+        res.end(JSON.stringify({ token_valid: 0 }))
+    }
+}
+
+const headerCheck = (req, res, next) => {
+    const { headers } = req
+
+    const requestedWith = headers["x-requested-with"]
+
+    if (!requestedWith || requestedWith !== "XMLHttpRequest") {
+        res.writeHead(403, { "Content-Type": "application/json" })
+        res.end(JSON.stringify({ error: "Unauthorised" }))
+        return
+    }
+
+    next()
 }
 
 const provider = new OidcProvider(getOidcProviderConfiguration(), getSequelizeAdapter(getDatabaseConfiguration()))
@@ -123,6 +111,71 @@ const ApiGateway = {
     settings: {
         port: 8080,
         routes: [
+            {
+                path: "/test",
+                use: [bodyParser.urlencoded()],
+                aliases: {
+                    "POST /token": async (req, res) => {
+                        try {
+                            const result = await request({
+                                uri: "http://localhost:8080/token",
+                                method: "POST",
+                                headers: { ...req.headers },
+                                form: {
+                                    ...req.body,
+                                },
+                                json: true,
+                            })
+
+                            if (!result.access_token || result.scope !== "test") {
+                                res.writeHead(403)
+                                res.end()
+                                return
+                            }
+
+                            const tokenProvider = new SiteTokenProvider(getSiteAuthConfiguration())
+
+                            const { token } = tokenProvider.generateTestSiteToken(req.body.nhsNumber)
+
+                            req.$ctx.call("jobservice.patientlogin", {
+                                token: result.access_token,
+                                nhsNumber: req.body.nhsNumber,
+                            })
+
+                            res.writeHead(200, { "Content-Type": "application/json" })
+                            res.end(JSON.stringify({ token }))
+                        } catch (error) {
+                            res.writeHead(403)
+                            res.end()
+                        }
+                    },
+                    "POST /token/yhcr": async (req, res) => {
+                        try {
+                            const result = await request({
+                                uri: "http://localhost:8080/token",
+                                method: "POST",
+                                headers: { ...req.headers },
+                                form: {
+                                    ...req.body,
+                                },
+                                json: true,
+                            })
+
+                            if (!result.access_token || result.scope !== "test") {
+                                res.writeHead(403)
+                                res.end()
+                                return
+                            }
+
+                            res.writeHead(200, { "Content-Type": "application/json" })
+                            res.end(JSON.stringify({ token: result.access_token }))
+                        } catch (error) {
+                            res.writeHead(403)
+                            res.end()
+                        }
+                    },
+                },
+            },
             {
                 path: "/auth",
                 aliases: {
@@ -137,18 +190,16 @@ const ApiGateway = {
             },
             {
                 path: "/verify",
-                use: [fhirStoreVerify],
-            },
-            {
-                path: "/api/hscn",
-                use: [systemAuthHandler(getOidcProviderConfiguration())],
                 aliases: {
-                    "GET /:site/top3Things/:patientId": "externalservice.topThreeThings",
+                    "POST /token": verify,
+                },
+                bodyParsers: {
+                    json: true,
                 },
             },
             {
                 path: "/api",
-                use: [cookieParser(), passport.initialize(), userAuthInitialiseHandler],
+                use: [headerCheck, cookieParser(), passport.initialize(), userAuthInitialiseHandler],
                 async onBeforeCall(ctx, route, req, res) {
                     populateContextWithUser(ctx, req)
                 },
@@ -164,7 +215,7 @@ const ApiGateway = {
             },
             {
                 path: "/api",
-                use: [cookieParser(), passport.initialize(), userAuthHandler],
+                use: [headerCheck, cookieParser(), passport.initialize(), userAuthHandler],
                 async onBeforeCall(ctx, route, req, res) {
                     populateContextWithUser(ctx, req)
                     await checkUserConsent(ctx)
@@ -177,7 +228,7 @@ const ApiGateway = {
             },
             {
                 path: "/api/patient/fhir",
-                use: [cookieParser(), passport.initialize(), userAuthHandler],
+                use: [headerCheck, cookieParser(), passport.initialize(), userAuthHandler, bodyParser.json()],
                 async onBeforeCall(ctx, route, req, res) {
                     populateContextWithUser(ctx, req)
                     await checkUserConsent(ctx)
@@ -210,6 +261,9 @@ const ApiGateway = {
             if (err instanceof PatientNotConsentedError) {
                 res.writeHead(200, { "Content-Type": "application/json" })
                 res.end(JSON.stringify({ status: "sign_terms" }))
+            } else if (err.code) {
+                res.writeHead(err.code, { "Content-Type": "application/json" })
+                res.end(JSON.stringify({ error: err.message }))
             } else {
                 res.writeHead(500, { "Content-Type": "application/json" })
                 res.end(JSON.stringify({ error: "Error" }))

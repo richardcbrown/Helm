@@ -24,7 +24,7 @@ class OidcProvider {
 
         this.oidc = new Provider(configuration.issuer, {
             adapter: adapter,
-            scopes: ["internal", "external"],
+            scopes: ["internal", "test"],
             features: {
                 registration: {
                     enabled: false,

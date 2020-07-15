@@ -4,9 +4,18 @@ class RedisDataProvider {
     constructor(configuration) {
         this.configuration = configuration
 
-        const { host, port } = configuration
+        this.createClient = this.createClient.bind(this)
 
-        this.client = redis.createClient({
+        this.createClient()
+    }
+
+    /**
+     * @private
+     */
+    createClient() {
+        const { host, port } = this.configuration
+
+        const client = redis.createClient({
             host,
             port,
             retry_strategy: function (options) {
@@ -23,6 +32,16 @@ class RedisDataProvider {
                 return Math.min(options.attempt * 100, 3000)
             },
         })
+
+        client.on("error", (error) => {
+            console.log(error)
+
+            console.log("Attempting reconnect")
+
+            setTimeout(() => this.createClient(), 5000)
+        })
+
+        this.client = client
     }
 
     /**

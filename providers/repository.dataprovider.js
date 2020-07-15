@@ -72,7 +72,7 @@ class RepositoryDataProvider {
         let page = meta.currentPage || 1
         const pageIndex = meta.currentIndex
 
-        const tagIds = tags.split(",").filter((t) => !!t)
+        const tagIds = (tags && tags.split(",").filter((t) => !!t)) || []
 
         const firstTag = tagIds[0] ? [tagIds[0]] : null
 

@@ -73,7 +73,7 @@ const getPatientEntryByNhsNumber = async (nhsNumber, ctx) => {
  * @returns {Promise<void>}
  */
 const createResource = async (resource, ctx) => {
-    await ctx.call("fhirservice.create", { resource })
+    await ctx.call("fhirservice.create", { resource, resourceType: resource.resourceType })
 }
 
 module.exports = { getPolicies, getPatientByNhsNumber, createResource, getPatientEntryByNhsNumber }

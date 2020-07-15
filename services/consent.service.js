@@ -12,16 +12,9 @@ const fs = require("fs")
 const pg = require("pg")
 const PatientConsentProvider = require("../providers/patientconsent.provider")
 const PatientConsentGenerator = require("../generators/patientconsent.generator")
-const { PendingConsentGenerator } = require("../generators/pendingconsent.generator")
 const getConsentConfig = require("../config/config.consent")
 const { phrUserCheckHooks } = require("../handlers/phruser.hooks")
 const { getUserSubFromContext } = require("../handlers/handler.helpers")
-const { CronJobManager } = require("../jobs/cronjobmanager")
-const { NotifyPatientConsentJob } = require("../jobs/notifypatientconsent.job")
-const AuthProvider = require("../providers/auth.provider")
-const TokenProvider = require("../providers/token.provider")
-const LcrPatientConsentGenerator = require("../generators/lcrpatientconsent.generator")
-const lcrConfig = require("../config/config.lcrconsent")
 const RedisDataProvider = require("../providers/redis.dataprovider")
 const getRedisConfig = require("../config/config.redis")
 const { PatientCacheProvider, PendingPatientStatus } = require("../providers/patientcache.provider")
@@ -96,7 +89,6 @@ async function getTermsHandler(ctx) {
 async function acceptTermsHandler(ctx, databaseClient) {
     const patientConsentProvider = new PatientConsentProvider(ctx, getConsentConfig())
     const patientConsentGenerator = new PatientConsentGenerator(ctx, getConsentConfig())
-    const pendingConsentGenerator = new PendingConsentGenerator(ctx, databaseClient)
 
     /** @type {number | string} */
     const nhsNumber = getUserSubFromContext(ctx)
@@ -111,7 +103,6 @@ async function acceptTermsHandler(ctx, databaseClient) {
     const policies = [ctx.params["0"], ctx.params["1"]]
 
     await patientConsentGenerator.generatePatientConsent(nhsNumber, policies)
-    await pendingConsentGenerator.generatePendingConsent(nhsNumber)
 
     const consent = await patientConsentProvider.patientHasConsented(nhsNumber)
 
@@ -166,33 +157,6 @@ const ConsentService = {
         this.connectionPool = new pg.Pool({ max: 10 })
 
         await this.connectionPool.query(sql)
-    },
-    async started() {
-        try {
-            const { logger } = this
-
-            const authProvider = new AuthProvider(lcrConfig.getAuthConfig(), logger)
-
-            const tokenProvider = new TokenProvider(authProvider, logger)
-
-            const lcrGenerator = new LcrPatientConsentGenerator(lcrConfig.getConfig(), tokenProvider)
-
-            const notifyConsentJob = new NotifyPatientConsentJob(this.connectionPool, lcrGenerator)
-
-            this.jobManager = new CronJobManager([
-                {
-                    pattern: "30 * * * * *",
-                    process: notifyConsentJob.process,
-                },
-            ])
-
-            this.jobManager.process()
-        } catch (error) {
-            /** @todo logging */
-        }
-    },
-    async stopped() {
-        this.jobManager.stop()
     },
 }
 

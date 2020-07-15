@@ -55,6 +55,7 @@ class PatientConsentGenerator {
                 resourceType: ResourceType.Consent,
                 policyRule: policyReference,
                 patient: { reference: patientReference },
+                status: "active",
                 consentingParty: [
                     {
                         reference: patientReference,

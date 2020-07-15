@@ -42,6 +42,18 @@ const nhsNumberMap = {
         nhs_number: "9449305552",
         birthdate: "2008-09-20",
     },
+    "9449306044": {
+        family_name: "SPEAKMAN",
+        given_name: "DARRYL",
+        nhs_number: "9449306044",
+        birthdate: "2009-04-23",
+    },
+    "9449306052": {
+        family_name: "SPEAKMAN",
+        given_name: "JUMP",
+        nhs_number: "9449306052",
+        birthdate: "2007-04-28",
+    },
 }
 
 app.get("/userinfo", (req, res) => {

@@ -3,8 +3,6 @@
 /** @typedef {import("moleculer").Service<ServiceSchema>} Service */
 /** @typedef {import("moleculer").Context<any, any>} Context */
 
-const FhirStoreDataProvider = require("../providers/fhirstore.dataprovider")
-
 /**
  * @this {Service}
  * @param {Context} ctx
@@ -49,8 +47,7 @@ async function createActionHandler(ctx, fhirStore) {
 
     /** @type {fhir.Resource} */
     const resource = ctx.params.resource
-
-    const resourceType = resource.resourceType
+    const resourceType = ctx.params.resourceType
 
     if (!resourceType) {
         throw Error("Resource type missing from resource")

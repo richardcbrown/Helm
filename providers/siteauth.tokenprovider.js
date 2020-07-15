@@ -42,6 +42,24 @@ class SiteAuthTokenProvider {
         return { payload: tokenPayload, token: jwt.encode(tokenPayload, jwtSigningSecret, jwtSigningAlgorithm) }
     }
 
+    generateTestSiteToken(nhsNumber) {
+        const { jwtSigningSecret, jwtExpiry, jwtSigningAlgorithm, issuer, audience } = this.configuration
+
+        const iat = Math.floor(Date.now() / 1000)
+        const exp = iat + jwtExpiry
+
+        const tokenPayload = {
+            iat,
+            exp,
+            iss: issuer,
+            aud: audience,
+            role: "phrUser",
+            sub: nhsNumber,
+        }
+
+        return { payload: tokenPayload, token: jwt.encode(tokenPayload, jwtSigningSecret, jwtSigningAlgorithm) }
+    }
+
     /**
      * @private
      * @param {Request} request
