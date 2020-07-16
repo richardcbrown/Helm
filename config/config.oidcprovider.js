@@ -2,18 +2,21 @@
 
 const path = require("path")
 
-/** @returns {OidcProviderConfiguration} */
-function getConfig() {
+const SecretManager = require("./config.secrets")
+
+const secretManager = new SecretManager(process.env.GCP_PROJECT_ID)
+
+/** @returns {Promise<OidcProviderConfiguration>} */
+async function getConfig() {
+    const allowedClients = await secretManager.getSecret("OIDCPROVIDER_INTROSPECTION_ALLOWED_CLIENTIDS")
+
     return {
-        issuer: process.env.OIDCPROVIDER_ISSUER,
-        privateKeyFilePath: path.join(__dirname, process.env.OIDCPROVIDER_PRIVATE_KEY_FILE),
-        verifyUrl: process.env.OIDCPROVIDER_VERIFY_URL,
-        verifyClientId: process.env.OIDCPROVIDER_VERIFY_CLIENTID,
-        verifyClientSecret: process.env.OIDCPROVIDER_VERIFY_CLIENTSECRET,
-        introspectionAllowedClients:
-            (process.env.OIDCPROVIDER_INTROSPECTION_ALLOWED_CLIENTIDS &&
-                process.env.OIDCPROVIDER_INTROSPECTION_ALLOWED_CLIENTIDS.split(" ")) ||
-            [],
+        issuer: await secretManager.getSecret("OIDCPROVIDER_ISSUER"),
+        privateKeyFilePath: await secretManager.getSecret("OIDCPROVIDER_PRIVATE_KEY_FILE", true),
+        verifyUrl: await secretManager.getSecret("OIDCPROVIDER_VERIFY_URL"),
+        verifyClientId: await secretManager.getSecret("OIDCPROVIDER_VERIFY_CLIENTID"),
+        verifyClientSecret: await secretManager.getSecret("OIDCPROVIDER_VERIFY_CLIENTSECRET"),
+        introspectionAllowedClients: (allowedClients && allowedClients.split(" ")) || [],
     }
 }
 

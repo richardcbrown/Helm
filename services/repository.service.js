@@ -15,7 +15,10 @@ const getRepositoryConfig = require("../config/config.repository")
  * @returns {Promise<any>}
  * */
 async function searchRespositoryHandler(ctx) {
-    const cacheProvider = new RepositoryCacheProvider(new RedisDataProvider(getRedisConfig()))
+    const redisConfig = await getRedisConfig()
+    const respositoryConfig = await getRepositoryConfig()
+
+    const cacheProvider = new RepositoryCacheProvider(new RedisDataProvider(redisConfig))
 
     const query = ctx.params
 
@@ -42,7 +45,7 @@ async function searchRespositoryHandler(ctx) {
         }
     }
 
-    const repositoryProvider = new RepositoryDataProvider(getRepositoryConfig())
+    const repositoryProvider = new RepositoryDataProvider(respositoryConfig)
 
     const results = await repositoryProvider.search(query)
 

@@ -5,9 +5,6 @@ const {
     JWK,
 } = require("jose")
 
-const fs = require("fs")
-const path = require("path")
-
 class OidcProvider {
     /**
      *
@@ -19,7 +16,7 @@ class OidcProvider {
         this.adapter = adapter
         this.keystore = new KeyStore()
 
-        const key = fs.readFileSync(configuration.privateKeyFilePath)
+        const key = configuration.privateKeyFilePath
         this.keystore.add(JWK.asKey(key))
 
         this.oidc = new Provider(configuration.issuer, {
@@ -52,7 +49,7 @@ class OidcProvider {
         })
     }
 
-    getProvider() {
+    async getProvider() {
         return this.oidc.callback
     }
 }

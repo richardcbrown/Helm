@@ -6,8 +6,6 @@
 
 const request = require("request-promise-native")
 const https = require("https")
-const fs = require("fs")
-const path = require("path")
 
 class PixDataProvider {
     /** @param {Logger} logger */
@@ -29,9 +27,9 @@ class PixDataProvider {
                 port: configuration.agentPort,
                 passphrase: configuration.passphrase,
                 rejectUnauthorized: true,
-                cert: fs.readFileSync(path.join(__dirname, "../", configuration.certFile)),
-                key: fs.readFileSync(path.join(__dirname, "../", configuration.keyFile)),
-                ca: fs.readFileSync(path.join(__dirname, "../", configuration.caFile)),
+                cert: configuration.certFile,
+                key: configuration.keyFile,
+                ca: configuration.caFile,
             })
             request.rejectUnauthorized = true
         } else {

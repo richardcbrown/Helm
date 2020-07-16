@@ -18,28 +18,37 @@ const InternalFhirService = {
     mixins: [fhirservice],
     methods: {
         async searchActionHandler(ctx) {
-            const authProvider = new AuthProvider(getFhirAuthConfig(), this.logger)
+            const authConfig = await getFhirAuthConfig()
+            const storeConfig = await getFhirStoreConfig()
+
+            const authProvider = new AuthProvider(authConfig, this.logger)
             const tokenProvider = new TokenProvider(authProvider, this.logger)
 
-            const fhirStore = new InternalFhirDataProvider(getFhirStoreConfig(), this.logger, tokenProvider)
+            const fhirStore = new InternalFhirDataProvider(storeConfig, this.logger, tokenProvider)
 
             return await searchActionHandler.call(this, ctx, fhirStore)
         },
         async readActionHandler(ctx) {
-            const authProvider = new AuthProvider(getFhirAuthConfig(), this.logger)
+            const authConfig = await getFhirAuthConfig()
+            const storeConfig = await getFhirStoreConfig()
+
+            const authProvider = new AuthProvider(authConfig, this.logger)
 
             const tokenProvider = new TokenProvider(authProvider, this.logger)
 
-            const fhirStore = new InternalFhirDataProvider(getFhirStoreConfig(), this.logger, tokenProvider)
+            const fhirStore = new InternalFhirDataProvider(storeConfig, this.logger, tokenProvider)
 
             return await readActionHandler.call(this, ctx, fhirStore)
         },
         async createActionHandler(ctx) {
-            const authProvider = new AuthProvider(getFhirAuthConfig(), this.logger)
+            const authConfig = await getFhirAuthConfig()
+            const storeConfig = await getFhirStoreConfig()
+
+            const authProvider = new AuthProvider(authConfig, this.logger)
 
             const tokenProvider = new TokenProvider(authProvider, this.logger)
 
-            const fhirStore = new InternalFhirDataProvider(getFhirStoreConfig(), this.logger, tokenProvider)
+            const fhirStore = new InternalFhirDataProvider(storeConfig, this.logger, tokenProvider)
 
             return await createActionHandler.call(this, ctx, fhirStore)
         },

@@ -5,9 +5,6 @@
 /** @typedef {import("../config/config.fhirstore").FhirStoreConfig} FhirStoreConfig */
 
 const request = require("request-promise-native")
-const https = require("https")
-const fs = require("fs")
-const path = require("path")
 
 class FhirStoreDataProvider {
     /** @param {Logger} logger */

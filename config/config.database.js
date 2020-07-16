@@ -1,14 +1,18 @@
 /** @typedef {import("./types").DatabaseConfiguration} DatabaseConfiguration */
 
-/** @returns {DatabaseConfiguration} */
-function getConfig() {
+const SecretManager = require("./config.secrets")
+
+const secretManager = new SecretManager(process.env.GCP_PROJECT_ID)
+
+/** @returns {Promise<DatabaseConfiguration>} */
+async function getConfig() {
     return {
-        host: process.env.PGHOST,
-        port: process.env.PGPORT,
-        database: process.env.PGDATABASE,
-        username: process.env.PGUSER,
-        password: process.env.PGPASSWORD,
-        schema: process.env.PGSCHEMA,
+        host: await secretManager.getSecret("PGHOST"),
+        port: await secretManager.getSecret("PGPORT"),
+        database: await secretManager.getSecret("PGDATABASE"),
+        username: await secretManager.getSecret("PGUSER"),
+        password: await secretManager.getSecret("PGPASSWORD"),
+        schema: await secretManager.getSecret("PGSCHEMA"),
     }
 }
 

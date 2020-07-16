@@ -1,9 +1,13 @@
 /** @typedef {import("./types").FhirStoreConfig} FhirStoreConfig */
 
-/** @returns {FhirStoreConfig} */
-function getConfig() {
+const SecretManager = require("./config.secrets")
+
+const secretManager = new SecretManager(process.env.GCP_PROJECT_ID)
+
+/** @returns {Promise<FhirStoreConfig>} */
+async function getConfig() {
     return {
-        host: process.env.FHIRSTORE_INTERNAL_FHIR_URL,
+        host: await secretManager.getSecret("FHIRSTORE_INTERNAL_FHIR_URL"),
     }
 }
 

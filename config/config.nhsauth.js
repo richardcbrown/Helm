@@ -1,9 +1,14 @@
-function getConfig() {
-    const mock =
-        (process.env.NHS_LOGIN_INTROSPECTION_MOCK && Boolean(process.env.NHS_LOGIN_INTROSPECTION_MOCK)) || false
+const SecretManager = require("./config.secrets")
+
+const secretManager = new SecretManager(process.env.GCP_PROJECT_ID)
+
+async function getConfig() {
+    const m = await secretManager.getSecret("NHS_LOGIN_INTROSPECTION_MOCK")
+
+    const mock = (m && Boolean(m)) || false
 
     return {
-        host: process.env.NHS_LOGIN_INTROSPECTION_URL,
+        host: await secretManager.getSecret("NHS_LOGIN_INTROSPECTION_URL"),
         mock,
         nhsNumberMap: {
             "9999999801": "9449303983",

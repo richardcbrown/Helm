@@ -7,9 +7,6 @@
 /** @typedef {import("moleculer").Service<ServiceSchema>} Service */
 /** @typedef {import("moleculer").Context<any, any>} Context */
 
-const path = require("path")
-const fs = require("fs")
-const pg = require("pg")
 const PatientConsentProvider = require("../providers/patientconsent.provider")
 const PatientConsentGenerator = require("../generators/patientconsent.generator")
 const getConsentConfig = require("../config/config.consent")
@@ -26,7 +23,8 @@ const { InternalPatientGenerator } = require("../generators/internalpatient.gene
  * @returns {Promise<boolean>}
  * */
 async function patientConsentedHandler(ctx) {
-    const patientConsentProvider = new PatientConsentProvider(ctx, getConsentConfig())
+    const config = await getConsentConfig()
+    const patientConsentProvider = new PatientConsentProvider(ctx, config)
 
     /** @type {number | string} */
     const nhsNumber = getUserSubFromContext(ctx)
@@ -40,7 +38,8 @@ async function patientConsentedHandler(ctx) {
  * @returns {Promise<any>}
  * */
 async function initialiseHandler(ctx) {
-    const cacher = new RedisDataProvider(getRedisConfig())
+    const redisConfig = await getRedisConfig()
+    const cacher = new RedisDataProvider(redisConfig)
 
     const cacheProvider = new PatientCacheProvider(cacher)
 
@@ -50,7 +49,9 @@ async function initialiseHandler(ctx) {
         return { status: patientStatus }
     }
 
-    const patientConsentProvider = new PatientConsentProvider(ctx, getConsentConfig())
+    const consentConfig = await getConsentConfig()
+
+    const patientConsentProvider = new PatientConsentProvider(ctx, consentConfig)
 
     /** @type {number | string} */
     const nhsNumber = getUserSubFromContext(ctx)
@@ -74,7 +75,9 @@ async function initialiseHandler(ctx) {
  * @returns {Promise<{ resources: fhir.Resource[] }>}
  * */
 async function getTermsHandler(ctx) {
-    const patientConsentProvider = new PatientConsentProvider(ctx, getConsentConfig())
+    const config = await getConsentConfig()
+
+    const patientConsentProvider = new PatientConsentProvider(ctx, config)
 
     const policies = await patientConsentProvider.getPolicies()
 
@@ -86,9 +89,11 @@ async function getTermsHandler(ctx) {
  * @param {Context} ctx
  * @returns {Promise<any>}
  * */
-async function acceptTermsHandler(ctx, databaseClient) {
-    const patientConsentProvider = new PatientConsentProvider(ctx, getConsentConfig())
-    const patientConsentGenerator = new PatientConsentGenerator(ctx, getConsentConfig())
+async function acceptTermsHandler(ctx) {
+    const config = await getConsentConfig()
+
+    const patientConsentProvider = new PatientConsentProvider(ctx, config)
+    const patientConsentGenerator = new PatientConsentGenerator(ctx, config)
 
     /** @type {number | string} */
     const nhsNumber = getUserSubFromContext(ctx)
@@ -140,7 +145,7 @@ const ConsentService = {
         acceptTerms: {
             role: "phrUser",
             handler(ctx) {
-                return acceptTermsHandler(ctx, this.connectionPool)
+                return acceptTermsHandler(ctx)
             },
         },
     },
@@ -148,15 +153,6 @@ const ConsentService = {
         before: {
             "*": phrUserCheckHooks,
         },
-    },
-    async created() {
-        const initFile = path.join(__dirname, "helmdatabase.init.sql")
-
-        const sql = fs.readFileSync(initFile, "utf-8")
-
-        this.connectionPool = new pg.Pool({ max: 10 })
-
-        await this.connectionPool.query(sql)
     },
 }
 

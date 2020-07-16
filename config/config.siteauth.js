@@ -1,12 +1,16 @@
 /** @typedef {import("./types").SiteAuthConfiguration} SiteAuthConfiguration */
 
-/** @returns {SiteAuthConfiguration} */
-function getConfig() {
-    const jwtSigningSecret = process.env.SITEAUTH_JWTSIGNINGSECRET
-    const jwtExpiryString = process.env.SITEAUTH_JWTEXPIRY
-    const jwtSigningAlgorithm = process.env.SITEAUTH_JWTSIGNINGALGORITHM
-    const issuer = process.env.SITEAUTH_ISSUER
-    const audience = process.env.SITEAUTH_AUDIENCE
+const SecretManager = require("./config.secrets")
+
+const secretManager = new SecretManager(process.env.GCP_PROJECT_ID)
+
+/** @returns {Promise<SiteAuthConfiguration>} */
+async function getConfig() {
+    const jwtSigningSecret = await secretManager.getSecret("SITEAUTH_JWTSIGNINGSECRET")
+    const jwtExpiryString = await secretManager.getSecret("SITEAUTH_JWTEXPIRY")
+    const jwtSigningAlgorithm = await secretManager.getSecret("SITEAUTH_JWTSIGNINGALGORITHM")
+    const issuer = await secretManager.getSecret("SITEAUTH_ISSUER")
+    const audience = await secretManager.getSecret("SITEAUTH_AUDIENCE")
 
     if (!jwtSigningSecret) {
         throw Error("JWT Signing Secret not set")

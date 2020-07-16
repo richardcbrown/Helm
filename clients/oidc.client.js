@@ -8,7 +8,6 @@
 
 const { Issuer } = require("openid-client")
 const jose = require("jose")
-const fs = require("fs")
 
 class OidcClient {
     /** @param {OidcClientConfiguration} configuration */
@@ -78,7 +77,7 @@ class OidcClient {
         const { configuration } = this
         const { privateKeyFilePath } = configuration
 
-        const privateKey = fs.readFileSync(privateKeyFilePath)
+        const privateKey = privateKeyFilePath
 
         this.keystore = new jose.JWKS.KeyStore()
 

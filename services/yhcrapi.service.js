@@ -33,7 +33,7 @@ const yhcrAuthHandler = async (req, res, next) => {
             return unauthorised(res)
         }
 
-        const { host, clientId, clientSecret } = getYhcrAuthConfig()
+        const { host, clientId, clientSecret } = await getYhcrAuthConfig()
 
         const options = {
             method: "POST",

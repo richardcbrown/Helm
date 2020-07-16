@@ -1,7 +1,11 @@
-function getConfig() {
+const SecretManager = require("./config.secrets")
+
+const secretManager = new SecretManager(process.env.GCP_PROJECT_ID)
+
+async function getConfig() {
     return {
-        host: process.env.REDIS_HOST,
-        port: process.env.REDIS_PORT,
+        host: await secretManager.getSecret("REDIS_HOST"),
+        port: await secretManager.getSecret("REDIS_PORT"),
     }
 }
 

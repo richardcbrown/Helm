@@ -27,7 +27,9 @@ async function addJobHandler(ctx) {
     const jobType = ctx.params.jobType
     const payload = ctx.params.payload
 
-    const jobProducerProvider = new JobProducerProvider(getProducerConfig())
+    const config = await getProducerConfig()
+
+    const jobProducerProvider = new JobProducerProvider(config)
 
     const jobProducer = jobProducerProvider.getJobProducer(jobType)
 
@@ -42,7 +44,9 @@ const JobService = {
             handler: addJobHandler,
         },
         async patientlogin(ctx) {
-            const cacher = new RedisDataProvider(getRedisConfig())
+            const redisConfig = await getRedisConfig()
+
+            const cacher = new RedisDataProvider(redisConfig)
 
             const { nhsNumber, token } = ctx.params
 
@@ -60,22 +64,30 @@ const JobService = {
         try {
             const { logger } = this
 
-            const auth = new AuthProvider(getFhirAuthConfig(), logger, 2)
-            const pixauth = new AuthProvider(getPixAuthConfig(), logger, 2)
-            const adminAuth = new AuthProvider(getFhirAuthConfig(), logger, 5)
+            const fhirAuthConfig = await getFhirAuthConfig()
+            const pixAuthConfig = await getPixAuthConfig()
+            const fhirStoreConfig = await getFhirStoreConfig()
+            const pixConfig = await getPixConfig()
+            const redisConfig = await getRedisConfig()
+            const producerConfig = await getProducerConfig()
+            const consumerConfig = await getConsumerConfig()
+
+            const auth = new AuthProvider(fhirAuthConfig, logger, 2)
+            const pixauth = new AuthProvider(pixAuthConfig, logger, 2)
+            const adminAuth = new AuthProvider(fhirAuthConfig, logger, 5)
             const adminTokenProvider = new TokenProvider(adminAuth, logger)
             const pixTokenProvider = new TokenProvider(pixauth, logger)
             const tokenProvider = new TokenProvider(auth, logger)
-            const fhirDataProvider = new FhirStoreDataProvider(getFhirStoreConfig(), logger, tokenProvider)
-            const adminFhirDataProvider = new FhirStoreDataProvider(getFhirStoreConfig(), logger, adminTokenProvider)
-            const pixDataProvider = new PixDataProvider(getPixConfig(), logger, pixTokenProvider)
+            const fhirDataProvider = new FhirStoreDataProvider(fhirStoreConfig, logger, tokenProvider)
+            const adminFhirDataProvider = new FhirStoreDataProvider(fhirStoreConfig, logger, adminTokenProvider)
+            const pixDataProvider = new PixDataProvider(pixConfig, logger, pixTokenProvider)
 
-            const cacher = new PatientCacheProvider(new RedisDataProvider(getRedisConfig()))
+            const cacher = new PatientCacheProvider(new RedisDataProvider(redisConfig))
 
-            const jobProducerProvider = new JobProducerProvider(getProducerConfig())
+            const jobProducerProvider = new JobProducerProvider(producerConfig)
 
             const jobConsumerProvider = new JobConsumerProvider(
-                getConsumerConfig(),
+                consumerConfig,
                 jobProducerProvider,
                 pixDataProvider,
                 fhirDataProvider,
@@ -94,6 +106,7 @@ const JobService = {
             lookupConsumer.consumeJob()
         } catch (error) {
             /** @todo logging */
+            console.log(error)
         }
     },
     async stopped() {},

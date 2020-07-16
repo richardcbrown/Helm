@@ -1,7 +1,11 @@
-function getConfig() {
+const SecretManager = require("./config.secrets")
+
+const secretManager = new SecretManager(process.env.GCP_PROJECT_ID)
+
+async function getConfig() {
     return {
         api: {
-            host: process.env.REPOSITORY_HOST,
+            host: await secretManager.getSecret("REPOSITORY_HOST"),
             servicePoints: {
                 serviceSearch: {
                     endpoint: "services",

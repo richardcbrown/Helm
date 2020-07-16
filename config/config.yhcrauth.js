@@ -1,8 +1,12 @@
-function getConfig() {
+const SecretManager = require("./config.secrets")
+
+const secretManager = new SecretManager(process.env.GCP_PROJECT_ID)
+
+async function getConfig() {
     return {
-        host: process.env.YHCR_VERIFY_URL,
-        clientId: process.env.YHCR_VERIFY_CLIENTID,
-        clientSecret: process.env.YHCR_VERIFY_CLIENTSECRET,
+        host: await secretManager.getSecret("YHCR_VERIFY_URL"),
+        clientId: await secretManager.getSecret("YHCR_VERIFY_CLIENTID"),
+        clientSecret: await secretManager.getSecret("YHCR_VERIFY_CLIENTSECRET"),
     }
 }
 

@@ -22,14 +22,17 @@ const getDatabaseConfiguration = require("../config/config.database")
 const getOidcProviderConfiguration = require("../config/config.oidcprovider")
 const getSequelizeAdapter = require("../adapters/oidcsequelize.adapter")
 
-passport.use(
-    new JwtStrategy(new SiteTokenProvider(getSiteAuthConfiguration()).getSiteTokenStrategyOptions(), function (
-        jwtPayload,
-        done
-    ) {
-        done(null, jwtPayload)
-    })
-)
+async function getPassportConfig() {
+    return await getSiteAuthConfiguration()
+}
+
+getPassportConfig().then((config) => {
+    passport.use(
+        new JwtStrategy(new SiteTokenProvider(config).getSiteTokenStrategyOptions(), function (jwtPayload, done) {
+            done(null, jwtPayload)
+        })
+    )
+})
 
 const userAuthHandler = (req, res, next) => {
     passport.authenticate("jwt", (error, user, info) => {
@@ -102,7 +105,16 @@ const headerCheck = (req, res, next) => {
     next()
 }
 
-const provider = new OidcProvider(getOidcProviderConfiguration(), getSequelizeAdapter(getDatabaseConfiguration()))
+const getProvider = async (req, res) => {
+    const providerConfig = await getOidcProviderConfiguration()
+    const adapterConfig = await getDatabaseConfiguration()
+
+    const provider = new OidcProvider(providerConfig, getSequelizeAdapter(adapterConfig))
+
+    const prov = await provider.getProvider()
+
+    return prov(req, res)
+}
 
 /** @type {ServiceSchema} */
 const ApiGateway = {
@@ -133,7 +145,9 @@ const ApiGateway = {
                                 return
                             }
 
-                            const tokenProvider = new SiteTokenProvider(getSiteAuthConfiguration())
+                            const authConfig = await getSiteAuthConfiguration()
+
+                            const tokenProvider = new SiteTokenProvider(authConfig)
 
                             const { token } = tokenProvider.generateTestSiteToken(req.body.nhsNumber)
 
@@ -174,6 +188,7 @@ const ApiGateway = {
                             res.end()
                         }
                     },
+                    "GET jobs/:nhsNumber/:token": "jobservice.patientlogin",
                 },
             },
             {
@@ -186,7 +201,7 @@ const ApiGateway = {
             },
             {
                 path: "/",
-                use: [provider.getProvider()],
+                use: [getProvider],
             },
             {
                 path: "/verify",
@@ -248,12 +263,6 @@ const ApiGateway = {
                     "POST /:resourceType": "patientfhirservice.create",
                     "GET /:resourceType": "patientfhirservice.search",
                     "GET /:resourceType/:resourceId": "patientfhirservice.read",
-                },
-            },
-            {
-                path: "/test",
-                aliases: {
-                    "GET jobs/:nhsNumber/:token": "jobservice.patientlogin",
                 },
             },
         ],

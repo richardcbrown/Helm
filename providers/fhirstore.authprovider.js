@@ -7,8 +7,6 @@
 const request = require("request-promise-native")
 const uuid = require("uuid")
 const https = require("https")
-const path = require("path")
-const fs = require("fs")
 const jwt = require("jsonwebtoken")
 
 class AuthProvider {
@@ -54,9 +52,9 @@ class AuthProvider {
                     port: configuration.agentPort,
                     passphrase: configuration.passphrase,
                     rejectUnauthorized: true,
-                    cert: fs.readFileSync(path.join(__dirname, "../", configuration.certFile)),
-                    key: fs.readFileSync(path.join(__dirname, "../", configuration.keyFile)),
-                    ca: fs.readFileSync(path.join(__dirname, "../", configuration.caFile)),
+                    cert: configuration.certFile,
+                    key: configuration.keyFile,
+                    ca: configuration.caFile,
                 })
             } else {
                 options.rejectUnauthorized = false
@@ -114,7 +112,7 @@ class AuthProvider {
             const signed = jwt.sign(
                 jwtAssertion,
                 {
-                    key: fs.readFileSync(path.join(__dirname, "../", this.configuration.keyFile)),
+                    key: this.configuration.keyFile,
                     passphrase: this.configuration.passphrase,
                 },
                 {

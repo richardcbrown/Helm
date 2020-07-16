@@ -33,7 +33,9 @@ const getSiteAuthConfiguration = require("../config/config.siteauth")
 async function logoutHandler(ctx) {
     const { logger } = this
 
-    const client = await provisionClient(getOidcConfiguration())
+    const oidcConfig = await getOidcConfiguration()
+
+    const client = await provisionClient(oidcConfig)
 
     return {
         redirectURL: client.getRedirectUrl(),
@@ -48,7 +50,9 @@ async function logoutHandler(ctx) {
 async function getRedirectHandler(ctx) {
     const { logger } = this
 
-    const client = await provisionClient(getOidcConfiguration())
+    const oidcConfig = await getOidcConfiguration()
+
+    const client = await provisionClient(oidcConfig)
 
     return {
         redirectURL: client.getRedirectUrl(),
@@ -65,11 +69,14 @@ async function callbackHandler(ctx) {
 
     const { code, state } = ctx.params
 
-    const client = await provisionClient(getOidcConfiguration())
+    const oidcConfig = await getOidcConfiguration()
+    const authConfig = await getSiteAuthConfiguration()
+
+    const client = await provisionClient(oidcConfig)
 
     const tokenSet = await client.authorisationCallback({ code, state })
 
-    const tokenProvider = new SiteTokenProvider(getSiteAuthConfiguration())
+    const tokenProvider = new SiteTokenProvider(authConfig)
 
     const { payload, token } = tokenProvider.generateSiteToken(tokenSet)
 

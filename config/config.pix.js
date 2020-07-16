@@ -1,16 +1,20 @@
 /** @typedef {import("./types").FhirStoreConfig} FhirStoreConfig */
 
-/** @returns {FhirStoreConfig} */
-function getConfig() {
+const SecretManager = require("./config.secrets")
+
+const secretManager = new SecretManager(process.env.GCP_PROJECT_ID)
+
+/** @returns {Promise<FhirStoreConfig>} */
+async function getConfig() {
     return {
-        host: process.env.PIX_SOS_URL,
-        env: process.env.FHIRSTORE_SOS_ENV,
-        agentHost: process.env.FHIRSTORE_SOS_FHIR_HOST,
-        agentPort: process.env.FHIRSTORE_SOS_FHIR_PORT,
-        passphrase: process.env.PIX_SOS_PASSPHRASE,
-        certFile: process.env.PIX_SOS_CERTFILE,
-        keyFile: process.env.PIX_SOS_KEYFILE,
-        caFile: process.env.PIX_SOS_CA,
+        host: await secretManager.getSecret("PIX_SOS_URL"),
+        env: await secretManager.getSecret("FHIRSTORE_SOS_ENV"),
+        agentHost: await secretManager.getSecret("FHIRSTORE_SOS_FHIR_HOST"),
+        agentPort: await secretManager.getSecret("FHIRSTORE_SOS_FHIR_PORT"),
+        passphrase: await secretManager.getSecret("PIX_SOS_PASSPHRASE"),
+        certFile: await secretManager.getSecret("PIX_SOS_CERTFILE", true),
+        keyFile: await secretManager.getSecret("PIX_SOS_KEYFILE", true),
+        caFile: await secretManager.getSecret("PIX_SOS_CA", true),
     }
 }
 
