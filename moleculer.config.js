@@ -10,8 +10,8 @@ module.exports = {
             monitor: false,
             // Redis settings
             redis: {
-                host: "localhost",
-                port: 6379,
+                host: process.env.REDIS_HOST,
+                port: process.env.REDIS_PORT,
                 db: 0,
             },
         },

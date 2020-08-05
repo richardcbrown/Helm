@@ -128,8 +128,6 @@ class OidcClient {
             scope: scope.login,
             redirect_uri: redirectUrl,
             prompt: "login",
-            nonce: "test",
-            state: "test",
         }
 
         return client.authorizationUrl(authParameters)
@@ -154,7 +152,7 @@ class OidcClient {
             state: params.state,
         }
 
-        const tokenSet = await client.callback(redirectUrl, callbackParameters, { nonce: "test", state: "test" })
+        const tokenSet = await client.callback(redirectUrl, callbackParameters)
 
         return tokenSet
     }

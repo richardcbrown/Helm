@@ -1,0 +1,1621 @@
+{
+    "openapi":"3.0.2",
+    "info": {
+        "title":"Helm Api",
+        "version":"1.0"
+    },
+    "servers": [
+        {"url":"https://staging.myhelm.org"}
+    ],
+    "paths": {
+        "/api/initialise": {
+            "get": {
+                "summary": "Initialise user with Helm",
+                "description": "Initialise user with Helm",
+                "parameters": [{
+                    "in": "header",
+                    "name": "X-Requested-With",
+                    "required": true,
+                    "example": "XMLHttpRequest",
+                    "schema": {
+                        "type": "string"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Success response indicating current setup of user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "description": "Status of patient initialisation"
+                                        }
+                                    }
+                                },
+                                "examples": {
+                                    "Login": {
+                                        "value": {
+                                            "status": "login"
+                                        }
+                                    },
+                                    "SignTerms": {
+                                        "value": {
+                                            "status": "sign_terms"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "301": {
+                        "description": "Redirect to login",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "Error": {
+                                            "type": "string",
+                                            "description": "Login Expired"
+                                        }
+                                    }
+                                },
+                                "example": {
+                                    "status": "Login Expired"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Location": {
+                                "schema": {
+                                    "type": "string",
+                                    "description": "Redirect to auth"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Generic Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/initialise/terms": {
+            "get": {
+                "security": [{
+                    "cookieAuth": []
+                }],
+                "parameters": [{
+                    "in": "header",
+                    "name": "X-Requested-With",
+                    "required": true,
+                    "example": "XMLHttpRequest",
+                    "schema": {
+                        "type": "string"
+                    }
+                }],
+                "summary": "Get Terms",
+                "description": "Get Helm terms for user to sign",
+                "responses": {
+                    "200": {
+                        "description": "Policy resources for user to accept",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "resources": {
+                                            "type": "array",
+                                            "description": "Array of Policy resources to accept",
+                                            "items": {
+                                                "anyOf": [
+                                                   { "$ref": "#/components/schemas/Policy" }
+                                                ] 
+                                            }
+                                        }
+                                    }
+                                },
+                                "example": {
+                                    "resources": [{
+                                    "resourceType": "Policy",
+                                    "status": "active",
+                                    "name": "Helm Privacy Notice",
+                                    "narrative": "<div>Narrative</div>",
+                                    "basis": "inclusive",
+                                    "type": "individual",
+                                    "action": "nothing",
+                                    "rule": [
+                                        {
+                                            "access": {
+                                                "organization": {
+                                                    "reference": "Organization/YHCR:2b8605a6-5135-4910-85d2-0dc316a0cd54"
+                                                }
+                                            },
+                                            "data": [
+                                                {
+                                                    "resource": {
+                                                        "reference": "StructureDefinition/YHCR:Composition"
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    ],
+                                    "meta": {
+                                        "tag": [
+                                            {
+                                                "system": "https://yhcr.nhs.uk/Source",
+                                                "code": "YHCR",
+                                                "display": "Yorkshire and Humber Care Record"
+                                            }
+                                        ],
+                                        "lastUpdated": "2020-07-10T09:41:23.277Z",
+                                        "versionId": 1
+                                    },
+                                    "id": "YHCR:1de1b887-bf37-46b0-81a7-3bdc8043a445"
+                                }]}
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorised",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/unauthorised"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Generic Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/initialise/terms/accept": {
+            "post": {
+                "security": [{
+                    "cookieAuth": []
+                }],
+                "parameters": [{
+                    "in": "header",
+                    "name": "X-Requested-With",
+                    "required": true,
+                    "example": "XMLHttpRequest",
+                    "schema": {
+                        "type": "string"
+                    }
+                }],
+                "summary": "Return Policies accepted by user to generate consent",
+                "requestBody": {
+                    "description": "Array of Policy resources being accepted",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "anyOf": [
+                                       { "$ref": "#/components/schemas/Policy" }
+                                    ] 
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success response indicating whether to continue login or request terms",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "description": "Status of patient initialisation"
+                                        }
+                                    }
+                                },
+                                "examples": {
+                                    "Login": {
+                                        "value": {
+                                            "status": "login"
+                                        }
+                                    },
+                                    "SignTerms": {
+                                        "value": {
+                                            "status": "sign_terms"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorised",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/unauthorised"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Generic Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/demographics": {
+            "get": {
+                "security": [{
+                    "cookieAuth": []
+                }],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Requested-With",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true,
+                        "example": "XMLHttpRequest"
+                    }
+                ],
+                "summary": "Get demographics of logged in user",
+                "responses": {
+                    "200": {
+                        "description": "Patient demographics",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Demographics"
+                                },
+                                "example": {
+                                    "demographics": {
+                                        "id": "9449306052",
+                                        "nhsNumber": "9449306052",
+                                        "gender": "male",
+                                        "telephone": "0113554466",
+                                        "name": "CUTHBERT SEBASTIAN JUMP",
+                                        "address": "1 DANETREE CLOSE, EPSOM, SURREY, KT19 9SU",
+                                        "dateOfBirth": 1177718400000,
+                                        "gpName": "Not known",
+                                        "gpAddress": "Not known"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorised",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/unauthorised"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Generic Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/patient/fhir/{resourceType}": {
+            "get": {
+                "security": [{
+                    "cookieAuth": []
+                }],
+                "summary": "Get user centric FHIR resources from server",
+                "parameters": [{
+                    "in": "path",
+                    "name": "resourceType",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    },
+                    "example": "Composition",
+                    "description": "The name of the FHIR resource being requested, see https://www.hl7.org/fhir/stu3/resourcelist.html for all possible resourceType options and query parameters. Currently only Composition resources are supported."
+                },
+                {
+                    "in": "header",
+                    "name": "X-Requested-With",
+                    "required": true,
+                    "example": "XMLHttpRequest",
+                    "schema": {
+                        "type": "string"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Response containing FHIR bundle with requested resources",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Bundle"
+                                },
+                                "example": {
+                                    "resourceType": "Bundle",
+                                    "id": "f6940051-36c6-4cad-906b-9783164c2eca",
+                                    "type": "searchset",
+                                    "link": [
+                                        {
+                                            "relation": "self",
+                                            "url": "http://localhost:3001/fhir/stu3/Composition?_sort=-date&_count=1&type=https%3A%2F%2Ffhir.myhelm.org%2FSTU3%2FValueSet%2Fphr-composition-type-1|T3T&subject=Patient%2F4daa5963-abc7-4253-95a5-060f8bc1f604"
+                                        }
+                                    ],
+                                    "total": 1,
+                                    "entry": [
+                                        {
+                                            "fullUrl": "http://localhost:3001/fhir/stu3/Composition/363c52dc-a832-41b9-988b-b9ba5fce5c27",
+                                            "search": {
+                                                "mode": "match"
+                                            },
+                                            "resource": {
+                                                "resourceType": "Composition",
+                                                "type": {
+                                                    "coding": [
+                                                        {
+                                                            "system": "https://fhir.myhelm.org/STU3/ValueSet/phr-composition-type-1",
+                                                            "code": "T3T",
+                                                            "display": "Patient Top 3 Things"
+                                                        }
+                                                    ]
+                                                },
+                                                "date": "2020-07-14T15:54:44.205Z",
+                                                "title": "PHR 3 Items",
+                                                "section": [
+                                                    {
+                                                        "title": "Facilis laudantium minima est vel.",
+                                                        "code": {
+                                                            "coding": [
+                                                                {
+                                                                    "system": "https://fhir.myhelm.org/STU3/ValueSet/phr-section-t3t-1",
+                                                                    "code": "3T1",
+                                                                    "display": "First of patient top 3 things"
+                                                                }
+                                                            ]
+                                                        },
+                                                        "text": {
+                                                            "status": "generated",
+                                                            "div": "Dolor sit consequatur est unde modi et sequi officia enim. Voluptatibus officiis non qui quas provident tempore. Aut nulla perspiciatis dolores vitae quibusdam facilis."
+                                                        }
+                                                    },
+                                                    {
+                                                        "title": "Non molestias ea soluta est neque ad minima tempora occaecati.",
+                                                        "code": {
+                                                            "coding": [
+                                                                {
+                                                                    "system": "https://fhir.myhelm.org/STU3/ValueSet/phr-section-t3t-1",
+                                                                    "code": "3T2",
+                                                                    "display": "Second of patient top 3 things"
+                                                                }
+                                                            ]
+                                                        },
+                                                        "text": {
+                                                            "status": "generated",
+                                                            "div": "Dolores dicta eos excepturi. Eos veritatis minima labore incidunt dolorem id ea. Similique natus quod rerum alias autem vel quibusdam accusantium hic. Ratione ad totam sint quidem animi cupiditate qui. In eius expedita. Nobis nesciunt ea et sit accusantium ut magnam quod quia."
+                                                        }
+                                                    },
+                                                    {
+                                                        "title": "Nisi in aliquid ut alias voluptatum ea beatae.",
+                                                        "code": {
+                                                            "coding": [
+                                                                {
+                                                                    "system": "https://fhir.myhelm.org/STU3/ValueSet/phr-section-t3t-1",
+                                                                    "code": "3T3",
+                                                                    "display": "Third of patient top 3 things"
+                                                                }
+                                                            ]
+                                                        },
+                                                        "text": {
+                                                            "status": "generated",
+                                                            "div": "Et voluptatem sunt qui et. Veritatis voluptatem qui illo nemo alias et asperiores. Eum laborum deleniti est magni. Ut dolores repudiandae et odio."
+                                                        }
+                                                    }
+                                                ],
+                                                "subject": {
+                                                    "reference": "Patient/4daa5963-abc7-4253-95a5-060f8bc1f604",
+                                                    "identifier": {
+                                                        "system": "https://fhir.nhs.uk/Id/nhs-number",
+                                                        "value": "9449306052"
+                                                    }
+                                                },
+                                                "id": "363c52dc-a832-41b9-988b-b9ba5fce5c27",
+                                                "meta": {
+                                                    "lastUpdated": "2020-07-14T15:54:46.788Z",
+                                                    "versionId": 1,
+                                                    "tag": [
+                                                        {
+                                                            "system": "https://yhcr.nhs.uk/Source",
+                                                            "code": "YHCR",
+                                                            "display": "Yorkshire and Humber Care Record"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorised",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/unauthorised"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Generic Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/error"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [{
+                    "cookieAuth": []
+                }],
+                "summary": "Create user centric FHIR resources on",
+                "parameters": [{
+                    "in": "path",
+                    "name": "resourceType",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    },
+                    "example": "Composition",
+                    "description": "The name of the FHIR resource being created, see https://www.hl7.org/fhir/stu3/resourcelist.html for all possible resourceType options and query parameters. Currently only Composition resources are supported. The resourceType must that of the resource being created."
+                },
+                {
+                    "in": "header",
+                    "name": "X-Requested-With",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "required": true,
+                    "example": "XMLHttpRequest"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Sucessful creation of resource"
+                    },
+                    "403": {
+                        "description": "Unauthorised",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/unauthorised"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Generic Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "requestBody": {
+                    "description": "Resource being created on server see https://www.hl7.org/fhir/stu3/resourcelist.html",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object"
+                            },
+                            "example": {"resourceType":"Composition","type":{"coding":[{"system":"https://fhir.myhelm.org/STU3/ValueSet/phr-composition-type-1","code":"T3T","display":"Patient Top 3 Things"}]},"date":"2020-07-14T15:54:44.205Z","title":"PHR 3 Items","section":[{"title":"Facilis laudantium minima est vel.","code":{"coding":[{"system":"https://fhir.myhelm.org/STU3/ValueSet/phr-section-t3t-1","code":"3T1","display":"First of patient top 3 things"}]},"text":{"status":"generated","div":"Dolor sit consequatur est unde modi et sequi officia enim. Voluptatibus officiis non qui quas provident tempore. Aut nulla perspiciatis dolores vitae quibusdam facilis."}},{"title":"Non molestias ea soluta est neque ad minima tempora occaecati.","code":{"coding":[{"system":"https://fhir.myhelm.org/STU3/ValueSet/phr-section-t3t-1","code":"3T2","display":"Second of patient top 3 things"}]},"text":{"status":"generated","div":"Dolores dicta eos excepturi. Eos veritatis minima labore incidunt dolorem id ea. Similique natus quod rerum alias autem vel quibusdam accusantium hic. Ratione ad totam sint quidem animi cupiditate qui. In eius expedita. Nobis nesciunt ea et sit accusantium ut magnam quod quia."}},{"title":"Nisi in aliquid ut alias voluptatum ea beatae.","code":{"coding":[{"system":"https://fhir.myhelm.org/STU3/ValueSet/phr-section-t3t-1","code":"3T3","display":"Third of patient top 3 things"}]},"text":{"status":"generated","div":"Et voluptatem sunt qui et. Veritatis voluptatem qui illo nemo alias et asperiores. Eum laborum deleniti est magni. Ut dolores repudiandae et odio."}}]}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/patient/fhir/{resourceType}/{resourceId}": {
+            "get": {
+                "security": [{
+                    "cookieAuth": []
+                }],
+                
+                "summary": "Get a FHIR resource by id see https://www.hl7.org/fhir/stu3/resourcelist.html for all possible resources.",
+                "parameters": [{
+                    "in": "path",
+                    "name": "resourceType",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    },
+                    "example": "Composition",
+                    "description": "The name of the FHIR resource being requested, see https://www.hl7.org/fhir/stu3/resourcelist.html for all possible resourceType options and query parameters. Currently only Composition resources are supported."
+                }, 
+                {
+                    "in": "path",
+                    "name": "resourceId",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    },
+                    "example": "f6940051-36c6-4cad-906b-9783164c2eca",
+                    "description": "The guid id of the resource."
+                },
+                {
+                    "in": "header",
+                    "name": "X-Requested-With",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "required": true,
+                    "example": "XMLHttpRequest"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Retrieval of FHIR resource by id",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "resourceType": "Composition",
+                                    "type": {
+                                        "coding": [
+                                            {
+                                                "system": "https://fhir.myhelm.org/STU3/ValueSet/phr-composition-type-1",
+                                                "code": "T3T",
+                                                "display": "Patient Top 3 Things"
+                                            }
+                                        ]
+                                    },
+                                    "date": "2020-07-14T15:54:44.205Z",
+                                    "title": "PHR 3 Items",
+                                    "section": [
+                                        {
+                                            "title": "Facilis laudantium minima est vel.",
+                                            "code": {
+                                                "coding": [
+                                                    {
+                                                        "system": "https://fhir.myhelm.org/STU3/ValueSet/phr-section-t3t-1",
+                                                        "code": "3T1",
+                                                        "display": "First of patient top 3 things"
+                                                    }
+                                                ]
+                                            },
+                                            "text": {
+                                                "status": "generated",
+                                                "div": "Dolor sit consequatur est unde modi et sequi officia enim. Voluptatibus officiis non qui quas provident tempore. Aut nulla perspiciatis dolores vitae quibusdam facilis."
+                                            }
+                                        },
+                                        {
+                                            "title": "Non molestias ea soluta est neque ad minima tempora occaecati.",
+                                            "code": {
+                                                "coding": [
+                                                    {
+                                                        "system": "https://fhir.myhelm.org/STU3/ValueSet/phr-section-t3t-1",
+                                                        "code": "3T2",
+                                                        "display": "Second of patient top 3 things"
+                                                    }
+                                                ]
+                                            },
+                                            "text": {
+                                                "status": "generated",
+                                                "div": "Dolores dicta eos excepturi. Eos veritatis minima labore incidunt dolorem id ea. Similique natus quod rerum alias autem vel quibusdam accusantium hic. Ratione ad totam sint quidem animi cupiditate qui. In eius expedita. Nobis nesciunt ea et sit accusantium ut magnam quod quia."
+                                            }
+                                        },
+                                        {
+                                            "title": "Nisi in aliquid ut alias voluptatum ea beatae.",
+                                            "code": {
+                                                "coding": [
+                                                    {
+                                                        "system": "https://fhir.myhelm.org/STU3/ValueSet/phr-section-t3t-1",
+                                                        "code": "3T3",
+                                                        "display": "Third of patient top 3 things"
+                                                    }
+                                                ]
+                                            },
+                                            "text": {
+                                                "status": "generated",
+                                                "div": "Et voluptatem sunt qui et. Veritatis voluptatem qui illo nemo alias et asperiores. Eum laborum deleniti est magni. Ut dolores repudiandae et odio."
+                                            }
+                                        }
+                                    ],
+                                    "subject": {
+                                        "reference": "Patient/4daa5963-abc7-4253-95a5-060f8bc1f604",
+                                        "identifier": {
+                                            "system": "https://fhir.nhs.uk/Id/nhs-number",
+                                            "value": "9449306052"
+                                        }
+                                    },
+                                    "id": "363c52dc-a832-41b9-988b-b9ba5fce5c27",
+                                    "meta": {
+                                        "lastUpdated": "2020-07-14T15:54:46.788Z",
+                                        "versionId": 1,
+                                        "tag": [
+                                            {
+                                                "system": "https://yhcr.nhs.uk/Source",
+                                                "code": "YHCR",
+                                                "display": "Yorkshire and Humber Care Record"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorised",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/unauthorised"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Generic Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/repository": {
+            "get": {
+                "security": [{
+                    "cookieAuth": []
+                }],
+                "summary": "Get resources from Leeds Information repository",
+                "parameters": [{
+                    "in": "query",
+                    "name": "q",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    },
+                    "example": "Diabetes",
+                    "description": "Term to search for in Leeds Information Repository"
+                }, 
+                {
+                    "in": "query",
+                    "name": "tags",
+                    "required": false,
+                    "schema": {
+                        "type": "string"
+                    },
+                    "example": "b8a5c24b-da50-4226-945e-a76c3da73947%2C5e76e27b-6a8d-4eb3-ab38-22d07c18ae9d",
+                    "description": "Comma separated tags to search for in Leeds Information Repository"
+                },
+                {
+                    "in": "query",
+                    "name": "page",
+                    "required": false,
+                    "schema": {
+                        "type": "number"
+                    },
+                    "example": 1,
+                    "description": "Page of Leeds Repository results to search"
+                },
+                {
+                    "in": "header",
+                    "name": "X-Requested-With",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "required": true,
+                    "example": "XMLHttpRequest"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Successful response of repository search",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "servicePage": 2,
+                                    "resourcePage": 1,
+                                    "data": [
+                                        {
+                                            "id": "246d8707-b953-420a-a33c-867519f41678",
+                                            "organisation_id": "4a77159f-50b0-4989-8872-1a5588242496",
+                                            "has_logo": false,
+                                            "slug": "diabetes-u-k",
+                                            "name": "Diabetes UK",
+                                            "type": "service",
+                                            "status": "active",
+                                            "intro": "Diabetes UK is the largest organisation in the UK working for people with diabetes, funding research, campaigning and he",
+                                            "description": "Diabetes UK is the largest organisation in the UK working for people with diabetes, funding research, campaigning and helping people live with the condition.",
+                                            "wait_time": null,
+                                            "is_free": true,
+                                            "fees_text": null,
+                                            "fees_url": null,
+                                            "testimonial": null,
+                                            "video_embed": null,
+                                            "url": "https://example.com/no-url-provided",
+                                            "contact_name": null,
+                                            "contact_phone": "0345 123 2399",
+                                            "contact_email": "northyorks@diabetes.org.uk",
+                                            "show_referral_disclaimer": false,
+                                            "referral_method": "none",
+                                            "referral_button_text": null,
+                                            "referral_email": null,
+                                            "referral_url": null,
+                                            "criteria": {
+                                                "age_group": null,
+                                                "disability": null,
+                                                "employment": null,
+                                                "gender": null,
+                                                "housing": null,
+                                                "income": null,
+                                                "language": null,
+                                                "other": null
+                                            },
+                                            "useful_infos": [],
+                                            "offerings": [],
+                                            "social_medias": [],
+                                            "gallery_items": [],
+                                            "category_taxonomies": [
+                                                {
+                                                    "id": "baa31558-a02d-42ab-91f9-8279ece6f660",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS25",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "bf7c9f7f-1f82-45d5-bf4b-dc08e6e1b64f",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS12",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "dd2438b0-34f5-49aa-aadf-0f5a22b86999",
+                                                    "parent_id": "d71917b3-fd2a-417d-93bb-f1c536938408",
+                                                    "name": "Geography",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:42+0000"
+                                                },
+                                                {
+                                                    "id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "parent_id": "dd2438b0-34f5-49aa-aadf-0f5a22b86999",
+                                                    "name": "Postcode Area",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                }
+                                            ],
+                                            "ends_at": null,
+                                            "last_modified_at": "2019-09-05T12:43:20+0000",
+                                            "created_at": "2019-09-05T12:43:20+0000",
+                                            "updated_at": "2019-09-05T12:43:20+0000"
+                                        },
+                                        {
+                                            "id": "ed77928b-a14d-4b73-87bc-a9f806ae43dc",
+                                            "organisation_id": "4a77159f-50b0-4989-8872-1a5588242496",
+                                            "has_logo": false,
+                                            "slug": "leeds-community-diabetes-service",
+                                            "name": "Leeds Community Diabetes Service",
+                                            "type": "service",
+                                            "status": "active",
+                                            "intro": "Provides different aspects of diabetes care by a range of specialist healthcare professionals. See non-acute patients wi",
+                                            "description": "Provides different aspects of diabetes care by a range of specialist healthcare professionals. See non-acute patients with type II diabetes to offer them and their GP support in dealing with diabetes and its complications. Access to this service is by GP, Practice Nurse or other healthcare professional only. If you are not already under the care of this service please contact your GP.",
+                                            "wait_time": null,
+                                            "is_free": true,
+                                            "fees_text": null,
+                                            "fees_url": null,
+                                            "testimonial": null,
+                                            "video_embed": null,
+                                            "url": "https://example.com/no-url-provided",
+                                            "contact_name": null,
+                                            "contact_phone": "0113 843 4200",
+                                            "contact_email": null,
+                                            "show_referral_disclaimer": false,
+                                            "referral_method": "none",
+                                            "referral_button_text": null,
+                                            "referral_email": null,
+                                            "referral_url": null,
+                                            "criteria": {
+                                                "age_group": null,
+                                                "disability": null,
+                                                "employment": null,
+                                                "gender": null,
+                                                "housing": null,
+                                                "income": null,
+                                                "language": null,
+                                                "other": null
+                                            },
+                                            "useful_infos": [],
+                                            "offerings": [],
+                                            "social_medias": [],
+                                            "gallery_items": [],
+                                            "category_taxonomies": [
+                                                {
+                                                    "id": "032f466f-4aa5-4960-bbea-a2f8337c6a71",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS99",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "0711468a-199b-493e-b4d6-61ec99f7465c",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS8",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "07487f0a-7bb4-41be-8fb4-ba6e15f05104",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS11",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "0f372c28-4a2a-4d7e-b8ef-3842bb2ea498",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS4",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "175bed0a-82e5-45a1-9fea-154d2b44a2bd",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS16",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "1d4760d6-2278-4bc9-b7d5-cbd0dbdbcdda",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS29",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "1ea1e81c-0578-4fc4-8d37-a08feba67ea9",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS1",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "1f3827b9-17ad-4de4-9652-867c96d526f7",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS27",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "26b96755-1cc9-49a8-83db-2564f6d1adaf",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS20",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "3e0338d0-b943-48e4-9d09-800b2fad9ddd",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS23",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "559ca7d6-13a4-4d18-a189-e67c33db5af9",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS13",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "6e9171cf-cb01-491e-aa2f-b1af7de40e29",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "WF10",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "71117eff-c6c8-4d18-acfe-436ad496f51a",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS19",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "77e6c30f-f72e-432c-a157-4a6fe03408bf",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS9",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "8a462094-1f7b-4e89-89ee-dbb04f64aaf0",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS2",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "93f00d00-592e-4936-9b63-e6d47af94707",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS15",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "970a0439-d609-468b-be0e-f1276ac437f0",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS26",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "970b7195-6b1f-4202-bf03-be99590077d9",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "BD4",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "9c0cf593-52d2-4e09-adeb-ae46068e336f",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS21",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "9e985885-20d5-4e25-aad2-464ffa42c970",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS18",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "a5c521ca-4534-4f47-b9be-85746c110e1d",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS24",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "b00a57a2-0137-48dc-a558-f1eedc1c0dab",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS88",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "b6570688-0fba-4007-b366-0c60c013baa7",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS28",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "baa31558-a02d-42ab-91f9-8279ece6f660",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS25",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "bf7c9f7f-1f82-45d5-bf4b-dc08e6e1b64f",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS12",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "c5252014-0d70-45ed-a67e-666c0327038e",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS5",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "d2125b65-6e4e-4206-a8f0-58ca3c9049e1",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS14",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "d902ba45-51e4-41e4-a2ff-48b2f1f7f9c4",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "WF3",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "d902dd26-6103-431f-952a-c970d39a4aaa",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS17",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "dd2438b0-34f5-49aa-aadf-0f5a22b86999",
+                                                    "parent_id": "d71917b3-fd2a-417d-93bb-f1c536938408",
+                                                    "name": "Geography",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:42+0000"
+                                                },
+                                                {
+                                                    "id": "de09e462-7a73-437e-a39c-ef4bc487ad76",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS7",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "e2da4a61-4fe5-4137-bf88-0c4c950d6df0",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS10",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "e66ae4e4-ada6-4747-a04f-321c1b879393",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS22",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "e8757068-2112-4459-a25f-b3d4f5d58580",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "BD11",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "ea5865ba-88f9-49a4-8240-74e49f07ab21",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS6",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "parent_id": "dd2438b0-34f5-49aa-aadf-0f5a22b86999",
+                                                    "name": "Postcode Area",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "fa287474-4547-4ee6-8ddf-b4dd90458d2f",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS3",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                }
+                                            ],
+                                            "ends_at": null,
+                                            "last_modified_at": "2019-09-05T12:44:39+0000",
+                                            "created_at": "2019-09-05T12:44:39+0000",
+                                            "updated_at": "2019-09-05T12:44:39+0000"
+                                        },
+                                        {
+                                            "id": "eadee8b7-cd5a-4d45-8598-e8d4aae0880f",
+                                            "organisation_id": "a9cc1eb4-dc66-4590-8f9f-1de6f2d396e5",
+                                            "has_logo": false,
+                                            "slug": "leeds-diabetes-u-k-group",
+                                            "name": "Leeds Diabetes UK Group",
+                                            "type": "service",
+                                            "status": "active",
+                                            "intro": "Provide suport to those with diabetes, Type 1 & Type 2, and their carers, family members. Raise awareness in the city am",
+                                            "description": "Provide suport to those with diabetes, Type 1 & Type 2, and their carers, family members. Raise awareness in the city among the general public. Help to raise funds for the national charity to continue to assist those who may be able to find a cure and prevent diabetes.",
+                                            "wait_time": null,
+                                            "is_free": true,
+                                            "fees_text": null,
+                                            "fees_url": null,
+                                            "testimonial": null,
+                                            "video_embed": null,
+                                            "url": "https://example.com/no-url-provided",
+                                            "contact_name": null,
+                                            "contact_phone": "07840 686618",
+                                            "contact_email": "diabetesleeds@hotmail.co.uk",
+                                            "show_referral_disclaimer": false,
+                                            "referral_method": "none",
+                                            "referral_button_text": null,
+                                            "referral_email": null,
+                                            "referral_url": null,
+                                            "criteria": {
+                                                "age_group": null,
+                                                "disability": null,
+                                                "employment": null,
+                                                "gender": null,
+                                                "housing": null,
+                                                "income": null,
+                                                "language": null,
+                                                "other": null
+                                            },
+                                            "useful_infos": [],
+                                            "offerings": [],
+                                            "social_medias": [],
+                                            "gallery_items": [],
+                                            "category_taxonomies": [
+                                                {
+                                                    "id": "5e76e27b-6a8d-4eb3-ab38-22d07c18ae9d",
+                                                    "parent_id": "d71917b3-fd2a-417d-93bb-f1c536938408",
+                                                    "name": "Audience",
+                                                    "created_at": "2019-09-05T12:40:42+0000",
+                                                    "updated_at": "2019-09-05T12:40:42+0000"
+                                                },
+                                                {
+                                                    "id": "86199f67-62f9-4296-830b-6592de3b7032",
+                                                    "parent_id": "5e76e27b-6a8d-4eb3-ab38-22d07c18ae9d",
+                                                    "name": "Faith",
+                                                    "created_at": "2019-09-05T12:40:42+0000",
+                                                    "updated_at": "2019-09-05T12:40:43+0000"
+                                                },
+                                                {
+                                                    "id": "b8a5c24b-da50-4226-945e-a76c3da73947",
+                                                    "parent_id": "86199f67-62f9-4296-830b-6592de3b7032",
+                                                    "name": "Christian",
+                                                    "created_at": "2019-09-05T12:40:42+0000",
+                                                    "updated_at": "2019-09-05T12:40:43+0000"
+                                                }
+                                            ],
+                                            "ends_at": null,
+                                            "last_modified_at": "2019-09-05T12:47:37+0000",
+                                            "created_at": "2019-09-05T12:47:37+0000",
+                                            "updated_at": "2019-09-05T12:47:37+0000"
+                                        },
+                                        {
+                                            "id": "0f6bda29-bf2a-4996-aa85-e2018d90d5ef",
+                                            "organisation_id": "4a77159f-50b0-4989-8872-1a5588242496",
+                                            "has_logo": false,
+                                            "slug": "l-t-h-t-diabetes-service",
+                                            "name": "LTHT Diabetes Service",
+                                            "type": "service",
+                                            "status": "active",
+                                            "intro": "Welcomes GP referrals for newly diagnosed and existing diabetic patients and offers long term follow up including the sc",
+                                            "description": "Welcomes GP referrals for newly diagnosed and existing diabetic patients and offers long term follow up including the screening for and treatment of chronic diabetic complications. St James's: Telephone: 0113 206 5068 Wharfedale: Telephone: 0113 392 1588 Access to this service is via GP referral only. If you are not already under the care of this service please speak to your GP.",
+                                            "wait_time": null,
+                                            "is_free": true,
+                                            "fees_text": null,
+                                            "fees_url": null,
+                                            "testimonial": null,
+                                            "video_embed": null,
+                                            "url": "https://example.com/no-url-provided",
+                                            "contact_name": null,
+                                            "contact_phone": "0113 206 5066",
+                                            "contact_email": null,
+                                            "show_referral_disclaimer": false,
+                                            "referral_method": "none",
+                                            "referral_button_text": null,
+                                            "referral_email": null,
+                                            "referral_url": null,
+                                            "criteria": {
+                                                "age_group": null,
+                                                "disability": null,
+                                                "employment": null,
+                                                "gender": null,
+                                                "housing": null,
+                                                "income": null,
+                                                "language": null,
+                                                "other": null
+                                            },
+                                            "useful_infos": [],
+                                            "offerings": [],
+                                            "social_medias": [],
+                                            "gallery_items": [],
+                                            "category_taxonomies": [
+                                                {
+                                                    "id": "0711468a-199b-493e-b4d6-61ec99f7465c",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS8",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "9e985885-20d5-4e25-aad2-464ffa42c970",
+                                                    "parent_id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "name": "LS18",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                },
+                                                {
+                                                    "id": "dd2438b0-34f5-49aa-aadf-0f5a22b86999",
+                                                    "parent_id": "d71917b3-fd2a-417d-93bb-f1c536938408",
+                                                    "name": "Geography",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:42+0000"
+                                                },
+                                                {
+                                                    "id": "ed18d879-4079-48e4-aa55-25da5a7fa8dd",
+                                                    "parent_id": "dd2438b0-34f5-49aa-aadf-0f5a22b86999",
+                                                    "name": "Postcode Area",
+                                                    "created_at": "2019-09-05T12:40:41+0000",
+                                                    "updated_at": "2019-09-05T12:40:41+0000"
+                                                }
+                                            ],
+                                            "ends_at": null,
+                                            "last_modified_at": "2019-09-05T12:45:24+0000",
+                                            "created_at": "2019-09-05T12:45:24+0000",
+                                            "updated_at": "2019-09-05T12:45:24+0000"
+                                        }
+                                    ],
+                                    "serviceIndex": null,
+                                    "resourceIndex": null,
+                                    "lastPage": true
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorised",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/unauthorised"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Generic Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/redirect": {
+            "get": {
+                "summary": "Get Redirect to OIDC login",
+                "description": "Get login url",
+                "responses": {
+                    "200": {
+                        "description": "Successful response of login url",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/returnUrl"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Generic Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/token": {
+            "get": {
+                "summary": "OIDC Callback Url",
+                "description": "Return Url from OIDC provider",
+                "parameters": [{
+                    "in": "query",
+                    "name": "code",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    },
+                    "example": "5f20d3ed-dd52-4989-934d-24cdd9a32c31",
+                    "description": "Code to exchange for token"
+                }],
+                "responses": {
+                    "302": {
+                        "description": "Redirect to login",
+                        "headers": {
+                            "Set-Cookie": {
+                                "description": "Auth cookie for site access",
+                                "example": "JSESSIONID=token; Path=/;",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Location": {
+                                "description": "Redirect to login",
+                                "example": "/#/login",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Generic Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/logout": {
+            "get": {
+                "security": [{
+                    "cookieAuth": []
+                }],
+                "summary": "Logout",
+                "description": "Logout of system",
+                "responses": {
+                    "200": {
+                        "description": "Successful logout, redirect back to login",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/returnUrl"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Generic Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "cookieAuth": {
+                "type": "apiKey",
+                "in": "cookie",
+                "name": "JSESSIONID"
+            },
+            "basicAuth": {
+                "type": "http",
+                "scheme": "basic"
+            },
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        },
+        "schemas": {
+            "Policy": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "resourceType": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "narrative": {
+                        "type": "string"
+                    },
+                    "basis": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "action": {
+                        "type": "string"
+                    },
+                    "rule": {
+                        "type": "array",
+                        "items": {
+
+                        }
+                    },
+                    "meta": {
+                        "type": "object"
+                    }
+                }
+            },
+            "returnUrl": {
+                "properties": {
+                    "returnURL": {
+                        "type": "string",
+                        "description": "Return url to NHS Login"
+                    }
+                },
+                "example": {
+                    "redirectURL": "https://oidc.mock.signin.nhs.uk/client?client_id=test&scope=openid&response_type=code&redirect_uri=http%3A%2F%2Fhelm-local.com%2Fauth%2Ftoken&prompt=login&nonce=test&state=test"
+                }
+            },
+            "error": {
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "description": "error message"
+                    }
+                },
+                "example": {
+                    "error": "Error"
+                }
+            },
+            "status": {
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "description": "Current status"
+                    }
+                }
+            },
+            "signTerms": {
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "description": "Terms must be signed before accessing endpoint"
+                    }
+                },
+                "example": {
+                    "status": "sign_terms"
+                }
+            },
+            "unauthorised": {
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "description": "Unauthorised request"
+                    }
+                },
+                "example": {
+                    "error": "Unauthorised"
+                }
+            },
+            "Demographics": {
+                "type": "object",
+                "properties": {
+                    "demographics": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "nhsNumber": {
+                                "type": "string"
+                            },
+                            "gender": {
+                                "type": "string"
+                            },
+                            "telephone": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "address": {
+                                "type": "string"
+                            },
+                            "dateOfBirth": {
+                                "type": "number"
+                            },
+                            "gpName": {
+                                "type": "string"
+                            },
+                            "gpAddress": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "Bundle": {
+                "type": "object",
+                "description": "Bundle FHIR resource. See https://www.hl7.org/fhir/stu3/bundle.html",
+                "properties": {
+                    "resourceType": {
+                        "type": "string"
+                    },
+                    "id": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "link": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "relation": {
+                                    "type": "string"
+                                },
+                                "url": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "total": {
+                        "type": "number"
+                    },
+                    "entry": {
+                        "type": "object",
+                        "properties": {
+                            "fullUrl": {
+                                "type": "string"
+                            },
+                            "search": {
+                                "type": "object"
+                            },
+                            "resource": {
+                                "type": "object"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

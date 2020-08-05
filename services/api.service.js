@@ -195,8 +195,13 @@ const ApiGateway = {
                 path: "/auth",
                 aliases: {
                     "GET /redirect": "oidcclientservice.getRedirect",
-                    "GET /token": "oidcclientservice.callback",
                     "GET /logout": "oidcclientservice.logout",
+                },
+            },
+            {
+                path: "/api/auth",
+                aliases: {
+                    "GET /token": "oidcclientservice.callback",
                 },
             },
             {
@@ -224,7 +229,6 @@ const ApiGateway = {
                 aliases: {
                     "GET /initialise": "consentservice.initialise",
                     "GET /initialise/terms": "consentservice.getTerms",
-                    "GET /initialise/terms/check": "consentservice.check",
                     "POST /initialise/terms/accept": "consentservice.acceptTerms",
                 },
             },

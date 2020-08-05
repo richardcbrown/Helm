@@ -35,7 +35,7 @@ class SecretManager {
             }
 
             const [secret] = await secretManager.accessSecretVersion({
-                name: `projects/${project}/secrets/${secretId}/versions/latest`,
+                name: `projects/${project}/secrets/${process.env[secretId]}/versions/latest`,
             })
 
             if (!secret || !secret.payload || !secret.payload.data) {

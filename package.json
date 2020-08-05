@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "debug": "node --inspect-brk=0.0.0.0:9230 node_modules/moleculer/bin/moleculer-runner -e services",
-    "dev": "moleculer-runner --repl --hot -e services"
+    "dev": "moleculer-runner --repl --hot -e services",
+    "start": "moleculer-runner -e services",
+    "k8s:cloud:staging:up": "gcloud config set project helm-staging && gcloud auth configure-docker && docker build --no-cache -t helm . && docker tag helm eu.gcr.io/helm-management/helm:1.0.0 && docker push eu.gcr.io/helm-management/helm:1.0.0 && docker build --no-cache -f RedisDockerfile -t helm-redis . && docker tag helm-redis eu.gcr.io/helm-management/helm-redis:1.0.0 && docker push eu.gcr.io/helm-management/helm-redis:1.0.0 && docker build --no-cache -f RabbitDockerfile -t helm-rabbit . && docker tag helm-rabbit eu.gcr.io/helm-management/helm-rabbit:1.0.0 && docker push eu.gcr.io/helm-management/helm-rabbit:1.0.0 && docker build --no-cache -f test/TestDockerfile -t helm-test ./test && docker tag helm-test eu.gcr.io/helm-management/helm-test:1.0.0 && docker push eu.gcr.io/helm-management/helm-test:1.0.0 && gcloud container clusters get-credentials --zone=europe-west2-a helm-staging-cluster && kubectl create configmap helm-env --from-env-file run/k8s/staging/.env && kubectl create configmap fhirstore-env --from-env-file run/k8s/staging/fhirstore.env && kubectl apply -f run/k8s/staging && kubectl get all -l group=helm",
+    "k8s:cloud:staging:down": "gcloud config set project helm-staging && gcloud auth configure-docker && gcloud container clusters get-credentials --zone=europe-west2-a helm-staging-cluster && kubectl delete configmap helm-env && kubectl delete configmap fhirstore-env && kubectl delete all -l group=helm && kubectl get all"
   },
   "author": "",
   "license": "ISC",

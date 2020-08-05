@@ -12,7 +12,7 @@ async function getConfig() {
         oidcProviderHost: await secretManager.getSecret("OIDCCLIENT_ISSUER"),
         urls: {
             issuer: await secretManager.getSecret("OIDCCLIENT_ISSUER"),
-            authorizationEndpoint: "/client",
+            authorizationEndpoint: "/authorize",
             tokenEndpoint: "/token",
             userInfoEndpoint: "/userinfo",
             jwksEndpoint: "/.well-known/jwks.json",
@@ -20,7 +20,7 @@ async function getConfig() {
         clientId: await secretManager.getSecret("OIDCCLIENT_CLIENTID"),
         clientSecret: await secretManager.getSecret("OIDCCLIENT_CLIENTSECRET"),
         scope: {
-            login: "openid",
+            login: "openid profile profile_extended",
         },
         defaultHttpOptions: {
             rejectUnauthorized: true,

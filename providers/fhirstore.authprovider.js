@@ -77,7 +77,7 @@ class AuthProvider {
      * @returns {string}
      */
     getAssertion(nhsNumber) {
-        const { scope, ods, aud, rol, sub, iss, azp, env } = this.configuration
+        const { scope, ods, aud, rol, sub, iss, env } = this.configuration
 
         const { rsn } = this
 
@@ -94,7 +94,6 @@ class AuthProvider {
             rsn,
             exp,
             iat,
-            azp,
             jti: uuid.v4(),
         }
 

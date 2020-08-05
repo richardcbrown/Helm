@@ -1,7 +1,14 @@
-FROM rabbitmq
+FROM node:13.14.0-alpine3.10
 
-COPY rabbitmq_delayed_message_exchange-3.8.0.ez .
+ENV NODE_ENV=production
 
-RUN mv rabbitmq_delayed_message_exchange-3.8.0.ez plugins/
+RUN mkdir /app
+WORKDIR /app
 
-RUN rabbitmq-plugins enable rabbitmq_delayed_message_exchange
+COPY package.json yarn.lock ./
+
+RUN yarn install --production
+
+COPY . .
+
+CMD ["npm", "start"]

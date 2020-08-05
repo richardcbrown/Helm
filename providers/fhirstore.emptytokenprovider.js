@@ -1,4 +1,4 @@
-class EmptyAuthProvider {
+class EmptyTokenProvider {
     /**
      * @public
      * @param {import("./fhirstore.tokenprovider").RequestOptions} request
@@ -9,4 +9,4 @@ class EmptyAuthProvider {
     }
 }
 
-module.exports = EmptyAuthProvider
+module.exports = EmptyTokenProvider

@@ -11,6 +11,7 @@ const getFhirStoreConfig = require("../config/config.internalfhirstore")
 const getFhirAuthConfig = require("../config/config.internalfhirauth")
 const AuthProvider = require("../providers/auth.provider")
 const InternalFhirDataProvider = require("../providers/internalfhirstore.dataprovider")
+const EmptyTokenProvider = require("../providers/fhirstore.emptytokenprovider")
 
 /** @type {ServiceSchema} */
 const InternalFhirService = {
@@ -21,8 +22,14 @@ const InternalFhirService = {
             const authConfig = await getFhirAuthConfig()
             const storeConfig = await getFhirStoreConfig()
 
-            const authProvider = new AuthProvider(authConfig, this.logger)
-            const tokenProvider = new TokenProvider(authProvider, this.logger)
+            let tokenProvider
+
+            if (authConfig.authenticate) {
+                const authProvider = new AuthProvider(authConfig, this.logger)
+                tokenProvider = new TokenProvider(authProvider, this.logger)
+            } else {
+                tokenProvider = new EmptyTokenProvider()
+            }
 
             const fhirStore = new InternalFhirDataProvider(storeConfig, this.logger, tokenProvider)
 
@@ -32,9 +39,14 @@ const InternalFhirService = {
             const authConfig = await getFhirAuthConfig()
             const storeConfig = await getFhirStoreConfig()
 
-            const authProvider = new AuthProvider(authConfig, this.logger)
+            let tokenProvider
 
-            const tokenProvider = new TokenProvider(authProvider, this.logger)
+            if (authConfig.authenticate) {
+                const authProvider = new AuthProvider(authConfig, this.logger)
+                tokenProvider = new TokenProvider(authProvider, this.logger)
+            } else {
+                tokenProvider = new EmptyTokenProvider()
+            }
 
             const fhirStore = new InternalFhirDataProvider(storeConfig, this.logger, tokenProvider)
 
@@ -44,9 +56,14 @@ const InternalFhirService = {
             const authConfig = await getFhirAuthConfig()
             const storeConfig = await getFhirStoreConfig()
 
-            const authProvider = new AuthProvider(authConfig, this.logger)
+            let tokenProvider
 
-            const tokenProvider = new TokenProvider(authProvider, this.logger)
+            if (authConfig.authenticate) {
+                const authProvider = new AuthProvider(authConfig, this.logger)
+                tokenProvider = new TokenProvider(authProvider, this.logger)
+            } else {
+                tokenProvider = new EmptyTokenProvider()
+            }
 
             const fhirStore = new InternalFhirDataProvider(storeConfig, this.logger, tokenProvider)
 

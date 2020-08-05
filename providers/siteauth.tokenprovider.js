@@ -17,7 +17,7 @@ class SiteAuthTokenProvider {
      * @returns {{ payload: any, token: string }} jwt
      */
     generateSiteToken(tokenSet) {
-        const { jwtSigningSecret, jwtExpiry, jwtSigningAlgorithm, issuer, audience } = this.configuration
+        const { jwtSigningSecret, jwtExpiry, jwtSigningAlgorithm, issuer, audience, nhsNumberMap } = this.configuration
 
         const idToken = tokenSet.id_token
 
@@ -30,13 +30,19 @@ class SiteAuthTokenProvider {
         const iat = decodedId.iat || Math.floor(Date.now() / 1000)
         const exp = jwtExpiry ? iat + jwtExpiry : decodedId.exp
 
+        let nhsNumber = decodedId.nhs_number.split(" ").join("")
+
+        if (nhsNumberMap && nhsNumberMap[nhsNumber]) {
+            nhsNumber = nhsNumberMap[nhsNumber]
+        }
+
         const tokenPayload = {
             iat,
             exp,
             iss: issuer,
             aud: audience,
             role: "phrUser",
-            sub: decodedId.nhs_number.split(" ").join(""),
+            sub: nhsNumber,
         }
 
         return { payload: tokenPayload, token: jwt.encode(tokenPayload, jwtSigningSecret, jwtSigningAlgorithm) }

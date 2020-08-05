@@ -1,0 +1,12 @@
+docker-compose.yml
+.eslintrc.js
+.prettierrc.js
+Dockerfile
+RedisDockerfile
+jsconfig.json
+node_modules
+openapi.json
+test
+keys
+.vscode
+.env

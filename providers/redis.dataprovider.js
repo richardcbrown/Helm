@@ -15,6 +15,8 @@ class RedisDataProvider {
     createClient() {
         const { host, port } = this.configuration
 
+        console.log(`REDIS HOST PORT ${host} ${port}`)
+
         const client = redis.createClient({
             host,
             port,
@@ -31,6 +33,14 @@ class RedisDataProvider {
                 // reconnect after
                 return Math.min(options.attempt * 100, 3000)
             },
+        })
+
+        client.on("ready", () => {
+            console.log("REDIS CLIENT READY")
+        })
+
+        client.on("connect", () => {
+            console.log("REDIS CLIENT CONNECTED")
         })
 
         client.on("error", (error) => {

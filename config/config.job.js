@@ -6,6 +6,8 @@ const SecretManager = require("./config.secrets")
 const secretManager = new SecretManager(process.env.GCP_PROJECT_ID)
 
 async function getConsumerConfig() {
+    const nhsAuthConfig = await getNhsLoginConfig()
+
     return {
         rabbit: {
             protocol: "amqp",
@@ -15,7 +17,7 @@ async function getConsumerConfig() {
             heartbeat: 60,
         },
         registerpatientconsumer: {
-            ...getNhsLoginConfig(),
+            ...nhsAuthConfig,
             orgReference: await secretManager.getSecret("PIX_SOS_ORG_REFERENCE"),
         },
     }

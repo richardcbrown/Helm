@@ -48,7 +48,9 @@ async function populateContextWithUserReference(ctx, req) {
         throw Error("User has not been populated")
     }
 
-    const cacher = new RedisDataProvider(getRedisConfig())
+    const config = await getRedisConfig()
+
+    const cacher = new RedisDataProvider(config)
 
     const cacheProvider = new PatientCacheProvider(cacher)
 
