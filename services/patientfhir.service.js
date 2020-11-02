@@ -89,6 +89,30 @@ class PatientSubjectResourceChecker {
     }
 }
 
+class NonPatientCentricResourceChecker {
+    /**
+     * @param {fhir.Resource} resource
+     * @param {fhir.Identifier} patientIdentifier
+     * @returns {boolean}
+     */
+    isAccessibleResource(resource, patientReference, patientIdentifier) {
+        return true
+    }
+
+    /**
+     * @param {fhir.Resource & ResourceWithSubject} resource
+     * @param {fhir.Identifier} patientIdentifier
+     * @returns {fhir.Resource & ResourceWithSubject}
+     */
+    setAsPatientResource(resource, patientReference, patientIdentifier) {
+        return resource
+    }
+
+    applyIdentifierToSearch(params, patientReference, patientIdentifier) {
+        return params
+    }
+}
+
 class PatientFhirResourceChecker {
     /**
      * @param {PatientFhirResourceConfig} configuration
@@ -186,15 +210,18 @@ class PatientFhirResourceChecker {
     }
 }
 
+const nonPatientCentricResourceChecker = new NonPatientCentricResourceChecker()
 const subjectResourceChecker = new PatientSubjectResourceChecker()
 
 const patientResourceChecker = new PatientFhirResourceChecker(
     {
-        allowedResources: ["Composition"],
+        allowedResources: ["Composition", "Questionnaire", "QuestionnaireResponse"],
         patientIdentifierSystem: "https://fhir.nhs.uk/Id/nhs-number",
     },
     {
         Composition: subjectResourceChecker,
+        QuestionnaireResponse: subjectResourceChecker,
+        Questionnaire: nonPatientCentricResourceChecker,
     }
 )
 
