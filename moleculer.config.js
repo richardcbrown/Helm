@@ -16,4 +16,28 @@ module.exports = {
             },
         },
     },
+
+    metrics: {
+        enabled: true,
+        // Available built-in reporters: "Console", "CSV", "Event", "Prometheus", "Datadog", "StatsD"
+        reporter: [
+            {
+                type: "Prometheus",
+                options: {
+                    // HTTP port
+                    port: process.env.PROMETHEUS_PORT || 3030,
+                    // HTTP URL path
+                    path: process.env.PROMETHEUS_PATH || "/metrics",
+                    // Default labels which are appended to all metrics labels
+                    defaultLabels: (registry) => ({
+                        namespace: registry.broker.namespace,
+                        nodeID: registry.broker.nodeID,
+                    }),
+                },
+            },
+            // {
+            //     type: "Console",
+            // },
+        ],
+    },
 }

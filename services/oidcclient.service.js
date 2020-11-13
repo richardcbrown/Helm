@@ -20,7 +20,12 @@ const getOidcConfiguration = require("../config/config.oidcclient")
 
 const SiteTokenProvider = require("../providers/siteauth.tokenprovider")
 const getSiteAuthConfiguration = require("../config/config.siteauth")
+const pg = require("pg")
+const TokenDataClient = require("../clients/token.dataclient")
+const UserDataClient = require("../clients/user.dataclient")
+const moment = require("moment")
 
+const connectionPool = new pg.Pool()
 /**
  * Handle logout
  * At present NHS Login only, does not have
@@ -32,6 +37,38 @@ const getSiteAuthConfiguration = require("../config/config.siteauth")
  * */
 async function logoutHandler(ctx) {
     const { logger } = this
+    const { jti, id, sub } = ctx.meta.user
+
+    const tokenDataClient = new TokenDataClient(connectionPool)
+    const userDataClient = new UserDataClient(connectionPool)
+
+    const user = await userDataClient.getUserByNhsNumber(sub)
+
+    if (!user) {
+        throw Error(`User ${sub} not found`)
+    }
+
+    const token = await tokenDataClient.getToken(jti)
+
+    if (!token) {
+        throw Error(`Token ${jti} does not exist`)
+    }
+
+    const sessionDuration = user.lastLogin ? moment.duration(moment(moment.now()).diff(user.lastLogin)) : null
+
+    await tokenDataClient.revokeToken(jti)
+
+    if (sessionDuration) {
+        ctx.call("metricsservice.sessionDuration", {
+            duration: sessionDuration.asSeconds(),
+            sessionId: jti,
+            userId: user.id,
+        })
+    }
+
+    if (token.totalPages <= 1) {
+        ctx.call("metricsservice.bouncedSession", { sessionId: jti, userId: user.id })
+    }
 
     const oidcConfig = await getOidcConfiguration()
 
@@ -67,6 +104,12 @@ async function getRedirectHandler(ctx) {
 async function callbackHandler(ctx) {
     const { logger } = this
 
+    //const loggingClient = new LoggingClient("user-metrics")
+    //const monitoringClient = new MonitoringClient()
+
+    // loggingClient.logEntry()
+    // monitoringClient.monitor()
+
     const { code, state } = ctx.params
 
     const oidcConfig = await getOidcConfiguration()
@@ -76,9 +119,9 @@ async function callbackHandler(ctx) {
 
     const tokenSet = await client.authorisationCallback({ code, state })
 
-    const tokenProvider = new SiteTokenProvider(authConfig)
+    const tokenProvider = new SiteTokenProvider(authConfig, new TokenDataClient(connectionPool))
 
-    const { payload, token } = tokenProvider.generateSiteToken(tokenSet)
+    const { payload, token } = await tokenProvider.generateSiteToken(tokenSet)
 
     ctx.call("jobservice.patientlogin", { token: tokenSet.access_token, nhsNumber: payload.sub })
 

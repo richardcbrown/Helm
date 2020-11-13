@@ -63,7 +63,9 @@ async function initialiseHandler(ctx) {
     } else {
         const internalPatientGenerator = new InternalPatientGenerator(ctx, cacheProvider)
 
-        await internalPatientGenerator.generateInternalPatient(nhsNumber)
+        const reference = await internalPatientGenerator.generateInternalPatient(nhsNumber)
+
+        await ctx.call("userservice.createUser", { nhsNumber, reference, jti: ctx.meta.user.jti })
 
         return { status: "login" }
     }

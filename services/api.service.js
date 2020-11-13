@@ -9,6 +9,8 @@ const ApiService = require("moleculer-web")
 const cookieParser = require("cookie-parser")
 const JwtStrategy = require("passport-jwt").Strategy
 const bodyParser = require("body-parser")
+const path = require("path")
+const fs = require("fs")
 
 const SiteTokenProvider = require("../providers/siteauth.tokenprovider")
 const getSiteAuthConfiguration = require("../config/config.siteauth")
@@ -17,10 +19,17 @@ const {
     checkUserConsent,
     PatientNotConsentedError,
     populateContextWithUserReference,
+    populateUserMetrics,
 } = require("../handlers/handler.helpers")
 const getDatabaseConfiguration = require("../config/config.database")
 const getOidcProviderConfiguration = require("../config/config.oidcprovider")
 const getSequelizeAdapter = require("../adapters/oidcsequelize.adapter")
+const UserDataClient = require("../clients/user.dataclient")
+
+const pg = require("pg")
+const { started } = require("./consent.service")
+
+const connectionPool = new pg.Pool()
 
 async function getPassportConfig() {
     return await getSiteAuthConfiguration()
@@ -29,7 +38,14 @@ async function getPassportConfig() {
 getPassportConfig().then((config) => {
     passport.use(
         new JwtStrategy(new SiteTokenProvider(config).getSiteTokenStrategyOptions(), function (jwtPayload, done) {
-            done(null, jwtPayload)
+            const userDataClient = new UserDataClient(connectionPool)
+
+            userDataClient
+                .getUserByNhsNumber(jwtPayload.sub)
+                .then((user) => {
+                    done(null, { ...jwtPayload, ...user })
+                })
+                .catch((error) => done(error))
         })
     )
 })
@@ -195,13 +211,26 @@ const ApiGateway = {
                 path: "/auth",
                 aliases: {
                     "GET /redirect": "oidcclientservice.getRedirect",
+                },
+            },
+            {
+                path: "/auth",
+                aliases: {
                     "GET /logout": "oidcclientservice.logout",
+                },
+                use: [headerCheck, cookieParser(), passport.initialize(), userAuthHandler],
+                async onBeforeCall(ctx, route, req, res) {
+                    populateContextWithUser(ctx, req)
+                    await populateUserMetrics(ctx, req)
                 },
             },
             {
                 path: "/api/auth",
                 aliases: {
                     "GET /token": "oidcclientservice.callback",
+                },
+                async onBeforeCall(ctx, route, req, res) {
+                    await populateUserMetrics(ctx, req)
                 },
             },
             {
@@ -222,6 +251,7 @@ const ApiGateway = {
                 use: [headerCheck, cookieParser(), passport.initialize(), userAuthInitialiseHandler],
                 async onBeforeCall(ctx, route, req, res) {
                     populateContextWithUser(ctx, req)
+                    await populateUserMetrics(ctx, req)
                 },
                 bodyParsers: {
                     json: true,
@@ -239,6 +269,7 @@ const ApiGateway = {
                     populateContextWithUser(ctx, req)
                     await checkUserConsent(ctx)
                     await populateContextWithUserReference(ctx, req)
+                    await populateUserMetrics(ctx, req)
                 },
                 aliases: {
                     "GET /demographics": "demographicsservice.demographics",
@@ -252,6 +283,7 @@ const ApiGateway = {
                     populateContextWithUser(ctx, req)
                     await checkUserConsent(ctx)
                     await populateContextWithUserReference(ctx, req)
+                    await populateUserMetrics(ctx, req)
 
                     req.$params = {
                         resource: req.$params.body,
@@ -269,6 +301,21 @@ const ApiGateway = {
                     "GET /:resourceType/:resourceId": "patientfhirservice.read",
                 },
             },
+            {
+                path: "/analytics",
+                aliases: {
+                    "POST /initialise": "metricsservice.test",
+                    "POST /page": "userservice.trackPage",
+                    "POST /track": "metricsservice.test",
+                    "POST /identify": "metricsservice.test",
+                },
+                use: [cookieParser(), passport.initialize(), userAuthHandler, bodyParser.json()],
+                async onBeforeCall(ctx, route, req, res) {
+                    populateContextWithUser(ctx, req)
+                    await populateContextWithUserReference(ctx, req)
+                    await populateUserMetrics(ctx, req)
+                },
+            },
         ],
         onError(req, res, err) {
             if (err instanceof PatientNotConsentedError) {
@@ -282,6 +329,12 @@ const ApiGateway = {
                 res.end(JSON.stringify({ error: "Error" }))
             }
         },
+    },
+    async started() {
+        const initFile = path.join(__dirname, "helmdatabase.init.sql")
+        const sql = fs.readFileSync(initFile, "utf-8")
+
+        await connectionPool.query(sql)
     },
 }
 

@@ -3,20 +3,22 @@
 
 const jwt = require("jwt-simple")
 const moment = require("moment")
+const { v4 } = require("uuid")
 
 class SiteAuthTokenProvider {
     /** @param {SiteAuthConfiguration} configuration */
-    constructor(configuration) {
+    constructor(configuration, tokenDataClient) {
         this.configuration = configuration
+        this.tokenDataClient = tokenDataClient
     }
 
     /**
      * Generates a site jwt with configured secret and expiry
      * @public
      * @param {TokenSet} tokenSet
-     * @returns {{ payload: any, token: string }} jwt
+     * @returns {Promise<{ payload: any, token: string }>} jwt
      */
-    generateSiteToken(tokenSet) {
+    async generateSiteToken(tokenSet) {
         const { jwtSigningSecret, jwtExpiry, jwtSigningAlgorithm, issuer, audience, nhsNumberMap } = this.configuration
 
         const idToken = tokenSet.id_token
@@ -29,6 +31,7 @@ class SiteAuthTokenProvider {
 
         const iat = decodedId.iat || Math.floor(Date.now() / 1000)
         const exp = jwtExpiry ? iat + jwtExpiry : decodedId.exp
+        const jti = v4()
 
         let nhsNumber = decodedId.nhs_number.split(" ").join("")
 
@@ -36,7 +39,10 @@ class SiteAuthTokenProvider {
             nhsNumber = nhsNumberMap[nhsNumber]
         }
 
+        await this.tokenDataClient.addToken(jti, iat, exp)
+
         const tokenPayload = {
+            jti,
             iat,
             exp,
             iss: issuer,
@@ -46,6 +52,18 @@ class SiteAuthTokenProvider {
         }
 
         return { payload: tokenPayload, token: jwt.encode(tokenPayload, jwtSigningSecret, jwtSigningAlgorithm) }
+    }
+
+    async revokeSiteToken(token) {
+        const payload = jwt.decode(token)
+
+        const { jti } = payload
+
+        if (!jti) {
+            throw Error("Invalid token")
+        }
+
+        await this.tokenDataClient.revokeToken(jti)
     }
 
     generateTestSiteToken(nhsNumber) {

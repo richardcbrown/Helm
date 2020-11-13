@@ -19,7 +19,7 @@ class InternalPatientGenerator {
         const reference = await this.patientCacheProvider.getPatientReference(nhsNumber)
 
         if (reference) {
-            return
+            return reference
         }
 
         /**
@@ -58,8 +58,11 @@ class InternalPatientGenerator {
 
         // new patient record
         if (createdPatient) {
+            const reference = makeReference(createdPatient)
+
             this.patientCacheProvider.setPatientReference(nhsNumber, makeReference(createdPatient))
-            return
+
+            return reference
         }
 
         throw Error(`Unable to create local record for identifier ${nhsNumber}`)

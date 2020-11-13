@@ -4,6 +4,7 @@ const { InternalPatientGenerator } = require("../generators/internalpatient.gene
 const RedisDataProvider = require("../providers/redis.dataprovider")
 const getRedisConfig = require("../config/config.redis")
 const { PatientCacheProvider } = require("../providers/patientcache.provider")
+const UserMetricsProvider = require("../providers/usermetrics.provider")
 
 /**
  * Gets the user sub from context
@@ -31,9 +32,16 @@ function populateContextWithUser(ctx, req) {
     }
 
     ctx.meta.user = {
-        sub: req.user.sub,
-        role: req.user.role,
+        ...req.user,
     }
+}
+
+async function populateUserMetrics(ctx, req) {
+    const userMetricsProvider = new UserMetricsProvider()
+
+    const userDetails = await userMetricsProvider.getUserLocationDetails(req)
+
+    ctx.meta.metrics = userDetails
 }
 
 /**
@@ -98,4 +106,5 @@ module.exports = {
     checkUserConsent,
     PatientNotConsentedError,
     populateContextWithUserReference,
+    populateUserMetrics,
 }
