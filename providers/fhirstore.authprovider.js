@@ -111,8 +111,8 @@ class AuthProvider {
             const signed = jwt.sign(
                 jwtAssertion,
                 {
-                    key: this.configuration.keyFile,
-                    passphrase: this.configuration.passphrase,
+                    key: this.configuration.signingKeyFile,
+                    passphrase: this.configuration.signingPassphrase,
                 },
                 {
                     algorithm: "RS256",

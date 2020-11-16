@@ -15,7 +15,7 @@ const Sequelize = require("sequelize")
  * @param {import("../config/types").DatabaseConfiguration} configuration
  */
 function getAdapter(configuration) {
-    const sequelize = new Sequelize(configuration.database, configuration.username, configuration.password, {
+    const sequelize = new Sequelize(configuration.database, configuration.user, configuration.password, {
         host: configuration.host,
         port: configuration.port,
         dialect: "postgres",

@@ -27,9 +27,6 @@ const getSequelizeAdapter = require("../adapters/oidcsequelize.adapter")
 const UserDataClient = require("../clients/user.dataclient")
 
 const pg = require("pg")
-const { started } = require("./consent.service")
-
-const connectionPool = new pg.Pool()
 
 async function getPassportConfig() {
     return await getSiteAuthConfiguration()
@@ -38,14 +35,18 @@ async function getPassportConfig() {
 getPassportConfig().then((config) => {
     passport.use(
         new JwtStrategy(new SiteTokenProvider(config).getSiteTokenStrategyOptions(), function (jwtPayload, done) {
-            const userDataClient = new UserDataClient(connectionPool)
+            getDatabaseConfiguration().then((config) => {
+                const connectionPool = new pg.Pool(config)
 
-            userDataClient
-                .getUserByNhsNumber(jwtPayload.sub)
-                .then((user) => {
-                    done(null, { ...jwtPayload, ...user })
-                })
-                .catch((error) => done(error))
+                const userDataClient = new UserDataClient(connectionPool)
+
+                userDataClient
+                    .getUserByNhsNumber(jwtPayload.sub)
+                    .then((user) => {
+                        done(null, { ...jwtPayload, ...user })
+                    })
+                    .catch((error) => done(error))
+            })
         })
     )
 })
@@ -331,6 +332,10 @@ const ApiGateway = {
         },
     },
     async started() {
+        const databaseConfig = await getDatabaseConfiguration()
+
+        const connectionPool = new pg.Pool(databaseConfig)
+
         const initFile = path.join(__dirname, "helmdatabase.init.sql")
         const sql = fs.readFileSync(initFile, "utf-8")
 

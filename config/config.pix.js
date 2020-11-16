@@ -11,10 +11,10 @@ async function getConfig() {
         env: await secretManager.getSecret("FHIRSTORE_SOS_ENV"),
         agentHost: await secretManager.getSecret("FHIRSTORE_SOS_FHIR_HOST"),
         agentPort: await secretManager.getSecret("FHIRSTORE_SOS_FHIR_PORT"),
-        passphrase: await secretManager.getSecret("PIX_SOS_PASSPHRASE"),
-        certFile: await secretManager.getSecret("PIX_SOS_CERTFILE", true),
-        keyFile: await secretManager.getSecret("PIX_SOS_KEYFILE", true),
-        caFile: await secretManager.getSecret("PIX_SOS_CA", true),
+        passphrase: await secretManager.getSecret("SOS_DATAPROVIDER_CLIENT_PASSPHRASE"),
+        certFile: await secretManager.getSecret("SOS_DATAPROVIDER_CLIENT_CERT", true),
+        keyFile: await secretManager.getSecret("SOS_DATAPROVIDER_CLIENT_KEY", true),
+        caFile: await secretManager.getSecret("SOS_CA_CERT", true),
     }
 }
 

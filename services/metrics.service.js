@@ -4,10 +4,9 @@
 /** @typedef {import("moleculer").Context<any, any>} Context */
 
 const UserDataClient = require("../clients/user.dataclient")
+const getDatabaseConfiguration = require("../config/config.database")
 
 const pg = require("pg")
-
-const connectionPool = new pg.Pool()
 
 /** @type {ServiceSchema} */
 const MetricsService = {
@@ -136,13 +135,18 @@ const MetricsService = {
         // },
         updateMetrics: {
             async handler(ctx) {
-                const userDataClient = new UserDataClient(connectionPool)
+                const userDataClient = new UserDataClient(this.connectionPool)
 
                 const userCount = await userDataClient.getUserCount()
 
                 this.broker.metrics.set("helm.totalusers", userCount)
             },
         },
+    },
+    async started() {
+        const config = await getDatabaseConfiguration()
+
+        this.connectionPool = new pg.Pool(config)
     },
 }
 

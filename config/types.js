@@ -82,7 +82,7 @@
 /**
  * @typedef {Object} DatabaseConfiguration
  * @property {string} host
- * @property {string} username
+ * @property {string} user
  * @property {string} password
  * @property {number} port
  * @property {string} database

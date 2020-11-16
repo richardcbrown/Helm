@@ -12,6 +12,8 @@
 
 const ApiService = require("moleculer-web")
 const request = require("request-promise-native")
+const https = require("https")
+const jwt = require("jsonwebtoken")
 const getYhcrAuthConfig = require("../config/config.yhcrauth")
 
 const yhcrAuthHandler = async (req, res, next) => {
@@ -33,11 +35,12 @@ const yhcrAuthHandler = async (req, res, next) => {
             return unauthorised(res)
         }
 
-        const { host, clientId, clientSecret } = await getYhcrAuthConfig()
+        const configuration = await getYhcrAuthConfig()
+        const { verifyUrl, clientId, clientSecret, env } = configuration
 
         const options = {
-            method: "POST",
-            uri: host,
+            method: "GET",
+            uri: verifyUrl,
             json: true,
             body: {
                 access_token: auth,
@@ -50,15 +53,29 @@ const yhcrAuthHandler = async (req, res, next) => {
             },
         }
 
-        var result = await request(options)
-
-        if (result.statusCode === 200) {
-            if (result.body.token_valid === 1) {
-                return next()
-            }
+        if (configuration.env !== "local") {
+            options.agent = new https.Agent({
+                host: configuration.agentHost,
+                port: configuration.agentPort,
+                passphrase: configuration.passphrase,
+                rejectUnauthorized: true,
+                cert: configuration.certFile,
+                key: configuration.keyFile,
+                ca: configuration.caFile,
+            })
+        } else {
+            options.rejectUnauthorized = false
         }
 
-        return unauthorised(res)
+        const result = await request(options)
+
+        const certificate = result.body
+
+        const decoded = jwt.verify(access_token, certificate)
+
+        req.user = decoded
+
+        return next()
     } catch (error) {
         return unauthorised(res)
     }
@@ -79,6 +96,8 @@ const ApiGateway = {
                     "GET /:resourceType/:resourceId": "internalfhirservice.read",
                 },
                 onBeforeCall(ctx, route, req, res) {
+                    console.log(req.user)
+
                     ctx.meta.user = {
                         role: "YHCR",
                     }

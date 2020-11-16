@@ -71,4 +71,24 @@ services:
         - prometheus
     environment:
         - GF_AUTH_ANONYMOUS_ENABLED=true
-        - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin  
+        - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+
+  helm-yhcr:
+    build:
+      dockerfile: YhcrDockerfile  
+      context: ./run/k8s/local
+    ports:
+      - 3443:443
+    volumes:
+      - ./keys/helm-development1-bb8d6ad3e477.json:/tmp/account-key.json
+    environment:
+      - CA_CERT=gcp_sos_ca_cert
+      - TARGET=http://host.docker.internal:8090
+      - CERT=gcp_sos_dataprovider_server_cert
+      - KEY=gcp_sos_dataprovider_server_key
+      - PASSPHRASE=gcp_sos_dataprovider_server_passphrase
+      - SERVERNAME=localhost
+      - NODE_ENV=development
+      - TLSMA=ENABLED
+      - GCP_PROJECT_ID=helm-development1
+      - GOOGLE_APPLICATION_CREDENTIALS=/tmp/account-key.json

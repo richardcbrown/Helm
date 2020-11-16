@@ -5,13 +5,12 @@
 
 const pg = require("pg")
 
-const connectionPool = new pg.Pool()
-
 const UserDataClient = require("../clients/user.dataclient")
 const UserGenerator = require("../generators/user.generator")
 const TokenDataClient = require("../clients/token.dataclient")
 const moment = require("moment")
 const { getFromBundle } = require("../models/bundle.helpers")
+const getDatabaseConfiguration = require("../config/config.database")
 
 /** @type {ServiceSchema} */
 const UserService = {
@@ -21,9 +20,9 @@ const UserService = {
             async handler(ctx) {
                 const { nhsNumber, reference, jti } = ctx.params
 
-                const userDataClient = new UserDataClient(connectionPool)
+                const userDataClient = new UserDataClient(this.connectionPool)
                 const userGenerator = new UserGenerator(userDataClient)
-                const tokenDataClient = new TokenDataClient(connectionPool)
+                const tokenDataClient = new TokenDataClient(this.connectionPool)
 
                 const user = await userGenerator.generateUser(nhsNumber, reference)
 
@@ -56,7 +55,7 @@ const UserService = {
             async handler(ctx) {
                 const { userId } = ctx.params
 
-                const userDataClient = new UserDataClient(connectionPool)
+                const userDataClient = new UserDataClient(this.connectionPool)
 
                 const user = await userDataClient.getUserById(userId)
 
@@ -113,9 +112,9 @@ const UserService = {
                     qr.source.reference = user.reference
                 })
 
-                const qrUpdatePromises = []
-
-                questionnaireResponses
+                // for (let questionnaireResponse of questionnaireResponses) {
+                //     ctx.call("internalfhirservice.search", {  })
+                // }
             },
         },
         linkTopThreeThings: {
@@ -128,7 +127,7 @@ const UserService = {
                 const { jti, id } = ctx.meta.user
                 const { url } = ctx.params.properties
 
-                const tokenDataClient = new TokenDataClient(connectionPool)
+                const tokenDataClient = new TokenDataClient(this.connectionPool)
 
                 const token = await tokenDataClient.getToken(jti)
 
@@ -162,6 +161,11 @@ const UserService = {
                 await tokenDataClient.trackSessionPage(url, totalPages + 1, new Date(), jti)
             },
         },
+    },
+    async started() {
+        const config = await getDatabaseConfiguration()
+
+        this.connectionPool = new pg.Pool(config)
     },
 }
 

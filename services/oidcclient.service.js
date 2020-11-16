@@ -24,8 +24,8 @@ const pg = require("pg")
 const TokenDataClient = require("../clients/token.dataclient")
 const UserDataClient = require("../clients/user.dataclient")
 const moment = require("moment")
+const getDatabaseConfiguration = require("../config/config.database")
 
-const connectionPool = new pg.Pool()
 /**
  * Handle logout
  * At present NHS Login only, does not have
@@ -35,7 +35,7 @@ const connectionPool = new pg.Pool()
  * @param {Context} ctx
  * @returns {Promise<any>}
  * */
-async function logoutHandler(ctx) {
+async function logoutHandler(ctx, connectionPool) {
     const { logger } = this
     const { jti, id, sub } = ctx.meta.user
 
@@ -101,7 +101,7 @@ async function getRedirectHandler(ctx) {
  * @param {Context} ctx
  * @returns {Promise<void>}
  * */
-async function callbackHandler(ctx) {
+async function callbackHandler(ctx, connectionPool) {
     const { logger } = this
 
     //const loggingClient = new LoggingClient("user-metrics")
@@ -138,8 +138,21 @@ const OidcClientService = {
     name: "oidcclientservice",
     actions: {
         getRedirect: getRedirectHandler,
-        callback: callbackHandler,
-        logout: logoutHandler,
+        callback: {
+            handler(ctx) {
+                return callbackHandler(ctx, this.connectionPool)
+            },
+        },
+        logout: {
+            handler(ctx) {
+                return logoutHandler(ctx, this.connectionPool)
+            },
+        },
+    },
+    async started() {
+        const config = await getDatabaseConfiguration()
+
+        this.connectionPool = new pg.Pool(config)
     },
 }
 
