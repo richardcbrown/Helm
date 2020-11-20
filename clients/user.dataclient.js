@@ -66,15 +66,15 @@ class UserDataClient {
         }
     }
 
-    async createUser(nhsNumber, reference) {
+    async createUser(nhsNumber) {
         const client = await this.connectionPool.connect()
 
         try {
             const {
                 rows,
             } = await client.query(
-                'INSERT INTO helm."Users" ("NhsNumber", "Reference") VALUES($1, $2) RETURNING "Id", "NhsNumber", "Reference", "LastLogin"',
-                [nhsNumber, reference]
+                'INSERT INTO helm."Users" ("NhsNumber") VALUES($1) RETURNING "Id", "NhsNumber", "LastLogin"',
+                [nhsNumber]
             )
 
             const [row] = rows
@@ -115,6 +115,21 @@ class UserDataClient {
 
         try {
             await client.query('UPDATE helm."Users" SET "LastLogin" = $2 WHERE "Id" = $1', [userId, loginDate])
+        } catch (error) {
+            throw error
+        } finally {
+            client.release()
+        }
+    }
+
+    async setPatientReference(userId, reference) {
+        const client = await this.connectionPool.connect()
+
+        try {
+            await client.query('UPDATE helm."Users" SET "Reference" = $2 WHERE "Id" = $1 AND "Reference" IS NULL', [
+                userId,
+                reference,
+            ])
         } catch (error) {
             throw error
         } finally {

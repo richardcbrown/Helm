@@ -15,7 +15,6 @@ const { getUserSubFromContext } = require("../handlers/handler.helpers")
 const RedisDataProvider = require("../providers/redis.dataprovider")
 const getRedisConfig = require("../config/config.redis")
 const { PatientCacheProvider, PendingPatientStatus } = require("../providers/patientcache.provider")
-const { InternalPatientGenerator } = require("../generators/internalpatient.generator")
 
 /**
  * @this {Service}
@@ -61,11 +60,7 @@ async function initialiseHandler(ctx) {
     if (!consent) {
         return { status: "sign_terms" }
     } else {
-        const internalPatientGenerator = new InternalPatientGenerator(ctx, cacheProvider)
-
-        const reference = await internalPatientGenerator.generateInternalPatient(nhsNumber)
-
-        await ctx.call("userservice.createUser", { nhsNumber, reference, jti: ctx.meta.user.jti })
+        ctx.call("userservice.createUser", { nhsNumber, jti: ctx.meta.user.jti })
 
         return { status: "login" }
     }

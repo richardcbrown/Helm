@@ -11,6 +11,11 @@ const TokenDataClient = require("../clients/token.dataclient")
 const moment = require("moment")
 const { getFromBundle } = require("../models/bundle.helpers")
 const getDatabaseConfiguration = require("../config/config.database")
+const { InternalPatientGenerator } = require("../generators/internalpatient.generator")
+const { MoleculerError } = require("moleculer").Errors
+const RedisDataProvider = require("../providers/redis.dataprovider")
+const getRedisConfig = require("../config/config.redis")
+const { PatientCacheProvider } = require("../providers/patientcache.provider")
 
 /** @type {ServiceSchema} */
 const UserService = {
@@ -18,13 +23,31 @@ const UserService = {
     actions: {
         createUser: {
             async handler(ctx) {
-                const { nhsNumber, reference, jti } = ctx.params
+                const { nhsNumber, jti } = ctx.params
+
+                const redisConfig = await getRedisConfig()
+                const cacher = new RedisDataProvider(redisConfig)
+
+                const cacheProvider = new PatientCacheProvider(cacher)
 
                 const userDataClient = new UserDataClient(this.connectionPool)
                 const userGenerator = new UserGenerator(userDataClient)
                 const tokenDataClient = new TokenDataClient(this.connectionPool)
 
-                const user = await userGenerator.generateUser(nhsNumber, reference)
+                let user = await userDataClient.getUserByNhsNumber(nhsNumber)
+
+                if (!user) {
+                    user = await userGenerator.generateUser(nhsNumber)
+
+                    if (!user) {
+                        throw new MoleculerError("Unable to create user", 500)
+                    }
+
+                    const internalPatientGenerator = new InternalPatientGenerator(ctx, cacheProvider)
+                    const reference = await internalPatientGenerator.generateInternalPatient(nhsNumber)
+
+                    await userDataClient.setPatientReference(user.id, reference)
+                }
 
                 const { lastLogin } = user
 

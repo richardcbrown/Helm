@@ -3,14 +3,14 @@ class UserGenerator {
         this.userDataClient = userDataClient
     }
 
-    async generateUser(nhsNumber, reference) {
+    async generateUser(nhsNumber) {
         const user = await this.userDataClient.getUserByNhsNumber(nhsNumber)
 
         if (user) {
             return user
         }
 
-        return await this.userDataClient.createUser(nhsNumber, reference)
+        return await this.userDataClient.createUser(nhsNumber)
     }
 }
 
