@@ -7,25 +7,18 @@ const path = require("path")
 class SecretManager {
     constructor(project) {
         this.project = project
-        this.cache = {}
     }
 
     async getSecret(secretId, isFileSecret = false) {
         try {
-            if (this.cache[secretId]) {
-                return this.cache[secretId]
-            }
-
             const envSecret = process.env[secretId]
 
             if (!this.isGcpSecret(envSecret)) {
                 if (isFileSecret && envSecret) {
-                    this.cache[secretId] = fs.readFileSync(path.join(__dirname, "../", envSecret))
+                    return fs.readFileSync(path.join(__dirname, "../", envSecret))
                 } else {
-                    this.cache[secretId] = envSecret
+                    return envSecret
                 }
-
-                return this.cache[secretId]
             }
 
             const { project } = this
@@ -43,8 +36,6 @@ class SecretManager {
             }
 
             const gcpSecret = secret.payload.data.toString("utf8")
-
-            this.cache[secretId] = gcpSecret
 
             return gcpSecret
         } catch (err) {

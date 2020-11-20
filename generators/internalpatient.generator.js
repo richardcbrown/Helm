@@ -52,7 +52,10 @@ class InternalPatientGenerator {
         /**
          * @type {fhir.Bundle}
          */
-        const createdPatientBundle = await this.ctx.call("internalfhirservice.search", { identifier: nhsNumber })
+        const createdPatientBundle = await this.ctx.call("internalfhirservice.search", {
+            resourceType: "Patient",
+            query: { identifier: `https://fhir.nhs.uk/Id/nhs-number|${nhsNumber}` },
+        })
 
         const [createdPatient] = getFromBundle(createdPatientBundle, ResourceType.Patient)
 
