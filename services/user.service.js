@@ -11,6 +11,7 @@ const TokenDataClient = require("../clients/token.dataclient")
 const moment = require("moment")
 const { getFromBundle } = require("../models/bundle.helpers")
 const getDatabaseConfiguration = require("../config/config.database")
+const { MoleculerError } = require("moleculer").Errors
 
 /** @type {ServiceSchema} */
 const UserService = {
@@ -162,6 +163,43 @@ const UserService = {
                 }
 
                 await tokenDataClient.trackSessionPage(url, totalPages + 1, new Date(), jti)
+            },
+        },
+        savePreferences: {
+            async handler(ctx) {
+                const { id } = ctx.meta.user
+                const preferences = ctx.params
+
+                if (!id) {
+                    throw new MoleculerError("User not found", 403)
+                }
+
+                const userDataClient = new UserDataClient(this.connectionPool)
+
+                const userPreferences = await userDataClient.getUserPreferences(id)
+
+                let newUserPreferences = null
+
+                if (!userPreferences) {
+                    newUserPreferences = await userDataClient.createUserPreferences(id, preferences)
+                } else {
+                    newUserPreferences = await userDataClient.updateUserPreferences(id, preferences)
+                }
+
+                return newUserPreferences
+            },
+        },
+        getPreferences: {
+            async handler(ctx) {
+                const { id } = ctx.meta.user
+
+                if (!id) {
+                    throw new MoleculerError("User not found", 403)
+                }
+
+                const userDataClient = new UserDataClient(this.connectionPool)
+
+                return await userDataClient.getUserPreferences(id)
             },
         },
     },

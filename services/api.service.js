@@ -303,6 +303,20 @@ const ApiGateway = {
                 },
             },
             {
+                path: "/api/preferences",
+                use: [headerCheck, cookieParser(), passport.initialize(), userAuthHandler, bodyParser.json()],
+                async onBeforeCall(ctx, route, req, res) {
+                    populateContextWithUser(ctx, req)
+                    await checkUserConsent(ctx)
+                    await populateContextWithUserReference(ctx, req)
+                    await populateUserMetrics(ctx, req)
+                },
+                aliases: {
+                    "POST /": "userservice.updatePreferences",
+                    "GET /": "userservice.getPreferences",
+                },
+            },
+            {
                 path: "/analytics",
                 aliases: {
                     "POST /initialise": "metricsservice.test",
