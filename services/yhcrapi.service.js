@@ -23,6 +23,12 @@ const yhcrAuthHandler = async (req, res, next) => {
     }
 
     try {
+        const configuration = await getYhcrAuthConfig()
+
+        if (!configuration.verifyEnabled) {
+            return next()
+        }
+
         const auth = req.headers["authorization"]
 
         if (!auth) {
@@ -35,7 +41,6 @@ const yhcrAuthHandler = async (req, res, next) => {
             return unauthorised(res)
         }
 
-        const configuration = await getYhcrAuthConfig()
         const { verifyUrl, clientId, clientSecret, env } = configuration
 
         const options = {
@@ -92,6 +97,10 @@ const ApiGateway = {
                 path: "/fhir/stu3",
                 use: [yhcrAuthHandler],
                 aliases: {
+                    "GET /Composition": "yhcrfhirservice.topThreeThingsCompositionSearch",
+                    "GET /Composition/:resourceId": "yhcrfhirservice.topThreeThingsCompositionRead",
+                    "GET /AuditEvent": "yhcrfhirservice.auditEventSearch",
+                    "GET /AuditEvent/:resourceId": "yhcrfhirservice.auditEventRead",
                     "GET /:resourceType": "internalfhirservice.search",
                     "GET /:resourceType/:resourceId": "internalfhirservice.read",
                 },
@@ -101,7 +110,14 @@ const ApiGateway = {
                     ctx.meta.user = {
                         role: "YHCR",
                     }
+
+                    req.$params = {
+                        resource: req.$params.body,
+                        ...req.$params.params,
+                        query: req.$params.query,
+                    }
                 },
+                mergeParams: false,
             },
         ],
         onError(req, res, err) {

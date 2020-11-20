@@ -6,7 +6,12 @@
 const TokenProvider = require("../providers/token.provider")
 
 const fhirservice = require("./fhir.service")
-const { searchActionHandler, readActionHandler, createActionHandler } = require("../handlers/fhirservice.handlers")
+const {
+    searchActionHandler,
+    readActionHandler,
+    createActionHandler,
+    updateActionHandler,
+} = require("../handlers/fhirservice.handlers")
 const getFhirStoreConfig = require("../config/config.internalfhirstore")
 const getFhirAuthConfig = require("../config/config.internalfhirauth")
 const AuthProvider = require("../providers/auth.provider")
@@ -165,6 +170,23 @@ const InternalFhirService = {
             const fhirStore = new InternalFhirDataProvider(storeConfig, this.logger, tokenProvider)
 
             return await createActionHandler.call(this, ctx, fhirStore)
+        },
+        async updateActionHandler(ctx) {
+            const authConfig = await getFhirAuthConfig()
+            const storeConfig = await getFhirStoreConfig()
+
+            let tokenProvider
+
+            if (authConfig.authenticate) {
+                const authProvider = new AuthProvider(authConfig, this.logger)
+                tokenProvider = new TokenProvider(authProvider, this.logger)
+            } else {
+                tokenProvider = new EmptyTokenProvider()
+            }
+
+            const fhirStore = new InternalFhirDataProvider(storeConfig, this.logger, tokenProvider)
+
+            return await updateActionHandler.call(this, ctx, fhirStore)
         },
     },
     async started() {

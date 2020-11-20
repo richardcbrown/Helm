@@ -3,7 +3,10 @@ const SecretManager = require("./config.secrets")
 const secretManager = new SecretManager(process.env.GCP_PROJECT_ID)
 
 async function getConfig() {
+    let verifyEnabled = await secretManager.getSecret("YHCR_VERIFY_ENABLED")
+
     return {
+        verifyEnabled: verifyEnabled === "false" ? false : true,
         env: await secretManager.getSecret("YHCR_VERIFY_ENV"),
         verifyUrl: await secretManager.getSecret("YHCR_VERIFY_URL"),
         agentHost: await secretManager.getSecret("YHCR_VERIFY_HOST"),

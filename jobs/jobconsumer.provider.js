@@ -10,11 +10,29 @@ const uuid = require("uuid")
 const { JobType } = require("./jobproducer.provider")
 const { matchCoding } = require("../models/coding.helpers")
 
+const retryCount = 5
+
 /**
  *
  * @param {fhir.Patient} patient
  */
 function isResolved(patient) {
+    return isResolvedByCode(patient, "01")
+}
+
+/**
+ *
+ * @param {fhir.Patient} patient
+ */
+function isPartiallyResolved(patient) {
+    return isResolvedByCode(patient, "02")
+}
+
+/**
+ * @param {string} code
+ * @param {fhir.Patient} patient
+ */
+function isResolvedByCode(patient, code) {
     const { identifier } = patient
 
     if (!identifier) {
@@ -36,10 +54,16 @@ function isResolved(patient) {
     const nhsVerifiedExtension = extension.find((ex) => {
         return (
             ex.valueCodeableConcept &&
-            matchCoding(ex.valueCodeableConcept, {
-                system: "https://fhir.hl7.org.uk/STU3/CodeSystem/CareConnect-NHSNumberVerificationStatus-1",
-                code: "01",
-            })
+            matchCoding(ex.valueCodeableConcept, [
+                {
+                    system: "https://fhir.hl7.org.uk/STU3/CodeSystem/CareConnect-NHSNumberVerificationStatus-1",
+                    code,
+                },
+                {
+                    system: "https://fhir.hl7.org.uk/STU3/ValueSet/CareConnect-NHSNumberVerificationStatus-1",
+                    code,
+                },
+            ])
         )
     })
 
@@ -112,6 +136,17 @@ class LookupPatientConsumer {
                     success: true,
                 }
             } else {
+                const count = message.properties.headers["x-retry-count"]
+                // max retries reached
+                // fallback to partial resolution
+                if (count >= retryCount && isPartiallyResolved(patient)) {
+                    this.patientCache.setPendingPatientStatus(payload.nhsNumber, PendingPatientStatus.Found)
+
+                    return {
+                        success: true,
+                    }
+                }
+
                 return {
                     success: false,
                     retry: true,
@@ -243,6 +278,8 @@ class RegisterPatientConsumer {
             // check if we already have linkage for
             const linkage = await this.patientCache.getPatientLinkage(payload.nhsNumber)
 
+            console.log(linkage)
+
             if (linkage) {
                 const patientReference = getReferenceFromLinkage(/** @type {fhir.Linkage} */ (linkage))
 
@@ -265,6 +302,8 @@ class RegisterPatientConsumer {
                     bearer: payload.token,
                 },
             }
+
+            console.log(this.configuration)
 
             if (this.configuration.mock) {
                 requestDetails.body = JSON.stringify({ nhsNumber: payload.nhsNumber })
@@ -319,7 +358,7 @@ class RegisterPatientConsumer {
             let result
 
             if (body.resourceType !== "Linkage") {
-                console.log("Rebuilding Linkage")
+                console.log("Rebuilding Linkag")
 
                 await this.rebuildLinkage(nhs_number)
 
@@ -398,7 +437,7 @@ class RabbitJobConsumer {
 
                     count += 1
 
-                    if (count <= 20) {
+                    if (count <= retryCount) {
                         const channel = await this.getDelayExchange(this.jobType)
 
                         channel.publish(this.jobType, this.jobType, message.content, {

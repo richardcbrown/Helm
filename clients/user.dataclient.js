@@ -121,6 +121,93 @@ class UserDataClient {
             client.release()
         }
     }
+
+    async createUserPreferences(userId, preferences) {
+        const client = await this.connectionPool.connect()
+
+        try {
+            const {
+                rows,
+            } = await client.query(
+                'INSERT INTO helm."UserPreference" ("UserId", "Preferences") VALUES ($1, $2) RETURNING "Id", "UserId", "Preferences"',
+                [userId, preferences]
+            )
+
+            const [row] = rows
+
+            if (!row) {
+                return null
+            }
+
+            return {
+                id: row.Id,
+                userId: row.UserId,
+                preferences: row.Preferences,
+            }
+        } catch (error) {
+            throw error
+        } finally {
+            client.release()
+        }
+    }
+
+    async updateUserPreferences(userId, preferences) {
+        const client = await this.connectionPool.connect()
+
+        try {
+            const {
+                rows,
+            } = await client.query(
+                'UPDATE helm."UserPreference" SET "Preferences" = $2 WHERE "UserId" = $1 RETURNING "Id", "UserId", "Preferences"',
+                [userId, preferences]
+            )
+
+            const [row] = rows
+
+            if (!row) {
+                return null
+            }
+
+            return {
+                id: row.Id,
+                userId: row.UserId,
+                preferences: row.Preferences,
+            }
+        } catch (error) {
+            throw error
+        } finally {
+            client.release()
+        }
+    }
+
+    async getUserPreferences(userId) {
+        const client = await this.connectionPool.connect()
+
+        try {
+            const {
+                rows,
+            } = await client.query(
+                'SELECT "Id", "UserId", "Preferences" FROM helm."UserPreferences" WHERE "UserId" = $1',
+                [userId]
+            )
+
+            const [row] = rows
+
+            if (!row) {
+                return null
+            }
+
+            return {
+                id: row.Id,
+                userId: row.UserId,
+                preferences: row.Preferences,
+            }
+        } catch (error) {
+            throw error
+        } finally {
+            client.release()
+        }
+    }
 }
 
 module.exports = UserDataClient

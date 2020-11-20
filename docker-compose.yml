@@ -29,7 +29,7 @@ services:
       - ADVANCED_CONSENT=false
       - ASYNCPAGESIZE=1000
       - ASYNCEXPIRES=7
-      - AUDIT_ACCESS=false
+      - AUDIT_ACCESS=true
       - CACHEEXPIRES=600
       - FHIR_STORE_ASYNC_URL=https://fhir.staging.helm.org/fhir/stu4/bulk
       - FHIR_STORE_BASE_URL=https://fhir.staging.helm.org/fhir/stu3
@@ -37,7 +37,7 @@ services:
       - LOGLEVEL=debug
       - MAX_CLIENTS=1
       - MAXPAGESIZE=1000
-      - METRICSENABLE=true
+      - METRICSENABLE=false
       - NODE_ENV=development
       - PG_CONNECTION=postgresql://postgres:postgres@fhir-database:5432
       - PORT=3000

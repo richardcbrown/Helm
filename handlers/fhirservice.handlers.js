@@ -58,8 +58,35 @@ async function createActionHandler(ctx, fhirStore) {
     await fhirStore.create(resourceType, resource, sub)
 }
 
+/**
+ * @this {Service}
+ * @param {Context} ctx
+ * @returns {Promise<void>}
+ * */
+async function updateActionHandler(ctx, fhirStore) {
+    const { logger } = this
+
+    /** @type {fhir.Resource} */
+    const resource = ctx.params.resource
+    const resourceType = ctx.params.resourceType
+    const resourceId = ctx.params.resourceId
+
+    if (!resourceType) {
+        throw Error("Resource type missing from resource")
+    }
+
+    if (!resourceId) {
+        throw Error("Resource id missing from resource")
+    }
+
+    const { sub } = ctx.meta.user
+
+    await fhirStore.update(resourceType, resourceId, resource, sub)
+}
+
 module.exports = {
     createActionHandler,
     readActionHandler,
     searchActionHandler,
+    updateActionHandler,
 }

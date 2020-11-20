@@ -9,6 +9,7 @@
  * @property {string} gpName
  * @property {string} gpAddress
  * @property {string} address
+ * @property {boolean} resolved
  */
 
 /**

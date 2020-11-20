@@ -112,9 +112,12 @@ const UserService = {
                     qr.source.reference = user.reference
                 })
 
-                // for (let questionnaireResponse of questionnaireResponses) {
-                //     ctx.call("internalfhirservice.search", {  })
-                // }
+                for (let questionnaireResponse of questionnaireResponses) {
+                    ctx.call("internalfhirservice.update", {
+                        resourceType: "QuestionnaireResponse",
+                        resource: questionnaireResponse,
+                    })
+                }
             },
         },
         linkTopThreeThings: {

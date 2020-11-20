@@ -4,6 +4,53 @@
 const { getFromBundle } = require("../models/bundle.helpers")
 const { ResourceType } = require("../models/resourcetype.enum")
 const { getResourceTypeReference, splitReference } = require("../models/resource.helpers")
+const { matchCoding } = require("../models/coding.helpers")
+
+function parseResolved(patient) {
+    return isResolvedByCode(patient, "01")
+}
+
+/**
+ * @param {string} code
+ * @param {fhir.Patient} patient
+ */
+function isResolvedByCode(patient, code) {
+    const { identifier } = patient
+
+    if (!identifier) {
+        return false
+    }
+
+    const nhsNumberIdentifier = identifier.find((id) => id.system === "https://fhir.nhs.uk/Id/nhs-number")
+
+    if (!nhsNumberIdentifier) {
+        return false
+    }
+
+    const { extension } = nhsNumberIdentifier
+
+    if (!extension) {
+        return false
+    }
+
+    const nhsVerifiedExtension = extension.find((ex) => {
+        return (
+            ex.valueCodeableConcept &&
+            matchCoding(ex.valueCodeableConcept, [
+                {
+                    system: "https://fhir.hl7.org.uk/STU3/CodeSystem/CareConnect-NHSNumberVerificationStatus-1",
+                    code,
+                },
+                {
+                    system: "https://fhir.hl7.org.uk/STU3/ValueSet/CareConnect-NHSNumberVerificationStatus-1",
+                    code,
+                },
+            ])
+        )
+    })
+
+    return !!nhsVerifiedExtension
+}
 
 /**
  * Checks if period for name/address is valid
@@ -254,21 +301,26 @@ class DemographicsProvider {
             throw Error("NHS number not found for patient")
         }
 
+        const resolved = parseResolved(patient)
+
+        const detailNotFoundMessage = resolved ? "" : "Loading..."
+
         const gpAddress =
             (organisation && parseAddress(organisation.address, "work")) ||
             (practitioner && parseAddress(practitioner.address, "work")) ||
-            "Not known"
+            detailNotFoundMessage
 
         return {
             id: nhsIdentifier.value,
             nhsNumber: nhsIdentifier.value,
-            gender: gender || "Not Known",
-            telephone: parseTelecom(telecom) || "Not Known",
-            name: parseName(name) || "Not Known",
-            address: parseAddress(address, "home") || "Not Known",
-            dateOfBirth: (birthDate && new Date(birthDate).getTime()) || null,
-            gpName: (practitioner && parseName(practitioner.name)) || "Not known",
+            gender: gender || detailNotFoundMessage,
+            telephone: parseTelecom(telecom) || detailNotFoundMessage,
+            name: parseName(name) || detailNotFoundMessage,
+            address: parseAddress(address, "home") || detailNotFoundMessage,
+            dateOfBirth: (birthDate && new Date(birthDate).getTime()) || detailNotFoundMessage,
+            gpName: (practitioner && parseName(practitioner.name)) || detailNotFoundMessage,
             gpAddress,
+            resolved,
         }
     }
 }
