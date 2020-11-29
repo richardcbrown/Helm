@@ -144,7 +144,7 @@ class UserDataClient {
             const {
                 rows,
             } = await client.query(
-                'INSERT INTO helm."UserPreference" ("UserId", "Preferences") VALUES ($1, $2) RETURNING "Id", "UserId", "Preferences"',
+                'INSERT INTO helm."UserPreferences" ("UserId", "Preferences") VALUES ($1, $2) RETURNING "Id", "UserId", "Preferences"',
                 [userId, preferences]
             )
 
@@ -173,7 +173,7 @@ class UserDataClient {
             const {
                 rows,
             } = await client.query(
-                'UPDATE helm."UserPreference" SET "Preferences" = $2 WHERE "UserId" = $1 RETURNING "Id", "UserId", "Preferences"',
+                'UPDATE helm."UserPreferences" SET "Preferences" = $2 WHERE "UserId" = $1 RETURNING "Id", "UserId", "Preferences"',
                 [userId, preferences]
             )
 

@@ -312,7 +312,7 @@ const ApiGateway = {
                     await populateUserMetrics(ctx, req)
                 },
                 aliases: {
-                    "POST /": "userservice.updatePreferences",
+                    "POST /": "userservice.savePreferences",
                     "GET /": "userservice.getPreferences",
                 },
             },

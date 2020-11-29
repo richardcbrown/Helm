@@ -51,7 +51,9 @@ class PatientConsentProvider {
     async getPolicies() {
         const { policyNames, policyFriendlyNames } = this.configuration
 
-        const policies = await getPolicies(policyNames, this.ctx)
+        const policiesEntries = await getPolicies(policyNames, this.ctx)
+
+        const policies = /** @type {fhir.Resource[]} */ (policiesEntries.map((policy) => policy.resource))
 
         policyNames.forEach((pn, index) => {
             const policy = policies.find((policy) => policy.name === pn)
@@ -96,7 +98,9 @@ class PatientConsentProvider {
         return policies.every((policy) => {
             const policyReference = makeReference(policy)
 
-            return consents.some((consent) => consent.policyRule === policyReference)
+            return consents.some((consent) =>
+                (consent.policy || []).some((cp) => cp.uri && cp.uri.includes(policyReference))
+            )
         })
     }
 }

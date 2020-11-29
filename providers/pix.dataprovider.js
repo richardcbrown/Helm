@@ -106,6 +106,35 @@ class PixDataProvider {
             throw err
         }
     }
+
+    /**
+     * @param {string} resourceType
+     * @param {string} resourceID
+     * @returns {Promise<FullResponse>} response
+     */
+    async remove(resourceType, resourceID, nhsNumber) {
+        try {
+            const { configuration } = this
+
+            /** @type {Options} */
+            const options = {
+                method: "DELETE",
+                uri: `${configuration.host}/${resourceType}/${resourceID}`,
+                simple: false,
+                resolveWithFullResponse: true,
+                rejectUnauthorized: false,
+            }
+
+            this.configure(options)
+
+            await this.authProvider.authorize(options, nhsNumber)
+
+            return await request(options)
+        } catch (err) {
+            this.logger.error(err)
+            throw err
+        }
+    }
 }
 
 module.exports = PixDataProvider

@@ -17,6 +17,22 @@ const RedisDataProvider = require("../providers/redis.dataprovider")
 const getRedisConfig = require("../config/config.redis")
 const { PatientCacheProvider } = require("../providers/patientcache.provider")
 
+function setDefaultPreferences(preferenceDetails, preferences) {
+    Object.keys(preferenceDetails).map((section) => {
+        const prefs = preferenceDetails[section].preferences
+
+        Object.keys(prefs).map((preferenceItem) => {
+            const preferencePath = `${section}.preferences.${preferenceItem}`
+
+            if (preferences[preferencePath] === undefined && prefs[preferenceItem].defaultValue !== undefined) {
+                preferences[preferencePath] = prefs[preferenceItem].defaultValue
+            }
+        })
+    })
+
+    return preferences
+}
+
 /** @type {ServiceSchema} */
 const UserService = {
     name: "userservice",
@@ -208,7 +224,15 @@ const UserService = {
                     newUserPreferences = await userDataClient.updateUserPreferences(id, preferences)
                 }
 
-                return newUserPreferences
+                const rehydrated = {
+                    schema: preferencesDetails,
+                    preferences: setDefaultPreferences(
+                        preferencesDetails,
+                        (newUserPreferences && newUserPreferences.preferences) || {}
+                    ),
+                }
+
+                return rehydrated
             },
         },
         getPreferences: {
@@ -221,7 +245,17 @@ const UserService = {
 
                 const userDataClient = new UserDataClient(this.connectionPool)
 
-                return await userDataClient.getUserPreferences(id)
+                const userPreferenceDetails = await userDataClient.getUserPreferences(id)
+
+                const rehydrated = {
+                    schema: preferencesDetails,
+                    preferences: setDefaultPreferences(
+                        preferencesDetails,
+                        (userPreferenceDetails && userPreferenceDetails.preferences) || {}
+                    ),
+                }
+
+                return rehydrated
             },
         },
     },
@@ -229,6 +263,42 @@ const UserService = {
         const config = await getDatabaseConfiguration()
 
         this.connectionPool = new pg.Pool(config)
+    },
+}
+
+const preferencesDetails = {
+    general: {
+        title: "General Preferences",
+        preferences: {
+            contrastMode: {
+                type: "boolean",
+                title: "Contrast Mode",
+                description: "Check to set contrast (dark) mode",
+                defaultValue: false,
+            },
+            patientSummary: {
+                type: "string",
+                editor: "radio",
+                title: "Patient Summary Display",
+                description:
+                    "Select whether to show only the headings, or headings and list, on the Patient Summary page",
+                enum: ["headings", "headingsandlist"],
+                enumLabels: ["Headings Only", "Headings and List"],
+                defaultValue: "headingsandlist",
+            },
+        },
+    },
+    nhsLogin: {
+        title: "NHS Login Preferences",
+        preferences: {
+            changeSettings: {
+                type: "link",
+                url: "https://nhsloginpreferenceslink.co.uk",
+                title: "Change NHS Login preferences",
+                target: "_blank",
+                description: "Click here to change NHS Login preferences",
+            },
+        },
     },
 }
 

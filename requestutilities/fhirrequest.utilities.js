@@ -7,7 +7,7 @@ const { getFromBundle, getEntriesFromBundle } = require("../models/bundle.helper
  * get policies
  * @param {Context} ctx
  * @param {Array<string>} policyNames
- * @returns {Promise<fhir.Resource[]>} policy resources
+ * @returns {Promise<fhir.BundleEntry[]>} policy resources
  */
 const getPolicies = async (policyNames, ctx) => {
     const policyBundle = await ctx.call("fhirservice.search", {
@@ -15,7 +15,7 @@ const getPolicies = async (policyNames, ctx) => {
         query: { "name:exact": policyNames.join(",") },
     })
 
-    const policies = /** @type {fhir.Resource[]} */ (getFromBundle(policyBundle, ResourceType.Policy))
+    const policies = /** @type {fhir.BundleEntry[]} */ (getEntriesFromBundle(policyBundle, ResourceType.Policy))
 
     if (!policies.length) {
         throw Error("Site policies have not been set")

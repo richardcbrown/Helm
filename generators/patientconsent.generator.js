@@ -33,7 +33,9 @@ class PatientConsentGenerator {
 
         const patient = await getPatientByNhsNumber(nhsNumber, this.ctx)
 
-        const sitePolicies = await getPolicies(policyNames, this.ctx)
+        const sitePoliciesEntries = await getPolicies(policyNames, this.ctx)
+
+        const sitePolicies = /** @type {fhir.Resource[]} */ (sitePoliciesEntries.map((spe) => spe.resource))
 
         if (policies.length !== sitePolicies.length) {
             throw Error("Not all site policies are being consented to")
@@ -48,12 +50,12 @@ class PatientConsentGenerator {
 
         const patientReference = makeReference(patient)
 
-        sitePolicies.forEach((sitePolicy) => {
-            const policyReference = makeReference(sitePolicy)
+        sitePoliciesEntries.forEach((sitePolicy) => {
+            const policyReference = sitePolicy.fullUrl
 
             consents.push({
                 resourceType: ResourceType.Consent,
-                policyRule: policyReference,
+                policy: [{ uri: policyReference }],
                 patient: { reference: patientReference },
                 status: "active",
                 consentingParty: [

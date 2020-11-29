@@ -33,21 +33,24 @@ class InternalPatientGenerator {
         const [patient] = getFromBundle(patientBundle, ResourceType.Patient)
 
         // already have patient
-        if (patient) {
-            this.patientCacheProvider.setPatientReference(nhsNumber, makeReference(patient))
-            return
+        if (!patient) {
+            throw Error(`Unable to find internal patient ${nhsNumber}`)
         }
 
         const goldenRecord = await getPatientByNhsNumber(nhsNumber, this.ctx)
 
+        /** @type {fhir.Patient} */
         const localRecord = {
             ...goldenRecord,
+            ...patient,
         }
 
-        delete localRecord.id
-
         /** @todo error handling */
-        await this.ctx.call("internalfhirservice.create", { resourceType: ResourceType.Patient, resource: localRecord })
+        await this.ctx.call("internalfhirservice.update", {
+            resourceType: ResourceType.Patient,
+            resourceId: localRecord.id,
+            resource: localRecord,
+        })
 
         /**
          * @type {fhir.Bundle}

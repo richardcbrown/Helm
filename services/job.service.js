@@ -9,6 +9,8 @@ const PixDataProvider = require("../providers/pix.dataprovider")
 const FhirStoreDataProvider = require("../providers/fhirstore.dataprovider")
 const TokenProvider = require("../providers/token.provider")
 const AuthProvider = require("../providers/fhirstore.authprovider")
+const InternalFhirDataProvider = require("../providers/internalfhirstore.dataprovider")
+const EmptyTokenProvider = require("../providers/fhirstore.emptytokenprovider")
 const { JobType, JobProducerProvider } = require("../jobs/jobproducer.provider")
 const { JobConsumerProvider } = require("../jobs/jobconsumer.provider")
 const { getProducerConfig, getConsumerConfig } = require("../config/config.job")
@@ -17,6 +19,7 @@ const getFhirAuthConfig = require("../config/config.fhirauth")
 const getPixAuthConfig = require("../config/config.pixauth")
 const getRedisConfig = require("../config/config.redis")
 const getPixConfig = require("../config/config.pix")
+const getInternalFhirStoreConfig = require("../config/config.internalfhirstore")
 
 /**
  * @this {Service}
@@ -72,6 +75,8 @@ const JobService = {
             const producerConfig = await getProducerConfig()
             const consumerConfig = await getConsumerConfig()
 
+            const storeConfig = await getInternalFhirStoreConfig()
+
             const auth = new AuthProvider(fhirAuthConfig, logger, 2)
             const pixauth = new AuthProvider(pixAuthConfig, logger, 2)
             const adminAuth = new AuthProvider(fhirAuthConfig, logger, 5)
@@ -81,6 +86,10 @@ const JobService = {
             const fhirDataProvider = new FhirStoreDataProvider(fhirStoreConfig, logger, tokenProvider)
             const adminFhirDataProvider = new FhirStoreDataProvider(fhirStoreConfig, logger, adminTokenProvider)
             const pixDataProvider = new PixDataProvider(pixConfig, logger, pixTokenProvider)
+
+            const internalTokenProvider = new EmptyTokenProvider()
+
+            const internalFhirStore = new InternalFhirDataProvider(storeConfig, this.logger, internalTokenProvider)
 
             const cacher = new PatientCacheProvider(new RedisDataProvider(redisConfig))
 
@@ -93,7 +102,8 @@ const JobService = {
                 fhirDataProvider,
                 cacher,
                 logger,
-                adminFhirDataProvider
+                adminFhirDataProvider,
+                internalFhirStore
             )
 
             const pendingConsumer = jobConsumerProvider.getJobConsumer(JobType.RegisterPatientJob)

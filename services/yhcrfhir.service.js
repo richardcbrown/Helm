@@ -46,6 +46,8 @@ function transformToComposition(questionnaireResponse) {
     const title3 = getAnswer(item3, "title3")
     const description3 = getAnswer(item3, "description3")
 
+    const { meta } = questionnaireResponse
+
     const transformed = {
         resourceType: "Composition",
         id: `T3T:${questionnaireResponse.id}`,
@@ -111,6 +113,7 @@ function transformToComposition(questionnaireResponse) {
                 },
             },
         ],
+        meta,
     }
 
     return transformed
