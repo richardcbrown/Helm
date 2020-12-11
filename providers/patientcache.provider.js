@@ -3,6 +3,7 @@
  * @property {"pending_patient_status"} PendingPatientStatus
  * @property {"patient_linkage"} PatientLinkage
  * @property {"patient_reference"} PatientReference
+ * @property {"patient_consented"} PatientConsented
  */
 
 /**
@@ -19,6 +20,7 @@ const PatientCacheKeys = {
     PendingPatientStatus: "pending_patient_status",
     PatientLinkage: "patient_linkage",
     PatientReference: "patient_reference",
+    PatientConsented: "patient_consented",
 }
 
 /** @type {PendingPatientStatusEnum} */
@@ -65,6 +67,14 @@ class PatientCacheProvider {
         return await this.cacher.get(this.createCacheKey(nhsNumber, PatientCacheKeys.PatientReference))
     }
 
+    async getPatientConsented(nhsNumber) {
+        return await this.cacher.get(this.createCacheKey(nhsNumber, PatientCacheKeys.PatientConsented))
+    }
+
+    setPatientConsented(nhsNumber) {
+        return this.cacher.set(this.createCacheKey(nhsNumber, PatientCacheKeys.PatientConsented), true, 900)
+    }
+
     setPatientLinkage(nhsNumber, linkage) {
         return this.cacher.set(this.createCacheKey(nhsNumber, PatientCacheKeys.PatientLinkage), linkage)
     }
@@ -76,7 +86,7 @@ class PatientCacheProvider {
     /**
      * @private
      * @param {string} nhsNumber
-     * @param {"pending_patient_status" | "patient_linkage" | "patient_reference"} cacheItem
+     * @param {"pending_patient_status" | "patient_linkage" | "patient_reference" | "patient_consented"} cacheItem
      * @returns {string}
      */
     createCacheKey(nhsNumber, cacheItem) {

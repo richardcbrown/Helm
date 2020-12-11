@@ -6,13 +6,16 @@ const { getFromBundle } = require("../models/bundle.helpers")
 const { makeReference } = require("../models/resource.helpers")
 
 const { getPatientByNhsNumber, getPolicies } = require("../requestutilities/fhirrequest.utilities")
+const { MoleculerError } = require("moleculer").Errors
+const { PatientCacheProvider } = require("../providers/patientcache.provider")
 
 class PatientConsentProvider {
     /**
      * @param {Context} ctx
      * @param {ConsentConfig} configuration
+     * @param {PatientCacheProvider} cacheProvider
      */
-    constructor(ctx, configuration) {
+    constructor(ctx, configuration, cacheProvider) {
         /**
          * @private
          */
@@ -22,6 +25,11 @@ class PatientConsentProvider {
          * @private
          */
         this.configuration = configuration
+
+        /**
+         * @private
+         */
+        this.cacheProvider = cacheProvider
     }
 
     /**
@@ -31,6 +39,12 @@ class PatientConsentProvider {
      * @returns {Promise<boolean>} whether patient has consented or not
      */
     async patientHasConsented(nhsNumber) {
+        const consented = await this.cacheProvider.getPatientConsented(nhsNumber)
+
+        if (consented) {
+            return true
+        }
+
         const patient = await getPatientByNhsNumber(nhsNumber, this.ctx)
 
         const patientReference = makeReference(patient)
@@ -40,7 +54,13 @@ class PatientConsentProvider {
 
         const [policies, consents] = await Promise.all([policiesPromise, consentPromise])
 
-        return this.matchPoliciesToConsents(policies, /** @type {fhir.Consent[]} */ (consents))
+        const hasConsented = this.matchPoliciesToConsents(policies, /** @type {fhir.Consent[]} */ (consents))
+
+        if (hasConsented) {
+            this.cacheProvider.setPatientConsented(nhsNumber)
+        }
+
+        return hasConsented
     }
 
     /**
@@ -59,7 +79,7 @@ class PatientConsentProvider {
             const policy = policies.find((policy) => policy.name === pn)
 
             if (!policy) {
-                throw Error("Mismatched Policies")
+                throw new MoleculerError("Mismatched Policies", 400)
             }
 
             const policyFriendlyName = policyFriendlyNames[index]

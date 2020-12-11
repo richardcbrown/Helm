@@ -8,6 +8,7 @@
 
 const { Issuer } = require("openid-client")
 const jose = require("jose")
+const { MoleculerError } = require("moleculer").Errors
 
 class OidcClient {
     /** @param {OidcClientConfiguration} configuration */
@@ -106,7 +107,7 @@ class OidcClient {
         }
 
         if (!this.issuer) {
-            throw Error("Configuration failed")
+            throw new MoleculerError("Configuration failed", 500)
         }
 
         this.client = new this.issuer.Client(clientMetaData, (keystore && keystore.toJWKS(true)) || undefined)
@@ -141,7 +142,7 @@ class OidcClient {
         const { client, configuration } = this
 
         if (!client) {
-            throw Error("Client does not exist")
+            throw new MoleculerError("Client does not exist", 403)
         }
 
         const { redirectUrl } = configuration
@@ -152,7 +153,7 @@ class OidcClient {
             state: params.state,
         }
 
-        const tokenSet = await client.callback(redirectUrl, callbackParameters)
+        const tokenSet = await client.callback(redirectUrl, callbackParameters, { state: "test", nonce: "test" })
 
         return tokenSet
     }

@@ -1,5 +1,19 @@
 const moment = require("moment")
 
+function mapRowToToken(row) {
+    return {
+        id: row.Id,
+        userId: row.UserId,
+        jti: row.Jti,
+        issued: row.Issued,
+        expires: row.Expires,
+        revoked: row.Revoked,
+        currentPage: row.CurrentPage,
+        totalPages: row.TotalPages,
+        pageViewStart: row.PageViewStart,
+    }
+}
+
 class TokenDataClient {
     /**
      *
@@ -27,7 +41,41 @@ class TokenDataClient {
         const client = await this.connectionPool.connect()
 
         try {
-            await client.query('UPDATE helm."TokenIds" SET "Revoked" = true WHERE "Jti" = $1', [tokenId])
+            const {
+                rows,
+            } = await client.query(
+                'UPDATE helm."TokenIds" SET "Revoked" = true WHERE "Jti" = $1 RETURNING "Id", "UserId", "Jti", "Issued", "Expires", "Revoked", "CurrentPage", "TotalPages", "PageViewStart", "LastActive"',
+                [tokenId]
+            )
+
+            const [row] = rows
+
+            if (!row) {
+                return null
+            }
+
+            return mapRowToToken(row)
+        } catch (error) {
+            throw error
+        } finally {
+            client.release()
+        }
+    }
+
+    async revokeTokens() {
+        const client = await this.connectionPool.connect()
+
+        const nowSeconds = moment(moment.now()).seconds()
+
+        try {
+            const {
+                rows,
+            } = await client.query(
+                'UPDATE helm."TokenIds" SET "Revoked" = true WHERE "Revoked" = false AND "Expires" < $1 RETURNING "Id", "UserId", "Jti", "Issued", "Expires", "Revoked", "CurrentPage", "TotalPages", "PageViewStart", "LastActive"',
+                [nowSeconds]
+            )
+
+            return rows.map(mapRowToToken)
         } catch (error) {
             throw error
         } finally {
@@ -55,15 +103,13 @@ class TokenDataClient {
         }
     }
 
-    async clearExpiredTokens() {
+    async clearRevokedTokens() {
         const client = await this.connectionPool.connect()
-
-        const nowSeconds = moment.now() / 1000
 
         try {
             await client.query("BEGIN")
 
-            await client.query('DELETE FROM helm."TokenIds" WHERE "Expires" < $1', [nowSeconds])
+            await client.query('DELETE FROM helm."TokenIds" WHERE "Revoked" = true')
 
             await client.query("COMMIT")
         } catch (error) {
@@ -92,6 +138,22 @@ class TokenDataClient {
         }
     }
 
+    async updateTokenActive(jti, active) {
+        const client = await this.connectionPool.connect()
+
+        try {
+            await client.query("BEGIN")
+
+            await client.query('UPDATE helm."TokenIds" SET "LastActive" = $2 WHERE "Jti" = $1', [jti, active])
+
+            await client.query("COMMIT")
+        } catch (error) {
+            await client.query("ROLLBACK")
+        } finally {
+            client.release()
+        }
+    }
+
     async getToken(tokenId) {
         const client = await this.connectionPool.connect()
 
@@ -109,17 +171,23 @@ class TokenDataClient {
                 return null
             }
 
-            return {
-                id: row.Id,
-                userId: row.UserId,
-                jti: row.Jti,
-                issued: row.Issued,
-                expires: row.Expires,
-                revoked: row.Revoked,
-                currentPage: row.CurrentPage,
-                totalPages: row.TotalPages,
-                pageViewStart: row.PageViewStart,
-            }
+            return mapRowToToken(row)
+        } catch (error) {
+            throw error
+        } finally {
+            client.release()
+        }
+    }
+
+    async getActiveTokens() {
+        const client = await this.connectionPool.connect()
+
+        try {
+            const { rows } = await client.query(
+                'SELECT "Id", "UserId", "Jti", "Issued", "Expires", "Revoked", "CurrentPage", "TotalPages", "PageViewStart", "LastActive" FROM helm."TokenIds" WHERE "Revoked" = false'
+            )
+
+            return mapRowToToken(rows)
         } catch (error) {
             throw error
         } finally {

@@ -3,6 +3,9 @@
 /** @typedef {import("moleculer").Service<ServiceSchema>} Service */
 /** @typedef {import("moleculer").Context<any, any>} Context */
 
+const pg = require("pg")
+const CronJob = require("cron").CronJob
+const getDatabaseConfiguration = require("../config/config.database")
 const { PatientCacheProvider, PendingPatientStatus } = require("../providers/patientcache.provider")
 const RedisDataProvider = require("../providers/redis.dataprovider")
 const PixDataProvider = require("../providers/pix.dataprovider")
@@ -13,13 +16,14 @@ const InternalFhirDataProvider = require("../providers/internalfhirstore.datapro
 const EmptyTokenProvider = require("../providers/fhirstore.emptytokenprovider")
 const { JobType, JobProducerProvider } = require("../jobs/jobproducer.provider")
 const { JobConsumerProvider } = require("../jobs/jobconsumer.provider")
-const { getProducerConfig, getConsumerConfig } = require("../config/config.job")
+const { getProducerConfig, getConsumerConfig, getCronConfig } = require("../config/config.job")
 const getFhirStoreConfig = require("../config/config.fhirstore")
 const getFhirAuthConfig = require("../config/config.fhirauth")
 const getPixAuthConfig = require("../config/config.pixauth")
 const getRedisConfig = require("../config/config.redis")
 const getPixConfig = require("../config/config.pix")
 const getInternalFhirStoreConfig = require("../config/config.internalfhirstore")
+const TokenDataClient = require("../clients/token.dataclient")
 
 /**
  * @this {Service}
@@ -37,6 +41,78 @@ async function addJobHandler(ctx) {
     const jobProducer = jobProducerProvider.getJobProducer(jobType)
 
     await jobProducer.addJob(jobType, payload)
+}
+
+/**
+ * @this {Service}
+ * @param {Context} ctx
+ * @returns {Promise<void>}
+ * */
+async function revokeOldTokensHandler(ctx, connectionPool) {
+    const tokenDataClient = new TokenDataClient(connectionPool)
+
+    const revoked = await tokenDataClient.revokeTokens()
+
+    revoked.forEach((revokedToken) => applyTokenMetrics(ctx, revokedToken))
+}
+
+/**
+ * @this {Service}
+ * @param {Context} ctx
+ * @returns {Promise<void>}
+ * */
+async function revokeOldTokenHandler(ctx, connectionPool) {
+    const { jti } = ctx.params
+
+    const tokenDataClient = new TokenDataClient(connectionPool)
+
+    const revokedToken = await tokenDataClient.revokeToken(jti)
+
+    if (!revokedToken) {
+        return
+    }
+
+    applyTokenMetrics(ctx, revokedToken)
+}
+
+function applyTokenMetrics(ctx, revokedToken) {
+    const sessionDuration = revokedToken.lastActive ? revokedToken.lastActive - revokedToken.issued : null
+
+    if (sessionDuration) {
+        ctx.call("metricsservice.sessionDuration", {
+            duration: sessionDuration,
+            sessionId: revokedToken.jti,
+            userId: revokedToken.userId,
+        })
+    }
+
+    if (revokedToken.totalPages <= 1) {
+        ctx.call("metricsservice.bouncedSession", { sessionId: revokedToken.jti, userId: revokedToken.userId })
+    }
+}
+
+/**
+ * @this {Service}
+ * @param {Context} ctx
+ * @returns {Promise<void>}
+ * */
+async function measureActiveTokensHandler(ctx, connectionPool) {
+    const tokenDataClient = new TokenDataClient(connectionPool)
+
+    const activeTokens = await tokenDataClient.getActiveTokens()
+
+    ctx.call("metricsservice.activeUsers", { activeUsers: activeTokens.length })
+}
+
+/**
+ * @this {Service}
+ * @param {Context} ctx
+ * @returns {Promise<void>}
+ * */
+async function removeOldTokensHandler(ctx, connectionPool) {
+    const tokenDataClient = new TokenDataClient(connectionPool)
+
+    await tokenDataClient.clearRevokedTokens()
 }
 
 /** @type {ServiceSchema} */
@@ -62,10 +138,34 @@ const JobService = {
                 payload: { token, nhsNumber },
             })
         },
+        revokeOldTokens: {
+            handler(ctx) {
+                return revokeOldTokensHandler(ctx, this.connectionPool)
+            },
+        },
+        revokeOldToken: {
+            handler(ctx) {
+                return revokeOldTokenHandler(ctx, this.connectionPool)
+            },
+        },
+        removeOldTokens: {
+            handler(ctx) {
+                return removeOldTokensHandler(ctx, this.connectionPool)
+            },
+        },
+        activeTokens: {
+            handler(ctx) {
+                return measureActiveTokensHandler(ctx, this.connectionPool)
+            },
+        },
     },
     async started() {
         try {
             const { logger } = this
+
+            const config = await getDatabaseConfiguration()
+
+            this.connectionPool = new pg.Pool(config)
 
             const fhirAuthConfig = await getFhirAuthConfig()
             const pixAuthConfig = await getPixAuthConfig()
@@ -114,12 +214,35 @@ const JobService = {
 
             pendingConsumer.consumeJob()
             lookupConsumer.consumeJob()
+
+            const cronConfiguration = await getCronConfig()
+
+            this.crons = []
+
+            const revokeOldTokensJob = new CronJob(cronConfiguration.revokeOldTokensCron, () => {
+                this.actions.revokeOldTokens()
+            })
+
+            const removeOldTokensCron = new CronJob(cronConfiguration.removeOldTokensCron, () => {
+                this.actions.removeOldTokens()
+            })
+
+            this.crons.push(revokeOldTokensJob)
+            this.crons.push(removeOldTokensCron)
+
+            this.crons.forEach((job) => job.start())
         } catch (error) {
             /** @todo logging */
             console.log(error)
         }
     },
-    async stopped() {},
+    async stopped() {
+        if (this.connectionPool) {
+            await this.connectionPool.end()
+        }
+
+        this.crons.forEach((job) => job.stop())
+    },
 }
 
 module.exports = JobService

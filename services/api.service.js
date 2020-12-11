@@ -319,10 +319,7 @@ const ApiGateway = {
             {
                 path: "/analytics",
                 aliases: {
-                    "POST /initialise": "metricsservice.test",
                     "POST /page": "userservice.trackPage",
-                    "POST /track": "metricsservice.test",
-                    "POST /identify": "metricsservice.test",
                 },
                 use: [cookieParser(), passport.initialize(), userAuthHandler, bodyParser.json()],
                 async onBeforeCall(ctx, route, req, res) {

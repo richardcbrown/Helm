@@ -4,6 +4,7 @@
 /** @typedef {import("moleculer").Context<any, any>} Context */
 
 const { getFromBundle } = require("../models/bundle.helpers")
+const { MoleculerError } = require("moleculer").Errors
 
 /**
  *
@@ -162,7 +163,7 @@ async function topThreeThingsCompositionSearchHandler(ctx) {
     const questionnaire = getFromBundle(questionnaireBundle, "Questionnaire")[0]
 
     if (!questionnaire) {
-        throw Error("T3T questionnaire not found")
+        throw new MoleculerError("T3T questionnaire not found", 500)
     }
 
     const query = {}

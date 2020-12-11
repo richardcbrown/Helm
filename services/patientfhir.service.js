@@ -4,6 +4,7 @@
 /** @typedef {import("moleculer").Context<any, any>} Context */
 
 const fhirservice = require("./fhir.service")
+const { MoleculerError } = require("moleculer").Errors
 
 /**
  * @typedef {Object} PatientFhirResourceConfig
@@ -48,7 +49,7 @@ class PatientSubjectResourceChecker {
     isAccessibleResource(resource, patientReference, patientIdentifier) {
         // resource has no subject
         if (!resource.subject) {
-            throw Error(`Resource ${resource.resourceType} has no subject`)
+            throw new MoleculerError(`Resource ${resource.resourceType} has no subject`, 400)
         }
 
         const { subject } = resource
@@ -183,7 +184,7 @@ class PatientFhirResourceChecker {
 
     applyIdentifierToSearch(params, patientReference, patientIdentifier) {
         if (!params.resourceType) {
-            throw Error("No resourceType found in params")
+            throw new MoleculerError("No resourceType found in params", 400)
         }
 
         const checker = this.getResourceChecker(params.resourceType)
@@ -203,7 +204,7 @@ class PatientFhirResourceChecker {
         const checker = this.resourceCheckers[resourceType]
 
         if (!checker) {
-            throw Error(`No resource checker defined for resource ${resourceType}`)
+            throw new MoleculerError(`No resource checker defined for resource ${resourceType}`, 400)
         }
 
         return checker
@@ -247,13 +248,13 @@ const PatientFhirService = {
             const { reference } = ctx.meta.user
 
             if (!reference) {
-                throw Error(`User ${ctx.meta.user.sub} has no reference`)
+                throw new MoleculerError(`User ${ctx.meta.user.sub} has no reference`, 400)
             }
 
             const identifier = patientResourceChecker.identifierFromContext(ctx)
 
             if (!patientResourceChecker.isAllowedResource(ctx.params.resourceType)) {
-                throw Error(`Attempt to access blocked resource`)
+                throw new MoleculerError(`Attempt to access blocked resource`, 400)
             }
 
             let sanitisedQuery = null
@@ -276,13 +277,13 @@ const PatientFhirService = {
             const { reference } = ctx.meta.user
 
             if (!reference) {
-                throw Error(`User ${ctx.meta.user.sub} has no reference`)
+                throw new MoleculerError(`User ${ctx.meta.user.sub} has no reference`, 400)
             }
 
             const identifier = patientResourceChecker.identifierFromContext(ctx)
 
             if (!patientResourceChecker.isAllowedResource(ctx.params.resourceType)) {
-                throw Error(`Attempt to access blocked resource`)
+                throw new MoleculerError(`Attempt to access blocked resource`, 403)
             }
 
             /** @type {fhir.Resource} */
@@ -294,24 +295,24 @@ const PatientFhirService = {
             const { reference } = ctx.meta.user
 
             if (!reference) {
-                throw Error(`User ${ctx.meta.user.sub} has no reference`)
+                throw new MoleculerError(`User ${ctx.meta.user.sub} has no reference`, 400)
             }
 
             const identifier = patientResourceChecker.identifierFromContext(ctx)
 
             if (!patientResourceChecker.isAllowedResource(ctx.params.resourceType)) {
-                throw Error(`Attempt to create blocked resource`)
+                throw new MoleculerError(`Attempt to create blocked resource`, 403)
             }
 
             let { resource } = ctx.params
 
             if (!resource) {
-                throw Error("No resource")
+                throw new MoleculerError("No resource", 400)
             }
 
             resource = patientResourceChecker.setAsPatientResource(resource, reference, identifier)
 
-            await ctx.call("internalfhirservice.create", { ...ctx.params, resource })
+            return await ctx.call("internalfhirservice.create", { ...ctx.params, resource })
         },
     },
 }

@@ -35,4 +35,11 @@ async function getProducerConfig() {
     }
 }
 
-module.exports = { getConsumerConfig, getProducerConfig }
+async function getCronConfig() {
+    return {
+        removeOldTokensCron: await secretManager.getSecret("REMOVE_OLD_TOKENS_CRON"),
+        revokeOldTokensCron: await secretManager.getSecret("REVOKE_OLD_TOKENS_CRON"),
+    }
+}
+
+module.exports = { getConsumerConfig, getProducerConfig, getCronConfig }

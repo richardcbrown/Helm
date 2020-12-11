@@ -4,6 +4,7 @@
 const { ResourceType } = require("../models/resourcetype.enum")
 const { makeReference } = require("../models/resource.helpers")
 const { getPatientByNhsNumber, getPolicies, createResource } = require("../requestutilities/fhirrequest.utilities")
+const { MoleculerError } = require("moleculer").Errors
 
 class PatientConsentGenerator {
     /**
@@ -38,11 +39,11 @@ class PatientConsentGenerator {
         const sitePolicies = /** @type {fhir.Resource[]} */ (sitePoliciesEntries.map((spe) => spe.resource))
 
         if (policies.length !== sitePolicies.length) {
-            throw Error("Not all site policies are being consented to")
+            throw new MoleculerError("Not all site policies are being consented to", 400)
         }
 
         if (!this.matchPolicies(policies, sitePolicies)) {
-            throw Error("Policies being consented to do not match site policies")
+            throw new MoleculerError("Policies being consented to do not match site policies", 400)
         }
 
         /** @type {fhir.Consent[]} */

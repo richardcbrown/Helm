@@ -5,6 +5,7 @@ const { getFromBundle } = require("../models/bundle.helpers")
 const { ResourceType } = require("../models/resourcetype.enum")
 const { getResourceTypeReference, splitReference } = require("../models/resource.helpers")
 const { matchCoding } = require("../models/coding.helpers")
+const { MoleculerError } = require("moleculer").Errors
 
 function parseResolved(patient) {
     return isResolvedByCode(patient, "01")
@@ -265,7 +266,7 @@ class DemographicsProvider {
         const patients = getFromBundle(patientBundle, ResourceType.Patient)
 
         if (!patients.length) {
-            throw Error("Patient not found")
+            throw new MoleculerError("Patient not found", 400)
         }
 
         const [patient] = patients
@@ -298,17 +299,38 @@ class DemographicsProvider {
             identifier && identifier.find((ident) => ident.system === "https://fhir.nhs.uk/Id/nhs-number")
 
         if (!nhsIdentifier || !nhsIdentifier.value) {
-            throw Error("NHS number not found for patient")
+            throw new MoleculerError("NHS number not found for patient", 500)
         }
 
         const resolved = parseResolved(patient)
 
         const detailNotFoundMessage = resolved ? "" : "Loading..."
 
-        const gpAddress =
-            (organisation && parseAddress(organisation.address, "work")) ||
-            (practitioner && parseAddress(practitioner.address, "work")) ||
-            detailNotFoundMessage
+        const gpDetails = {
+            name: (organisation && organisation.name) || null,
+            address: (organisation && parseAddress(organisation.address, "work")) || null,
+        }
+
+        function buildGpDetails(gpDetails) {
+            let { name, address } = gpDetails
+
+            if (!name || !address) {
+                return null
+            }
+
+            name = name.trim()
+            address = address.trim()
+
+            if (!name || !address) {
+                return null
+            }
+
+            if (name && address) {
+                return `${name}, ${address}`
+            }
+
+            return name || address || null
+        }
 
         return {
             id: nhsIdentifier.value,
@@ -318,8 +340,9 @@ class DemographicsProvider {
             name: parseName(name) || detailNotFoundMessage,
             address: parseAddress(address, "home") || detailNotFoundMessage,
             dateOfBirth: (birthDate && new Date(birthDate).getTime()) || detailNotFoundMessage,
-            gpName: (practitioner && parseName(practitioner.name)) || detailNotFoundMessage,
-            gpAddress,
+            gpName: gpDetails.name || detailNotFoundMessage,
+            gpAddress: gpDetails.address || detailNotFoundMessage,
+            gpFullAddress: buildGpDetails(gpDetails) || detailNotFoundMessage,
             resolved,
         }
     }

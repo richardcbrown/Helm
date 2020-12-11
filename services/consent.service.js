@@ -23,7 +23,14 @@ const { PatientCacheProvider, PendingPatientStatus } = require("../providers/pat
  * */
 async function patientConsentedHandler(ctx) {
     const config = await getConsentConfig()
-    const patientConsentProvider = new PatientConsentProvider(ctx, config)
+
+    const redisConfig = await getRedisConfig()
+
+    const cacher = new RedisDataProvider(redisConfig)
+
+    const cacheProvider = new PatientCacheProvider(cacher)
+
+    const patientConsentProvider = new PatientConsentProvider(ctx, config, cacheProvider)
 
     /** @type {number | string} */
     const nhsNumber = getUserSubFromContext(ctx)
@@ -50,7 +57,7 @@ async function initialiseHandler(ctx) {
 
     const consentConfig = await getConsentConfig()
 
-    const patientConsentProvider = new PatientConsentProvider(ctx, consentConfig)
+    const patientConsentProvider = new PatientConsentProvider(ctx, consentConfig, cacheProvider)
 
     /** @type {number | string} */
     const nhsNumber = getUserSubFromContext(ctx)
@@ -74,7 +81,13 @@ async function initialiseHandler(ctx) {
 async function getTermsHandler(ctx) {
     const config = await getConsentConfig()
 
-    const patientConsentProvider = new PatientConsentProvider(ctx, config)
+    const redisConfig = await getRedisConfig()
+
+    const cacher = new RedisDataProvider(redisConfig)
+
+    const cacheProvider = new PatientCacheProvider(cacher)
+
+    const patientConsentProvider = new PatientConsentProvider(ctx, config, cacheProvider)
 
     const policies = await patientConsentProvider.getPolicies()
 
@@ -89,7 +102,13 @@ async function getTermsHandler(ctx) {
 async function acceptTermsHandler(ctx) {
     const config = await getConsentConfig()
 
-    const patientConsentProvider = new PatientConsentProvider(ctx, config)
+    const redisConfig = await getRedisConfig()
+
+    const cacher = new RedisDataProvider(redisConfig)
+
+    const cacheProvider = new PatientCacheProvider(cacher)
+
+    const patientConsentProvider = new PatientConsentProvider(ctx, config, cacheProvider)
     const patientConsentGenerator = new PatientConsentGenerator(ctx, config)
 
     /** @type {number | string} */

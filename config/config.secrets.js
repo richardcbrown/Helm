@@ -1,4 +1,6 @@
 const { SecretManagerServiceClient } = require("@google-cloud/secret-manager")
+const { MoleculerError } = require("moleculer").Errors
+
 const secretManager = new SecretManagerServiceClient()
 
 const fs = require("fs")
@@ -24,7 +26,7 @@ class SecretManager {
             const { project } = this
 
             if (!project) {
-                throw Error("Project has not been defined")
+                throw new MoleculerError("Project has not been defined", 500)
             }
 
             const [secret] = await secretManager.accessSecretVersion({
@@ -32,7 +34,7 @@ class SecretManager {
             })
 
             if (!secret || !secret.payload || !secret.payload.data) {
-                throw Error(`Secret ${secretId} not found`)
+                throw new MoleculerError(`Secret ${secretId} not found`, 500)
             }
 
             const gcpSecret = secret.payload.data.toString("utf8")

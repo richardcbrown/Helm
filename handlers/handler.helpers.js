@@ -5,6 +5,7 @@ const RedisDataProvider = require("../providers/redis.dataprovider")
 const getRedisConfig = require("../config/config.redis")
 const { PatientCacheProvider } = require("../providers/patientcache.provider")
 const UserMetricsProvider = require("../providers/usermetrics.provider")
+const { MoleculerError } = require("moleculer").Errors
 
 /**
  * Gets the user sub from context
@@ -14,7 +15,7 @@ const UserMetricsProvider = require("../providers/usermetrics.provider")
  */
 function getUserSubFromContext(ctx) {
     if (!ctx.meta.user || !ctx.meta.user.role || !ctx.meta.user.sub) {
-        throw Error("Sub not set")
+        throw new MoleculerError("Sub not set", 403)
     }
 
     return ctx.meta.user.sub
@@ -28,7 +29,7 @@ function getUserSubFromContext(ctx) {
 function populateContextWithUser(ctx, req) {
     // Set request headers to context meta
     if (!req.user || !req.user.sub || !req.user.role) {
-        throw Error("User has not been populated")
+        throw new MoleculerError("User has not been populated", 403)
     }
 
     ctx.meta.user = {
@@ -53,7 +54,7 @@ async function populateUserMetrics(ctx, req) {
 async function populateContextWithUserReference(ctx, req) {
     // Set request headers to context meta
     if (!req.user || !req.user.sub || !req.user.role) {
-        throw Error("User has not been populated")
+        throw new MoleculerError("User has not been populated", 403)
     }
 
     const config = await getRedisConfig()
@@ -73,7 +74,7 @@ async function populateContextWithUserReference(ctx, req) {
     reference = await cacheProvider.getPatientReference(req.user.sub)
 
     if (!reference) {
-        throw Error(`Unable to generate internal reference for user ${req.user.sub}`)
+        throw new MoleculerError(`Unable to generate internal reference for user ${req.user.sub}`, 403)
     }
 
     ctx.meta.user.reference = reference

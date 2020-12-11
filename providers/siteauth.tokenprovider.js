@@ -4,6 +4,7 @@
 const jwt = require("jwt-simple")
 const moment = require("moment")
 const { v4 } = require("uuid")
+const { MoleculerError } = require("moleculer").Errors
 
 class SiteAuthTokenProvider {
     /** @param {SiteAuthConfiguration} configuration */
@@ -24,7 +25,7 @@ class SiteAuthTokenProvider {
         const idToken = tokenSet.id_token
 
         if (!idToken) {
-            throw Error("Id token not found in token set")
+            throw new MoleculerError("Id token not found in token set", 403)
         }
 
         const decodedId = jwt.decode(idToken, null, true)
@@ -60,7 +61,7 @@ class SiteAuthTokenProvider {
         const { jti } = payload
 
         if (!jti) {
-            throw Error("Invalid token")
+            throw new MoleculerError("Invalid token", 403)
         }
 
         await this.tokenDataClient.revokeToken(jti)

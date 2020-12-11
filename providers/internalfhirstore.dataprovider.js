@@ -5,6 +5,7 @@
 /** @typedef {import("../config/config.fhirstore").FhirStoreConfig} FhirStoreConfig */
 
 const request = require("request-promise-native")
+const { MoleculerError } = require("moleculer").Errors
 
 class FhirStoreDataProvider {
     /** @param {Logger} logger */
@@ -18,6 +19,16 @@ class FhirStoreDataProvider {
 
     /** @private */
     configure(request) {}
+
+    determineResponse(response) {
+        const { body, statusCode } = response
+
+        if (statusCode === 200 || statusCode === 201) {
+            return body
+        }
+
+        throw new MoleculerError(body, statusCode)
+    }
 
     /**
      * @param {string} resourceType
@@ -44,7 +55,7 @@ class FhirStoreDataProvider {
 
             const result = await request(options)
 
-            return result.body
+            return this.determineResponse(result)
         } catch (err) {
             this.logger.error(err)
 
@@ -80,7 +91,7 @@ class FhirStoreDataProvider {
 
             const result = await request(options)
 
-            return result.body
+            return this.determineResponse(result)
         } catch (err) {
             /** @todo logging */
             throw err
@@ -113,7 +124,7 @@ class FhirStoreDataProvider {
 
             const result = await request(options)
 
-            return result
+            return this.determineResponse(result)
         } catch (err) {
             this.logger.error(err)
             throw err
@@ -145,7 +156,9 @@ class FhirStoreDataProvider {
 
             await this.authProvider.authorize(options, nhsNumber)
 
-            return await request(options)
+            const result = await request(options)
+
+            return this.determineResponse(result)
         } catch (err) {
             this.logger.error(err)
             throw err
@@ -174,7 +187,9 @@ class FhirStoreDataProvider {
 
             await this.authProvider.authorize(options, nhsNumber)
 
-            return await request(options)
+            const result = await request(options)
+
+            return this.determineResponse(result)
         } catch (err) {
             this.logger.error(err)
             throw err

@@ -6,6 +6,7 @@
 /** @typedef {import("../models/types").Demographics} Demographics */
 
 const DemographicsProvider = require("../providers/demographics.provider")
+const { MoleculerError } = require("moleculer").Errors
 
 /**
  * @this {Service}
@@ -34,12 +35,12 @@ const DemographicsService = {
             "*": [
                 (ctx) => {
                     if (!ctx.meta.user || !ctx.meta.user.role || !ctx.meta.user.sub) {
-                        throw Error("Forbidden")
+                        throw new MoleculerError("Forbidden", 403)
                     }
                 },
                 (ctx) => {
                     if (ctx.meta.user.role !== ctx.action.role) {
-                        throw Error("User does not have the required role")
+                        throw new MoleculerError("User does not have the required role", 403)
                     }
                 },
             ],

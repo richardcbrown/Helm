@@ -35,40 +35,11 @@ const getDatabaseConfiguration = require("../config/config.database")
  * @param {Context} ctx
  * @returns {Promise<any>}
  * */
-async function logoutHandler(ctx, connectionPool) {
+async function logoutHandler(ctx) {
     const { logger } = this
-    const { jti, id, sub } = ctx.meta.user
+    const { jti } = ctx.meta.user
 
-    const tokenDataClient = new TokenDataClient(connectionPool)
-    const userDataClient = new UserDataClient(connectionPool)
-
-    const user = await userDataClient.getUserByNhsNumber(sub)
-
-    if (!user) {
-        throw Error(`User ${sub} not found`)
-    }
-
-    const token = await tokenDataClient.getToken(jti)
-
-    if (!token) {
-        throw Error(`Token ${jti} does not exist`)
-    }
-
-    const sessionDuration = user.lastLogin ? moment.duration(moment(moment.now()).diff(user.lastLogin)) : null
-
-    await tokenDataClient.revokeToken(jti)
-
-    if (sessionDuration) {
-        ctx.call("metricsservice.sessionDuration", {
-            duration: sessionDuration.asSeconds(),
-            sessionId: jti,
-            userId: user.id,
-        })
-    }
-
-    if (token.totalPages <= 1) {
-        ctx.call("metricsservice.bouncedSession", { sessionId: jti, userId: user.id })
-    }
+    await ctx.call("jobservice.revokeOldToken", { jti })
 
     const oidcConfig = await getOidcConfiguration()
 
@@ -104,12 +75,6 @@ async function getRedirectHandler(ctx) {
 async function callbackHandler(ctx, connectionPool) {
     const { logger } = this
 
-    //const loggingClient = new LoggingClient("user-metrics")
-    //const monitoringClient = new MonitoringClient()
-
-    // loggingClient.logEntry()
-    // monitoringClient.monitor()
-
     const { code, state } = ctx.params
 
     const oidcConfig = await getOidcConfiguration()
@@ -133,6 +98,23 @@ async function callbackHandler(ctx, connectionPool) {
     ctx.meta.$statusCode = 302
 }
 
+/**
+ * Updates the token activity
+ * @this {Service}
+ * @param {Context} ctx
+ * @returns {Promise<any>}
+ * */
+async function tokenActiveHandler(ctx, connectionPool) {
+    const { logger } = this
+    const { jti } = ctx.meta.user
+
+    const tokenDataClient = new TokenDataClient(connectionPool)
+
+    const now = moment(moment.now()).seconds()
+
+    tokenDataClient.updateTokenActive(jti, now)
+}
+
 /** @type {ServiceSchema} */
 const OidcClientService = {
     name: "oidcclientservice",
@@ -145,7 +127,12 @@ const OidcClientService = {
         },
         logout: {
             handler(ctx) {
-                return logoutHandler(ctx, this.connectionPool)
+                return logoutHandler(ctx)
+            },
+        },
+        tokenActive: {
+            handler(ctx) {
+                return tokenActiveHandler(ctx, this.connectionPool)
             },
         },
     },

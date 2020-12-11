@@ -39,6 +39,14 @@ const MetricsService = {
 
         this.broker.metrics.register({
             type: "gauge",
+            name: "helm.activeusers",
+            labelNames: [],
+            description: "Active Users",
+            unit: "number",
+        })
+
+        this.broker.metrics.register({
+            type: "gauge",
             name: "helm.sessionduration",
             labelNames: ["country", "userAgent", "browser", "ip", "os", "device", "userId", "sessionId"],
             description: "Session duration",
@@ -50,6 +58,14 @@ const MetricsService = {
             name: "helm.pageduration",
             labelNames: ["country", "userAgent", "browser", "ip", "os", "device", "userId", "sessionId", "page"],
             description: "Page duration",
+            unit: "number",
+        })
+
+        this.broker.metrics.register({
+            type: "gauge",
+            name: "helm.lastloginduration",
+            labelNames: ["country", "userAgent", "browser", "ip", "os", "device", "userId", "sessionId"],
+            description: "Last login duration",
             unit: "number",
         })
 
@@ -68,23 +84,8 @@ const MetricsService = {
             description: "Bounced user sessions",
             unit: "number",
         })
-
-        // this.broker.metrics.register({
-        //     type: "gauge",
-        //     name: "helm.endsession",
-        //     labelNames: ["country", "userAgent", "browser", "ip", "os", "device", "userId", "sessionId"],
-        //     description: "End sessions",
-        //     unit: "number",
-        // })
     },
     actions: {
-        test: {
-            async handler(ctx) {
-                const { metrics } = ctx.meta
-
-                this.broker.metrics.increment("helm.test", metrics, 1)
-            },
-        },
         newSession: {
             async handler(ctx) {
                 const { metrics } = ctx.meta
@@ -117,6 +118,14 @@ const MetricsService = {
                 this.broker.metrics.set("helm.pageduration", duration, { ...metrics, userId, sessionId, page })
             },
         },
+        lastLoginDuration: {
+            async handler(ctx) {
+                const { metrics } = ctx.meta
+                const { userId, sessionId, duration } = ctx.params
+
+                this.broker.metrics.set("helm.lastloginduration", duration, { ...metrics, userId, sessionId })
+            },
+        },
         page: {
             async handler(ctx) {
                 const { metrics } = ctx.meta
@@ -125,14 +134,6 @@ const MetricsService = {
                 this.broker.metrics.set("helm.page", 1, { ...metrics, userId, sessionId, page })
             },
         },
-        // endSession: {
-        //     async handler(ctx) {
-        //         const { metrics } = ctx.meta
-        //         const { userId, sessionId } = ctx.params
-
-        //         this.broker.metrics.decrement("helm.session", { ...metrics, userId, sessionId }, 1)
-        //     },
-        // },
         updateMetrics: {
             async handler(ctx) {
                 const userDataClient = new UserDataClient(this.connectionPool)
@@ -140,6 +141,13 @@ const MetricsService = {
                 const userCount = await userDataClient.getUserCount()
 
                 this.broker.metrics.set("helm.totalusers", userCount)
+            },
+        },
+        activeUsers: {
+            handler(ctx) {
+                const { activeUserCount } = ctx.params
+
+                this.broker.metrics.set("helm.activeusers", activeUserCount)
             },
         },
     },

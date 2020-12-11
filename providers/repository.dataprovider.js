@@ -1,4 +1,5 @@
 const request = require("request-promise-native")
+const { MoleculerError } = require("moleculer").Errors
 
 const youtubeResourceFormatter = (resource) => {
     const { url } = resource
@@ -289,7 +290,7 @@ class RepositoryDataProvider {
         const servicePointConfiguration = configuration.api.servicePoints[servicePoint]
 
         if (!servicePointConfiguration) {
-            throw Error(`Configuration for service point ${servicePoint} not found`)
+            throw new MoleculerError(`Configuration for service point ${servicePoint} not found`, 500)
         }
 
         let requestArguments = {

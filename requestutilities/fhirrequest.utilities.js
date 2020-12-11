@@ -2,6 +2,7 @@
 
 const { ResourceType } = require("../models/resourcetype.enum")
 const { getFromBundle, getEntriesFromBundle } = require("../models/bundle.helpers")
+const { MoleculerError } = require("moleculer").Errors
 
 /**
  * get policies
@@ -18,7 +19,7 @@ const getPolicies = async (policyNames, ctx) => {
     const policies = /** @type {fhir.BundleEntry[]} */ (getEntriesFromBundle(policyBundle, ResourceType.Policy))
 
     if (!policies.length) {
-        throw Error("Site policies have not been set")
+        throw new MoleculerError("Site policies have not been set", 500)
     }
 
     return policies
@@ -39,7 +40,7 @@ const getPatientByNhsNumber = async (nhsNumber, ctx) => {
     const patients = /** @type {fhir.Patient[]} */ (getFromBundle(patientsBundle, ResourceType.Patient))
 
     if (!patients.length) {
-        throw Error("Patient not found")
+        throw new MoleculerError("Patient not found", 400)
     }
 
     return patients[0]
@@ -60,7 +61,7 @@ const getPatientEntryByNhsNumber = async (nhsNumber, ctx) => {
     const entries = getEntriesFromBundle(patientsBundle, ResourceType.Patient)
 
     if (!entries.length) {
-        throw Error("Patient bundle entry not found")
+        throw new MoleculerError("Patient bundle entry not found", 400)
     }
 
     return entries[0]

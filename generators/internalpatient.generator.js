@@ -3,6 +3,7 @@ const { getFromBundle } = require("../models/bundle.helpers")
 const { ResourceType } = require("../models/resourcetype.enum")
 const { makeReference } = require("../models/resource.helpers")
 const { getPatientByNhsNumber } = require("../requestutilities/fhirrequest.utilities")
+const { MoleculerError } = require("moleculer").Errors
 
 class InternalPatientGenerator {
     /**
@@ -34,7 +35,7 @@ class InternalPatientGenerator {
 
         // already have patient
         if (!patient) {
-            throw Error(`Unable to find internal patient ${nhsNumber}`)
+            throw new MoleculerError(`Unable to find internal patient ${nhsNumber}`, 500)
         }
 
         const goldenRecord = await getPatientByNhsNumber(nhsNumber, this.ctx)
@@ -71,7 +72,7 @@ class InternalPatientGenerator {
             return reference
         }
 
-        throw Error(`Unable to create local record for identifier ${nhsNumber}`)
+        throw new MoleculerError(`Unable to create local record for identifier ${nhsNumber}`, 500)
     }
 }
 

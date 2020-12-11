@@ -1,6 +1,7 @@
 /** @typedef {import("./types").SiteAuthConfiguration} SiteAuthConfiguration */
 
 const SecretManager = require("./config.secrets")
+const { MoleculerError } = require("moleculer").Errors
 
 const secretManager = new SecretManager(process.env.GCP_PROJECT_ID)
 
@@ -13,29 +14,29 @@ async function getConfig() {
     const audience = await secretManager.getSecret("SITEAUTH_AUDIENCE")
 
     if (!jwtSigningSecret) {
-        throw Error("JWT Signing Secret not set")
+        throw new MoleculerError("JWT Signing Secret not set", 500)
     }
 
     if (!jwtExpiryString) {
-        throw Error("JWT Expiry not set")
+        throw new MoleculerError("JWT Expiry not set", 500)
     }
 
     if (!jwtSigningAlgorithm) {
-        throw Error("JWT Signing Algorithm not set")
+        throw new MoleculerError("JWT Signing Algorithm not set", 500)
     }
 
     if (!issuer) {
-        throw Error("JWT Issuer not set")
+        throw new MoleculerError("JWT Issuer not set", 500)
     }
 
     if (!audience) {
-        throw Error("JWT Audience not set")
+        throw new MoleculerError("JWT Audience not set", 500)
     }
 
     const jwtExpiry = Number(jwtExpiryString)
 
     if (isNaN(jwtExpiry)) {
-        throw Error("JWT Expiry invalid")
+        throw new MoleculerError("JWT Expiry invalid", 500)
     }
 
     return {

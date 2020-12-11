@@ -87,10 +87,10 @@ const UserService = {
 
                 ctx.call("metricsservice.updateMetrics")
 
-                ctx.call("userservice.linkTopThreeThings")
+                ctx.call("userservice.linkTopThreeThings", { userId: user.id })
             },
         },
-        getUser: {
+        linkTopThreeThings: {
             async handler(ctx) {
                 const { userId } = ctx.params
 
@@ -99,11 +99,11 @@ const UserService = {
                 const user = await userDataClient.getUserById(userId)
 
                 if (!user) {
-                    throw Error(`User ${userId} does not exist`)
+                    throw new MoleculerError(`User ${userId} does not exist`, 403)
                 }
 
                 if (!user.nhsNumber) {
-                    throw Error(`User ${userId} has no NHS number`)
+                    throw new MoleculerError(`User ${userId} has no NHS number`, 403)
                 }
 
                 const questionnaireBundle = /** @type {fhir.Bundle} */ (await ctx.call("internalfhirservice.search", {
@@ -119,7 +119,7 @@ const UserService = {
                 const questionnaire = questionnaires[0]
 
                 if (!questionnaire) {
-                    throw Error("T3T questionnaire not found")
+                    throw new MoleculerError("T3T questionnaire not found", 400)
                 }
 
                 const topThreeThingsBundle = /** @type {fhir.Bundle} */ (await ctx.call("internalfhirservice.search", {
@@ -159,11 +159,6 @@ const UserService = {
                 }
             },
         },
-        linkTopThreeThings: {
-            async handler(ctx) {
-                const { userId } = ctx.params
-            },
-        },
         trackPage: {
             async handler(ctx) {
                 const { jti, id } = ctx.meta.user
@@ -174,7 +169,7 @@ const UserService = {
                 const token = await tokenDataClient.getToken(jti)
 
                 if (!token) {
-                    throw Error("Token not found")
+                    throw new MoleculerError("Token not found", 403)
                 }
 
                 const { currentPage, pageViewStart, totalPages } = token

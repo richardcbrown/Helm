@@ -8,6 +8,7 @@ const request = require("request-promise-native")
 const uuid = require("uuid")
 const https = require("https")
 const jwt = require("jsonwebtoken")
+const { MoleculerError } = require("moleculer").Errors
 
 class AuthProvider {
     /** @param {Logger} logger */
@@ -98,7 +99,7 @@ class AuthProvider {
         }
 
         if (rsn === 2 && !nhsNumber) {
-            throw Error("patient id required for rsn: 2")
+            throw new MoleculerError("patient id required for rsn: 2", 403)
         }
 
         if (nhsNumber && rsn !== 5) {

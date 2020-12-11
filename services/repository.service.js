@@ -8,6 +8,7 @@ const RedisDataProvider = require("../providers/redis.dataprovider")
 const { RepositoryCacheProvider } = require("../providers/respositorycache.provider")
 const RepositoryDataProvider = require("../providers/repository.dataprovider")
 const getRepositoryConfig = require("../config/config.repository")
+const { MoleculerError } = require("moleculer").Errors
 
 /**
  * @this {Service}
@@ -68,7 +69,7 @@ const RepositoryService = {
             "*": [
                 (ctx) => {
                     if (ctx.meta.user.role !== ctx.action.role) {
-                        throw Error("User does not have the required role")
+                        throw new MoleculerError("User does not have the required role", 403)
                     }
                 },
             ],

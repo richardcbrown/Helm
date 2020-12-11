@@ -3,6 +3,8 @@
 /** @typedef {import("moleculer").Service<ServiceSchema>} Service */
 /** @typedef {import("moleculer").Context<any, any>} Context */
 
+const { MoleculerError } = require("moleculer").Errors
+
 /**
  * @this {Service}
  * @param {Context} ctx
@@ -50,12 +52,12 @@ async function createActionHandler(ctx, fhirStore) {
     const resourceType = ctx.params.resourceType
 
     if (!resourceType) {
-        throw Error("Resource type missing from resource")
+        throw new MoleculerError("Resource type missing from resource", 400)
     }
 
     const { sub } = ctx.meta.user
 
-    await fhirStore.create(resourceType, resource, sub)
+    return await fhirStore.create(resourceType, resource, sub)
 }
 
 /**
@@ -72,16 +74,16 @@ async function updateActionHandler(ctx, fhirStore) {
     const resourceId = ctx.params.resourceId
 
     if (!resourceType) {
-        throw Error("Resource type missing from resource")
+        throw new MoleculerError("Resource type missing from resource", 400)
     }
 
     if (!resourceId) {
-        throw Error("Resource id missing from resource")
+        throw new MoleculerError("Resource id missing from resource", 400)
     }
 
     const { sub } = ctx.meta.user
 
-    await fhirStore.update(resourceType, resourceId, resource, sub)
+    return await fhirStore.update(resourceType, resourceId, resource, sub)
 }
 
 module.exports = {
