@@ -112,8 +112,6 @@ class RegisterPatientConsumer {
             nhsNumber
         )
 
-        console.log(linkages)
-
         const linkageEntries = linkages.entry
 
         if (!linkageEntries || !linkageEntries) {
@@ -152,7 +150,7 @@ class RegisterPatientConsumer {
             null
         )
 
-        return JSON.parse(createdPatient.body)
+        return JSON.parse(createdPatient)
     }
 
     /**
@@ -161,8 +159,6 @@ class RegisterPatientConsumer {
      */
     async consume(message) {
         try {
-            console.log(message)
-
             const { content } = message
 
             const payload = JSON.parse(content.toString())
@@ -175,12 +171,8 @@ class RegisterPatientConsumer {
                 throw Error(`Message payload is missing NHS number`)
             }
 
-            console.log(`Registering patient: ${payload.nhsNumber}`)
-
             // check if we already have linkage for
             const linkage = null //await this.patientCache.getPatientLinkage(payload.nhsNumber)
-
-            console.log(linkage)
 
             if (linkage) {
                 const patientReference = getReferenceFromLinkage(/** @type {fhir.Linkage} */ (linkage))
@@ -204,8 +196,6 @@ class RegisterPatientConsumer {
                     bearer: payload.token,
                 },
             }
-
-            console.log(this.configuration)
 
             if (this.configuration.mock) {
                 requestDetails.body = JSON.stringify({ nhsNumber: payload.nhsNumber })
@@ -257,16 +247,12 @@ class RegisterPatientConsumer {
 
             const response = await this.pixDataProvider.create(pixPatient.resourceType, pixPatient, nhs_number)
 
-            const body = JSON.parse(response.body)
+            const body = JSON.parse(response)
 
             let result
 
             if (body.resourceType !== "Linkage") {
-                console.log("Rebuilding Linkag")
-
                 await this.rebuildLinkage(nhs_number)
-
-                console.log("Linkage rebuild")
 
                 result = await this.patientCache.getPatientLinkage(nhs_number)
 
@@ -298,13 +284,11 @@ class RegisterPatientConsumer {
                 reference: patientReference,
             })
 
-            console.log(`Registered patient: ${payload.nhsNumber}`)
-
             return {
                 success: true,
             }
         } catch (error) {
-            this.logger.error(error.message, { stack: error.stack })
+            this.logger.error(error.stack || error.message)
 
             return {
                 success: false,

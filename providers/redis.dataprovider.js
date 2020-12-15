@@ -1,7 +1,9 @@
 const redis = require("redis")
 
 class RedisDataProvider {
-    constructor(configuration) {
+    constructor(configuration, logger) {
+        this.logger = logger
+
         this.configuration = configuration
 
         this.createClient = this.createClient.bind(this)
@@ -13,45 +15,47 @@ class RedisDataProvider {
      * @private
      */
     createClient() {
-        const { host, port } = this.configuration
+        try {
+            const { host, port } = this.configuration
 
-        console.log(`REDIS HOST PORT ${host} ${port}`)
+            const client = redis.createClient({
+                host,
+                port,
+                retry_strategy: function (options) {
+                    if (options.total_retry_time > 1000 * 60 * 60) {
+                        // End reconnecting after a specific timeout and flush all commands
+                        // with a individual error
+                        return new Error("Retry time exhausted")
+                    }
+                    if (options.attempt > 10) {
+                        // End reconnecting with built in error
+                        return new Error("Maximum retry attempts reached")
+                    }
+                    // reconnect after
+                    return Math.min(options.attempt * 100, 3000)
+                },
+            })
 
-        const client = redis.createClient({
-            host,
-            port,
-            retry_strategy: function (options) {
-                if (options.total_retry_time > 1000 * 60 * 60) {
-                    // End reconnecting after a specific timeout and flush all commands
-                    // with a individual error
-                    return new Error("Retry time exhausted")
-                }
-                if (options.attempt > 10) {
-                    // End reconnecting with built in error
-                    return new Error("Maximum retry attempts reached")
-                }
-                // reconnect after
-                return Math.min(options.attempt * 100, 3000)
-            },
-        })
+            client.on("ready", () => {
+                this.logger.info("REDIS CLIENT READY")
+            })
 
-        client.on("ready", () => {
-            console.log("REDIS CLIENT READY")
-        })
+            client.on("connect", () => {
+                this.logger.info("REDIS CLIENT CONNECTED")
+            })
 
-        client.on("connect", () => {
-            console.log("REDIS CLIENT CONNECTED")
-        })
+            client.on("error", (error) => {
+                this.logger.error(error.stack || error.message || error)
 
-        client.on("error", (error) => {
-            console.log(error)
+                this.logger.info("Attempting reconnect")
 
-            console.log("Attempting reconnect")
+                setTimeout(() => this.createClient(), 5000)
+            })
 
-            setTimeout(() => this.createClient(), 5000)
-        })
-
-        this.client = client
+            this.client = client
+        } catch (error) {
+            this.logger.error(error.stack || error.message)
+        }
     }
 
     /**
@@ -64,6 +68,8 @@ class RedisDataProvider {
         return new Promise((resolve, reject) => {
             this.client.get(key, (error, result) => {
                 if (error) {
+                    this.logger.error(error.stack || error.message || error)
+
                     reject(error)
                 } else {
                     resolve(JSON.parse(result))
@@ -83,6 +89,8 @@ class RedisDataProvider {
         return new Promise((resolve, reject) => {
             this.client.set(key, JSON.stringify(value), (error) => {
                 if (error) {
+                    this.logger.error(error.stack || error.message || error)
+
                     reject(error)
                 } else {
                     resolve()

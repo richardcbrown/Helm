@@ -190,23 +190,28 @@ const InternalFhirService = {
         },
     },
     async started() {
-        const authConfig = await getFhirAuthConfig()
-        const storeConfig = await getFhirStoreConfig()
+        try {
+            const authConfig = await getFhirAuthConfig()
+            const storeConfig = await getFhirStoreConfig()
 
-        let tokenProvider
+            let tokenProvider
 
-        if (authConfig.authenticate) {
-            const authProvider = new AuthProvider(authConfig, this.logger)
-            tokenProvider = new TokenProvider(authProvider, this.logger)
-        } else {
-            tokenProvider = new EmptyTokenProvider()
+            if (authConfig.authenticate) {
+                const authProvider = new AuthProvider(authConfig, this.logger)
+                tokenProvider = new TokenProvider(authProvider, this.logger)
+            } else {
+                tokenProvider = new EmptyTokenProvider()
+            }
+
+            const fhirStore = new InternalFhirDataProvider(storeConfig, this.logger, tokenProvider)
+
+            const initialGenerator = new InitialInternalFhirStoreGenerator(fhirStore)
+
+            await initialGenerator.generate()
+        } catch (error) {
+            this.logger.error(error.stack || error.message)
+            throw error
         }
-
-        const fhirStore = new InternalFhirDataProvider(storeConfig, this.logger, tokenProvider)
-
-        const initialGenerator = new InitialInternalFhirStoreGenerator(fhirStore)
-
-        await initialGenerator.generate()
     },
 }
 

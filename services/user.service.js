@@ -42,7 +42,7 @@ const UserService = {
                 const { nhsNumber, jti } = ctx.params
 
                 const redisConfig = await getRedisConfig()
-                const cacher = new RedisDataProvider(redisConfig)
+                const cacher = new RedisDataProvider(redisConfig, this.logger)
 
                 const cacheProvider = new PatientCacheProvider(cacher)
 
@@ -125,7 +125,7 @@ const UserService = {
                 const topThreeThingsBundle = /** @type {fhir.Bundle} */ (await ctx.call("internalfhirservice.search", {
                     resourceType: "QuestionnaireResponse",
                     query: {
-                        "patient.identifier": `https://fhir.nhs.uk/Id/nhs-number|${user.nhsNumber}`,
+                        patient: `Patient/TMP:${user.nhsNumber}`,
                         questionnaire: `${questionnaire.resourceType}/${questionnaire.id}`,
                     },
                 }))
@@ -139,7 +139,11 @@ const UserService = {
                 questionnaireResponses = questionnaireResponses.filter((qr) => {
                     const { author = {}, subject = {}, source = {} } = qr
 
-                    return !author.reference || !subject.reference || !source.reference
+                    return (
+                        author.reference === `Patient/TMP:${user.nhsNumber}` ||
+                        subject.reference === `Patient/TMP:${user.nhsNumber}` ||
+                        source.reference === `Patient/TMP:${user.nhsNumber}`
+                    )
                 })
 
                 questionnaireResponses.forEach((qr) => {
@@ -154,6 +158,7 @@ const UserService = {
                 for (let questionnaireResponse of questionnaireResponses) {
                     ctx.call("internalfhirservice.update", {
                         resourceType: "QuestionnaireResponse",
+                        resourceId: questionnaireResponse.id,
                         resource: questionnaireResponse,
                     })
                 }
@@ -255,9 +260,14 @@ const UserService = {
         },
     },
     async started() {
-        const config = await getDatabaseConfiguration()
+        try {
+            const config = await getDatabaseConfiguration()
 
-        this.connectionPool = new pg.Pool(config)
+            this.connectionPool = new pg.Pool(config)
+        } catch (error) {
+            this.logger.error(error.stack || error.message)
+            throw error
+        }
     },
 }
 

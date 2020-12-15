@@ -19,7 +19,7 @@ async function searchRespositoryHandler(ctx) {
     const redisConfig = await getRedisConfig()
     const respositoryConfig = await getRepositoryConfig()
 
-    const cacheProvider = new RepositoryCacheProvider(new RedisDataProvider(redisConfig))
+    const cacheProvider = new RepositoryCacheProvider(new RedisDataProvider(redisConfig, this.logger))
 
     const query = ctx.params
 

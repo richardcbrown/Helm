@@ -125,7 +125,7 @@ const JobService = {
         async patientlogin(ctx) {
             const redisConfig = await getRedisConfig()
 
-            const cacher = new RedisDataProvider(redisConfig)
+            const cacher = new RedisDataProvider(redisConfig, this.logger)
 
             const { nhsNumber, token } = ctx.params
 
@@ -189,9 +189,14 @@ const JobService = {
 
             const internalTokenProvider = new EmptyTokenProvider()
 
-            const internalFhirStore = new InternalFhirDataProvider(storeConfig, this.logger, internalTokenProvider)
+            const internalFhirStore = new InternalFhirDataProvider(
+                storeConfig,
+                this.logger,
+                internalTokenProvider,
+                this.tracer
+            )
 
-            const cacher = new PatientCacheProvider(new RedisDataProvider(redisConfig))
+            const cacher = new PatientCacheProvider(new RedisDataProvider(redisConfig, this.logger))
 
             const jobProducerProvider = new JobProducerProvider(producerConfig)
 
@@ -232,16 +237,21 @@ const JobService = {
 
             this.crons.forEach((job) => job.start())
         } catch (error) {
-            /** @todo logging */
-            console.log(error)
+            this.logger.error(error.stack || error.message)
+            throw error
         }
     },
     async stopped() {
-        if (this.connectionPool) {
-            await this.connectionPool.end()
-        }
+        try {
+            if (this.connectionPool) {
+                await this.connectionPool.end()
+            }
 
-        this.crons.forEach((job) => job.stop())
+            this.crons.forEach((job) => job.stop())
+        } catch (error) {
+            this.logger.error(error.stack || error.message)
+            throw error
+        }
     },
 }
 

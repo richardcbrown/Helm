@@ -152,9 +152,14 @@ const MetricsService = {
         },
     },
     async started() {
-        const config = await getDatabaseConfiguration()
+        try {
+            const config = await getDatabaseConfiguration()
 
-        this.connectionPool = new pg.Pool(config)
+            this.connectionPool = new pg.Pool(config)
+        } catch (error) {
+            this.logger.error(error.stack || error.message)
+            throw error
+        }
     },
 }
 

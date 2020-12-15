@@ -38,7 +38,7 @@ class TokenProvider {
 
             return this.token.access_token
         } catch (error) {
-            this.logger.error(error)
+            this.logger.error(error.stack || error.message)
 
             throw error
         }

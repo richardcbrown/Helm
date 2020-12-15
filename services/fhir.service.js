@@ -20,8 +20,6 @@ const adminResources = ["Consent", "Policy"]
 function getAuthProviderForResourceType(resourceType, authConfig, logger) {
     let rsn = 2
 
-    console.log(resourceType)
-
     if (adminResources.includes(resourceType)) {
         rsn = 5
     }

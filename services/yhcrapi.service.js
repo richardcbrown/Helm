@@ -105,8 +105,6 @@ const ApiGateway = {
                     "GET /:resourceType/:resourceId": "internalfhirservice.read",
                 },
                 onBeforeCall(ctx, route, req, res) {
-                    console.log(req.user)
-
                     ctx.meta.user = {
                         role: "YHCR",
                     }
@@ -121,6 +119,8 @@ const ApiGateway = {
             },
         ],
         onError(req, res, err) {
+            this.logger.error(err.stack || err.message)
+
             res.writeHead(500, { "Content-Type": "application/json" })
             res.end(JSON.stringify({ error: "Error" }))
         },

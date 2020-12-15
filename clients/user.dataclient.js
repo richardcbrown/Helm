@@ -43,7 +43,7 @@ class UserDataClient {
             const {
                 rows,
             } = await client.query(
-                'SELECT "Id", "NhsNumber", "LastLogin", "Reference" FROM helm."Users" WHERE "UserId" = $1',
+                'SELECT "Id", "NhsNumber", "LastLogin", "Reference" FROM helm."Users" WHERE "Id" = $1',
                 [userId]
             )
 

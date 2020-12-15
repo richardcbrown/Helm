@@ -26,7 +26,7 @@ async function patientConsentedHandler(ctx) {
 
     const redisConfig = await getRedisConfig()
 
-    const cacher = new RedisDataProvider(redisConfig)
+    const cacher = new RedisDataProvider(redisConfig, this.logger)
 
     const cacheProvider = new PatientCacheProvider(cacher)
 
@@ -45,7 +45,7 @@ async function patientConsentedHandler(ctx) {
  * */
 async function initialiseHandler(ctx) {
     const redisConfig = await getRedisConfig()
-    const cacher = new RedisDataProvider(redisConfig)
+    const cacher = new RedisDataProvider(redisConfig, this.logger)
 
     const cacheProvider = new PatientCacheProvider(cacher)
 
@@ -83,7 +83,7 @@ async function getTermsHandler(ctx) {
 
     const redisConfig = await getRedisConfig()
 
-    const cacher = new RedisDataProvider(redisConfig)
+    const cacher = new RedisDataProvider(redisConfig, this.logger)
 
     const cacheProvider = new PatientCacheProvider(cacher)
 
@@ -104,7 +104,7 @@ async function acceptTermsHandler(ctx) {
 
     const redisConfig = await getRedisConfig()
 
-    const cacher = new RedisDataProvider(redisConfig)
+    const cacher = new RedisDataProvider(redisConfig, this.logger)
 
     const cacheProvider = new PatientCacheProvider(cacher)
 

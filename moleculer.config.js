@@ -1,3 +1,28 @@
+"use strict"
+
+// This function will add tracing exporters to moleculer
+function tracingExporters() {
+    let exporters = []
+
+    if (process.env.ZIPKIN) {
+        exporters.push({
+            type: "Zipkin",
+            options: {
+                baseURL: process.env.ZIPKIN,
+                interval: 5,
+            },
+        })
+    }
+
+    if (process.env.TRACE_CONSOLE && process.env.TRACE_CONSOLE.toLowerCase() === "true") {
+        exporters.push({
+            type: "Console",
+        })
+    }
+
+    return exporters
+}
+
 // moleculer.config.js
 module.exports = {
     // Enable console logger
@@ -39,5 +64,12 @@ module.exports = {
             //     type: "Console",
             // },
         ],
+    },
+
+    // Enable built-in tracing function. More info: https://moleculer.services/docs/0.14/tracing.html
+    tracing: {
+        enabled: true,
+        // Available built-in exporters: "Console", "Datadog", "Event", "EventLegacy", "Jaeger", "Zipkin"
+        exporter: tracingExporters(),
     },
 }

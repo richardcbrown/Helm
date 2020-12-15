@@ -15,8 +15,6 @@ async function getConfig() {
         schema: await secretManager.getSecret("PGSCHEMA"),
     }
 
-    console.log(data)
-
     return data
 }
 

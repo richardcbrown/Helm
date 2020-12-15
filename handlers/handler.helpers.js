@@ -59,7 +59,7 @@ async function populateContextWithUserReference(ctx, req) {
 
     const config = await getRedisConfig()
 
-    const cacher = new RedisDataProvider(config)
+    const cacher = new RedisDataProvider(config, ctx.broker.logger)
 
     const cacheProvider = new PatientCacheProvider(cacher)
 

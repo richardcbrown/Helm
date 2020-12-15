@@ -103,6 +103,8 @@ const verify = async (req, res) => {
         res.writeHead(200, { "Content-Type": "application/json" })
         res.end(JSON.stringify({ token_valid: result.active ? 1 : 0, token_payload }))
     } catch (error) {
+        this.logger.error(error.stack || error.message)
+
         res.writeHead(200, { "Content-Type": "application/json" })
         res.end(JSON.stringify({ token_valid: 0 }))
     }
@@ -176,6 +178,8 @@ const ApiGateway = {
                             res.writeHead(200, { "Content-Type": "application/json" })
                             res.end(JSON.stringify({ token }))
                         } catch (error) {
+                            this.logger.error(error.stack || error.message)
+
                             res.writeHead(403)
                             res.end()
                         }
@@ -201,6 +205,8 @@ const ApiGateway = {
                             res.writeHead(200, { "Content-Type": "application/json" })
                             res.end(JSON.stringify({ token: result.access_token }))
                         } catch (error) {
+                            this.logger.error(error.stack || error.message)
+
                             res.writeHead(403)
                             res.end()
                         }
@@ -330,6 +336,8 @@ const ApiGateway = {
             },
         ],
         onError(req, res, err) {
+            this.logger.error(err.stack || err.message)
+
             if (err instanceof PatientNotConsentedError) {
                 res.writeHead(200, { "Content-Type": "application/json" })
                 res.end(JSON.stringify({ status: "sign_terms" }))
@@ -343,14 +351,19 @@ const ApiGateway = {
         },
     },
     async started() {
-        const databaseConfig = await getDatabaseConfiguration()
+        try {
+            const databaseConfig = await getDatabaseConfiguration()
 
-        const connectionPool = new pg.Pool(databaseConfig)
+            const connectionPool = new pg.Pool(databaseConfig)
 
-        const initFile = path.join(__dirname, "helmdatabase.init.sql")
-        const sql = fs.readFileSync(initFile, "utf-8")
+            const initFile = path.join(__dirname, "helmdatabase.init.sql")
+            const sql = fs.readFileSync(initFile, "utf-8")
 
-        await connectionPool.query(sql)
+            await connectionPool.query(sql)
+        } catch (error) {
+            this.logger.error(error.stack || error.message)
+            throw error
+        }
     },
 }
 

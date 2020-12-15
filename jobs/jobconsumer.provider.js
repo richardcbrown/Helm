@@ -64,9 +64,6 @@ function isResolvedByCode(patient, code) {
         )
     })
 
-    console.log("Nhs verified status")
-    console.log(nhsVerifiedExtension)
-
     return !!nhsVerifiedExtension
 }
 
@@ -86,6 +83,9 @@ class LookupPatientConsumer {
     }
 
     error(message) {
+        this.logger.error("LookupPatientConsumer error")
+        this.logger.error(message)
+
         const { content } = message
 
         const payload = JSON.parse(content.toString())
@@ -98,8 +98,6 @@ class LookupPatientConsumer {
      */
     async consume(message) {
         try {
-            console.log(message)
-
             const { content } = message
 
             const payload = JSON.parse(content.toString())
@@ -111,8 +109,6 @@ class LookupPatientConsumer {
             if (!payload.reference) {
                 throw Error(`Message payload is missing patient reference`)
             }
-
-            console.log(`Looking up patient: ${payload.nhsNumber}, ${payload.reference}`)
 
             this.patientCache.setPendingPatientStatus(payload.nhsNumber, PendingPatientStatus.Searching)
 
@@ -150,7 +146,7 @@ class LookupPatientConsumer {
                 }
             }
         } catch (error) {
-            this.logger.error(error.message, { stack: error.stack })
+            this.logger.error(error.stack || error.message)
 
             return {
                 success: false,
@@ -216,7 +212,7 @@ class RabbitJobConsumer {
         } catch (error) {
             queue.reject(message, false)
             this.consumer.error(message)
-            this.logger.error(error.message, error.stack)
+            this.logger.error(error.stack || error.message)
         }
     }
 
@@ -230,7 +226,7 @@ class RabbitJobConsumer {
 
             return channel
         } catch (error) {
-            console.log("Error getting queue")
+            this.logger.error(error.stack || error.message)
 
             await new Promise((resolve) => setTimeout(() => resolve(), 5000))
 
@@ -251,7 +247,7 @@ class RabbitJobConsumer {
 
             return channel
         } catch (error) {
-            console.log("Error getting queue")
+            this.logger.error(error.stack || error.message)
 
             await new Promise((resolve) => setTimeout(() => resolve(), 5000))
 
@@ -272,7 +268,7 @@ class RabbitJobConsumer {
 
             return channel
         } catch (error) {
-            console.log("Error getting queue")
+            this.logger.error(error.stack || error.message)
 
             await new Promise((resolve) => setTimeout(() => resolve(), 5000))
 
