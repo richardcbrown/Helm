@@ -268,7 +268,13 @@ const ApiGateway = {
             {
                 path: "/api/auth",
                 aliases: {
-                    "GET /token": "oidcclientservice.callback",
+                    "GET /return": "oidcclientservice.callback",
+                },
+            },
+            {
+                path: "/api/auth",
+                aliases: {
+                    "GET /token": "oidcclientservice.return",
                 },
                 async onBeforeCall(ctx, route, req, res) {
                     await populateUserMetrics(ctx, req)

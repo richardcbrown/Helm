@@ -5,6 +5,7 @@ const jwt = require("jwt-simple")
 const moment = require("moment")
 const { v4 } = require("uuid")
 const { MoleculerError } = require("moleculer").Errors
+const ExtractJwt = require("passport-jwt").ExtractJwt
 
 class SiteAuthTokenProvider {
     /** @param {SiteAuthConfiguration} configuration */
@@ -87,12 +88,11 @@ class SiteAuthTokenProvider {
 
     /**
      * @private
-     * @param {Request} request
-     * @returns {string | null}
+     * @param {Request} [request]
      * Extracts the token from the request
      */
     extractTokenFromRequest(request) {
-        return (request && request.cookies["JSESSIONID"]) || null
+        return ExtractJwt.fromAuthHeaderAsBearerToken()
     }
 
     /**
@@ -103,7 +103,7 @@ class SiteAuthTokenProvider {
         const { jwtSigningSecret, issuer, audience } = this.configuration
 
         return {
-            jwtFromRequest: this.extractTokenFromRequest,
+            jwtFromRequest: this.extractTokenFromRequest(),
             secretOrKey: jwtSigningSecret,
             ignoreExpies: false,
             issuer,

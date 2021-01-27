@@ -23,6 +23,16 @@ class AuthProvider {
         this.rsn = rsn
     }
 
+    determineResponse(response) {
+        const { body, statusCode } = response
+
+        if (statusCode === 200 || statusCode === 201) {
+            return body
+        }
+
+        throw new MoleculerError(JSON.stringify(body), statusCode)
+    }
+
     /**
      * Sends a request to get token
      *
@@ -46,6 +56,8 @@ class AuthProvider {
                     ).toString("base64")}`,
                 },
                 json: true,
+                simple: false,
+                resolveWithFullResponse: true,
             }
 
             if (configuration.env !== "local") {
@@ -66,9 +78,11 @@ class AuthProvider {
                 options.proxy = configuration.proxy
             }
 
-            return await request(options)
+            const response = await request(options)
+
+            return this.determineResponse(response)
         } catch (error) {
-            this.logger.error(error)
+            this.logger.error(error.stack || error.message)
 
             throw error
         }

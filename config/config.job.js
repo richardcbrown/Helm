@@ -8,6 +8,10 @@ const secretManager = new SecretManager(process.env.GCP_PROJECT_ID)
 async function getConsumerConfig() {
     const nhsAuthConfig = await getNhsLoginConfig()
 
+    const retryCountConfig = await secretManager.getSecret("LOOKUP_PATIENT_RETRY_COUNT")
+
+    const retryCount = isNaN(Number(retryCountConfig)) ? 0 : Number(retryCountConfig)
+
     return {
         rabbit: {
             protocol: "amqp",
@@ -19,6 +23,9 @@ async function getConsumerConfig() {
         registerpatientconsumer: {
             ...nhsAuthConfig,
             orgReference: await secretManager.getSecret("PIX_SOS_ORG_REFERENCE"),
+        },
+        lookuppatientconsumer: {
+            retryCount,
         },
     }
 }

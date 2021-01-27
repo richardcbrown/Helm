@@ -70,7 +70,7 @@ async function getRedirectHandler(ctx) {
 /**
  * @this {Service}
  * @param {Context} ctx
- * @returns {Promise<void>}
+ * @returns {Promise<any>}
  * */
 async function callbackHandler(ctx, connectionPool) {
     const { logger } = this
@@ -90,11 +90,27 @@ async function callbackHandler(ctx, connectionPool) {
 
     ctx.call("jobservice.patientlogin", { token: tokenSet.access_token, nhsNumber: payload.sub })
 
-    ctx.meta.$responseHeaders = {
-        "Set-Cookie": `JSESSIONID=${token}; Path=/;`,
-    }
+    // ctx.meta.$responseHeaders = {
+    //     "Set-Cookie": `JSESSIONID=${token}; Path=/;`,
+    // }
 
-    ctx.meta.$location = "/#/login"
+    // ctx.meta.$location = "/#/login"
+    // ctx.meta.$statusCode = 302
+
+    return { token }
+}
+
+/**
+ * @this {Service}
+ * @param {Context} ctx
+ * @returns {Promise<any>}
+ * */
+async function returnHandler(ctx) {
+    const { logger } = this
+
+    const { code, state } = ctx.params
+
+    ctx.meta.$location = `/#/login?code=${code}&state=${state}`
     ctx.meta.$statusCode = 302
 }
 
@@ -123,6 +139,11 @@ const OidcClientService = {
         callback: {
             handler(ctx) {
                 return callbackHandler(ctx, this.connectionPool)
+            },
+        },
+        return: {
+            handler(ctx) {
+                return returnHandler(ctx)
             },
         },
         logout: {
