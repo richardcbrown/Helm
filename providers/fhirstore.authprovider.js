@@ -13,6 +13,7 @@ const { MoleculerError } = require("moleculer").Errors
 class AuthProvider {
     /** @param {Logger} logger */
     /** @param {FhirAuthConfig} configuration */
+    /** @param {string} rsn */
     constructor(configuration, logger, rsn) {
         /** @private */
         this.configuration = configuration

@@ -129,6 +129,8 @@ class OidcClient {
             scope: scope.login,
             redirect_uri: redirectUrl,
             prompt: "login",
+            nonce: "test",
+            state: "test",
         }
 
         return client.authorizationUrl(authParameters)
