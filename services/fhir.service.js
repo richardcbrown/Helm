@@ -18,10 +18,10 @@ const FhirDataProvider = require("../providers/fhirstore.dataprovider")
 const adminResources = ["Consent", "Policy"]
 
 function getAuthProviderForResourceType(resourceType, authConfig, logger) {
-    let rsn = 2
+    let rsn = "2"
 
     if (adminResources.includes(resourceType)) {
-        rsn = 5
+        rsn = "5"
     }
 
     const auth = new AuthProvider(authConfig, logger, rsn)

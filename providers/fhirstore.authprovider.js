@@ -98,11 +98,11 @@ class AuthProvider {
             jti: uuid.v4(),
         }
 
-        if (rsn === 2 && !nhsNumber) {
+        if (rsn === "2" && !nhsNumber) {
             throw new MoleculerError("patient id required for rsn: 2", 403)
         }
 
-        if (nhsNumber && rsn !== 5) {
+        if (nhsNumber && rsn !== "5") {
             jwtAssertion.pat = { nhs: nhsNumber }
         }
 

@@ -177,9 +177,9 @@ const JobService = {
 
             const storeConfig = await getInternalFhirStoreConfig()
 
-            const auth = new AuthProvider(fhirAuthConfig, logger, 2)
-            const pixauth = new AuthProvider(pixAuthConfig, logger, 2)
-            const adminAuth = new AuthProvider(fhirAuthConfig, logger, 5)
+            const auth = new AuthProvider(fhirAuthConfig, logger, "2")
+            const pixauth = new AuthProvider(pixAuthConfig, logger, "2")
+            const adminAuth = new AuthProvider(fhirAuthConfig, logger, "5")
             const adminTokenProvider = new TokenProvider(adminAuth, logger)
             const pixTokenProvider = new TokenProvider(pixauth, logger)
             const tokenProvider = new TokenProvider(auth, logger)
