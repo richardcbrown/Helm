@@ -28,7 +28,7 @@ class CoreFhirDataProvider {
             return body
         }
 
-        throw new MoleculerError(body, statusCode)
+        throw new MoleculerError(JSON.stringify(body), statusCode)
     }
 
     /**
@@ -45,7 +45,7 @@ class CoreFhirDataProvider {
                 method: "GET",
                 uri: `${configuration.host}/${resourceType}/${resourceID}`,
                 json: true,
-                simple: true,
+                simple: false,
                 rejectUnauthorized: false,
                 resolveWithFullResponse: true,
             }

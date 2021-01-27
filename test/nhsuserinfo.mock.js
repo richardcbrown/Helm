@@ -4169,4 +4169,4 @@ app.post("/userinfo", (req, res) => {
     res.status(200).send(JSON.stringify(nhsNumberMap[nhsNumber]))
 })
 
-app.listen(9999)
+app.listen(process.env.PORT || 9999)
