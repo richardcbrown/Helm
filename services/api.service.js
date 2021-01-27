@@ -49,10 +49,44 @@ getPassportConfig().then((config) => {
             })
         })
     )
+
+    passport.use(
+        "logout",
+        new JwtStrategy(
+            { ...new SiteTokenProvider(config).getSiteTokenStrategyOptions(), ignoreExpiration: true },
+            function (jwtPayload, done) {
+                getDatabaseConfiguration().then((config) => {
+                    const connectionPool = new pg.Pool(config)
+
+                    const userDataClient = new UserDataClient(connectionPool)
+
+                    userDataClient
+                        .getUserByNhsNumber(jwtPayload.sub)
+                        .then((user) => {
+                            done(null, { ...jwtPayload, ...user })
+                        })
+                        .catch((error) => done(error))
+                })
+            }
+        )
+    )
 })
 
 const userAuthHandler = (req, res, next) => {
     passport.authenticate("jwt", (error, user, info) => {
+        //not authenticated, redirect
+        if (error || info instanceof Error) {
+            res.writeHead(403, { "Content-Type": "application/json" })
+            res.end(JSON.stringify({ error: "Login Expired" }))
+        } else {
+            req.user = user
+            next()
+        }
+    })(req, res, next)
+}
+
+const userLogoutHandler = (req, res, next) => {
+    passport.authenticate("logout", (error, user, info) => {
         //not authenticated, redirect
         if (error || info instanceof Error) {
             res.writeHead(403, { "Content-Type": "application/json" })
@@ -225,7 +259,7 @@ const ApiGateway = {
                 aliases: {
                     "GET /logout": "oidcclientservice.logout",
                 },
-                use: [headerCheck, cookieParser(), passport.initialize(), userAuthHandler],
+                use: [headerCheck, cookieParser(), passport.initialize(), userLogoutHandler],
                 async onBeforeCall(ctx, route, req, res) {
                     populateContextWithUser(ctx, req)
                     await populateUserMetrics(ctx, req)

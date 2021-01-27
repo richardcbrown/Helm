@@ -321,7 +321,12 @@ class JobConsumerProvider {
                     this.fhirDataProvider
                 )
 
-                return new RabbitJobConsumer(this.configuration.rabbit, jobType, lookupPatientConsumer, this.logger)
+                return new RabbitJobConsumer(
+                    { ...this.configuration.rabbit, ...this.configuration.lookuppatientconsumer },
+                    jobType,
+                    lookupPatientConsumer,
+                    this.logger
+                )
             }
             default: {
                 throw Error(`Job type ${jobType} does not exist`)
