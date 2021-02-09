@@ -9,6 +9,7 @@ async function getConfig() {
 
     return {
         host: await secretManager.getSecret("NHS_LOGIN_INTROSPECTION_URL"),
+        settingsUrl: await secretManager.getSecret("NHS_LOGIN_SETTINGS_URL"),
         mock,
     }
 }

@@ -16,6 +16,7 @@ const { InternalPatientGenerator } = require("../generators/internalpatient.gene
 const RedisDataProvider = require("../providers/redis.dataprovider")
 const getRedisConfig = require("../config/config.redis")
 const { PatientCacheProvider } = require("../providers/patientcache.provider")
+const getNhsLoginConfig = require("../config/config.nhsauth")
 
 function setDefaultPreferences(preferenceDetails, preferences) {
     Object.keys(preferenceDetails).map((section) => {
@@ -224,10 +225,12 @@ const UserService = {
                     newUserPreferences = await userDataClient.updateUserPreferences(id, preferences)
                 }
 
+                const preferenceDefaults = await getPreferenceDetails()
+
                 const rehydrated = {
-                    schema: preferencesDetails,
+                    schema: preferenceDefaults,
                     preferences: setDefaultPreferences(
-                        preferencesDetails,
+                        preferenceDefaults,
                         (newUserPreferences && newUserPreferences.preferences) || {}
                     ),
                 }
@@ -247,10 +250,12 @@ const UserService = {
 
                 const userPreferenceDetails = await userDataClient.getUserPreferences(id)
 
+                const preferenceDefaults = await getPreferenceDetails()
+
                 const rehydrated = {
-                    schema: preferencesDetails,
+                    schema: preferenceDefaults,
                     preferences: setDefaultPreferences(
-                        preferencesDetails,
+                        preferenceDefaults,
                         (userPreferenceDetails && userPreferenceDetails.preferences) || {}
                     ),
                 }
@@ -271,40 +276,46 @@ const UserService = {
     },
 }
 
-const preferencesDetails = {
-    general: {
-        title: "General Preferences",
-        preferences: {
-            contrastMode: {
-                type: "boolean",
-                title: "Contrast Mode",
-                description: "Check to set contrast (dark) mode",
-                defaultValue: false,
-            },
-            patientSummary: {
-                type: "string",
-                editor: "radio",
-                title: "Patient Summary Display",
-                description:
-                    "Select whether to show only the headings, or headings and list, on the Patient Summary page",
-                enum: ["headings", "headingsandlist"],
-                enumLabels: ["Headings Only", "Headings and List"],
-                defaultValue: "headingsandlist",
-            },
-        },
-    },
-    nhsLogin: {
-        title: "NHS Login Preferences",
-        preferences: {
-            changeSettings: {
-                type: "link",
-                url: "https://nhsloginpreferenceslink.co.uk",
-                title: "Change NHS Login preferences",
-                target: "_blank",
-                description: "Click here to change NHS Login preferences",
+async function getPreferenceDetails() {
+    const config = await getNhsLoginConfig()
+
+    const preferencesDetails = {
+        general: {
+            title: "General Preferences",
+            preferences: {
+                contrastMode: {
+                    type: "boolean",
+                    title: "Contrast Mode",
+                    description: "Check to set contrast (dark) mode",
+                    defaultValue: false,
+                },
+                patientSummary: {
+                    type: "string",
+                    editor: "radio",
+                    title: "Patient Summary Display",
+                    description:
+                        "Select whether to show only the headings, or headings and list, on the Patient Summary page",
+                    enum: ["headings", "headingsandlist"],
+                    enumLabels: ["Headings Only", "Headings and List"],
+                    defaultValue: "headingsandlist",
+                },
             },
         },
-    },
+        nhsLogin: {
+            title: "NHS Login Preferences",
+            preferences: {
+                changeSettings: {
+                    type: "link",
+                    url: config.settingsUrl,
+                    title: "Change NHS Login preferences",
+                    target: "_blank",
+                    description: "Click here to change NHS Login preferences",
+                },
+            },
+        },
+    }
+
+    return preferencesDetails
 }
 
 module.exports = UserService
