@@ -46,6 +46,7 @@ async function getCronConfig() {
     return {
         removeOldTokensCron: await secretManager.getSecret("REMOVE_OLD_TOKENS_CRON"),
         revokeOldTokensCron: await secretManager.getSecret("REVOKE_OLD_TOKENS_CRON"),
+        activeTokensCron: await secretManager.getSecret("ACTIVE_TOKENS_CRON"),
     }
 }
 

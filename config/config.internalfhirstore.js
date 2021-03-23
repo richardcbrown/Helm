@@ -8,6 +8,7 @@ const secretManager = new SecretManager(process.env.GCP_PROJECT_ID)
 async function getConfig() {
     return {
         host: await secretManager.getSecret("FHIRSTORE_INTERNAL_FHIR_URL"),
+        yhcrHost: await secretManager.getSecret("FHIRSTORE_INTERNAL_YHCR_FHIR_URL"),
     }
 }
 

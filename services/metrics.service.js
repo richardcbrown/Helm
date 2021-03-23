@@ -145,9 +145,9 @@ const MetricsService = {
         },
         activeUsers: {
             handler(ctx) {
-                const { activeUserCount } = ctx.params
+                const { activeUsers } = ctx.params
 
-                this.broker.metrics.set("helm.activeusers", activeUserCount)
+                this.broker.metrics.set("helm.activeusers", activeUsers)
             },
         },
     },

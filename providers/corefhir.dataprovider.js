@@ -11,11 +11,10 @@ class CoreFhirDataProvider {
     /** @param {Logger} logger */
     /** @param {FhirStoreConfig} configuration */
     /** @param {import("./types").RequestAuthProvider} authProvider */
-    constructor(configuration, logger, authProvider, tracer) {
+    constructor(configuration, logger, authProvider) {
         this.logger = logger
         this.configuration = configuration
         this.authProvider = authProvider
-        this.tracer = tracer
     }
 
     /** @protected */

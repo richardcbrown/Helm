@@ -65,7 +65,7 @@ class TokenDataClient {
     async revokeTokens() {
         const client = await this.connectionPool.connect()
 
-        const nowSeconds = moment(moment.now()).seconds()
+        const nowSeconds = Math.ceil(moment.now() / 1000)
 
         try {
             const {
@@ -187,7 +187,7 @@ class TokenDataClient {
                 'SELECT "Id", "UserId", "Jti", "Issued", "Expires", "Revoked", "CurrentPage", "TotalPages", "PageViewStart", "LastActive" FROM helm."TokenIds" WHERE "Revoked" = false'
             )
 
-            return mapRowToToken(rows)
+            return rows.map(mapRowToToken)
         } catch (error) {
             throw error
         } finally {

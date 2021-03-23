@@ -15,6 +15,8 @@ const request = require("request-promise-native")
 const https = require("https")
 const jwt = require("jsonwebtoken")
 const getYhcrAuthConfig = require("../config/config.yhcrauth")
+const SiteTokenProvider = require("../providers/siteauth.tokenprovider")
+const getSiteAuthConfiguration = require("../config/config.siteauth")
 
 const yhcrAuthHandler = async (req, res, next) => {
     const unauthorised = (response) => {
@@ -24,10 +26,6 @@ const yhcrAuthHandler = async (req, res, next) => {
 
     try {
         const configuration = await getYhcrAuthConfig()
-
-        if (!configuration.verifyEnabled) {
-            return next()
-        }
 
         const auth = req.headers["authorization"]
 
@@ -80,6 +78,12 @@ const yhcrAuthHandler = async (req, res, next) => {
 
         req.user = decoded
 
+        // const authConfig = await getSiteAuthConfiguration()
+
+        // const tokenProvider = new SiteTokenProvider(authConfig)
+
+        // req.fhirToken = await tokenProvider.generateSiteTokenYhcr(decoded)
+
         return next()
     } catch (error) {
         return unauthorised(res)
@@ -101,13 +105,11 @@ const ApiGateway = {
                     "GET /Composition/:resourceId": "yhcrfhirservice.topThreeThingsCompositionRead",
                     "GET /AuditEvent": "yhcrfhirservice.auditEventSearch",
                     "GET /AuditEvent/:resourceId": "yhcrfhirservice.auditEventRead",
-                    "GET /:resourceType": "internalfhirservice.search",
-                    "GET /:resourceType/:resourceId": "internalfhirservice.read",
+                    "GET /:resourceType": "yhcrfhirservice.search",
+                    "GET /:resourceType/:resourceId": "yhcrfhirservice.read",
                 },
                 onBeforeCall(ctx, route, req, res) {
-                    ctx.meta.user = {
-                        role: "YHCR",
-                    }
+                    ctx.meta.user = req.user
 
                     req.$params = {
                         resource: req.$params.body,

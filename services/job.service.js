@@ -13,7 +13,6 @@ const FhirStoreDataProvider = require("../providers/fhirstore.dataprovider")
 const TokenProvider = require("../providers/token.provider")
 const AuthProvider = require("../providers/fhirstore.authprovider")
 const InternalFhirDataProvider = require("../providers/internalfhirstore.dataprovider")
-const EmptyTokenProvider = require("../providers/fhirstore.emptytokenprovider")
 const { JobType, JobProducerProvider } = require("../jobs/jobproducer.provider")
 const { JobConsumerProvider } = require("../jobs/jobconsumer.provider")
 const { getProducerConfig, getConsumerConfig, getCronConfig } = require("../config/config.job")
@@ -24,6 +23,7 @@ const getRedisConfig = require("../config/config.redis")
 const getPixConfig = require("../config/config.pix")
 const getInternalFhirStoreConfig = require("../config/config.internalfhirstore")
 const TokenDataClient = require("../clients/token.dataclient")
+const InternalAuthProvider = require("../providers/internal.authprovider")
 
 /**
  * @this {Service}
@@ -187,14 +187,17 @@ const JobService = {
             const adminFhirDataProvider = new FhirStoreDataProvider(fhirStoreConfig, logger, adminTokenProvider)
             const pixDataProvider = new PixDataProvider(pixConfig, logger, pixTokenProvider)
 
-            const internalTokenProvider = new EmptyTokenProvider()
+            const authProvider = new InternalAuthProvider()
 
-            const internalFhirStore = new InternalFhirDataProvider(
-                storeConfig,
-                this.logger,
-                internalTokenProvider,
-                this.tracer
-            )
+            const internalTokenProvider = {
+                authorize: async (request) => {
+                    const token = await authProvider.authenticate({ sub: "internal" })
+
+                    request.auth = { bearer: token.access_token }
+                },
+            }
+
+            const internalFhirStore = new InternalFhirDataProvider(storeConfig, this.logger, internalTokenProvider)
 
             const cacher = new PatientCacheProvider(new RedisDataProvider(redisConfig, this.logger))
 
@@ -232,8 +235,13 @@ const JobService = {
                 this.actions.removeOldTokens()
             })
 
+            const activeTokensCron = new CronJob(cronConfiguration.activeTokensCron, () => {
+                this.actions.activeTokens()
+            })
+
             this.crons.push(revokeOldTokensJob)
             this.crons.push(removeOldTokensCron)
+            this.crons.push(activeTokensCron)
 
             this.crons.forEach((job) => job.start())
         } catch (error) {

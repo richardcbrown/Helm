@@ -11,7 +11,7 @@ const { MoleculerError } = require("moleculer").Errors
  * @returns {Promise<fhir.BundleEntry[]>} policy resources
  */
 const getPolicies = async (policyNames, ctx) => {
-    const policyBundle = await ctx.call("fhirservice.search", {
+    const policyBundle = await ctx.call("internalfhirservice.search", {
         resourceType: ResourceType.Policy,
         query: { "name:exact": policyNames.join(",") },
     })

@@ -160,9 +160,7 @@ const ConsentService = {
         },
         acceptTerms: {
             role: "phrUser",
-            handler(ctx) {
-                return acceptTermsHandler(ctx)
-            },
+            handler: acceptTermsHandler,
         },
     },
     hooks: {

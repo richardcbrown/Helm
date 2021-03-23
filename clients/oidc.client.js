@@ -26,6 +26,11 @@ class OidcClient {
          * @type {KeyStore | null}
          */
         this.keystore = null
+
+        /**
+         * @type {Client | null}
+         */
+        this.client = null
     }
 
     /**
@@ -122,6 +127,10 @@ class OidcClient {
         const { configuration, client } = this
         const { scope, redirectUrl } = configuration
 
+        if (!client) {
+            throw new MoleculerError("Client does not exist", 403)
+        }
+
         /**
          * @type {AuthorizationParameters}
          */
@@ -129,8 +138,11 @@ class OidcClient {
             scope: scope.login,
             redirect_uri: redirectUrl,
             prompt: "login",
-            nonce: "test",
-            state: "test",
+        }
+
+        if (configuration.testState && configuration.testNonce) {
+            authParameters.state = configuration.testState
+            authParameters.nonce = configuration.testNonce
         }
 
         return client.authorizationUrl(authParameters)
@@ -152,10 +164,20 @@ class OidcClient {
         /** @type {CallbackParamsType} */
         const callbackParameters = {
             code: params.code,
-            state: params.state,
         }
 
-        const tokenSet = await client.callback(redirectUrl, callbackParameters, { state: "test", nonce: "test" })
+        if (params.state) {
+            callbackParameters.state = params.state
+        }
+
+        const callbackChecks = {}
+
+        if (configuration.testState && configuration.testNonce) {
+            callbackChecks.state = configuration.testState
+            callbackChecks.nonce = configuration.testNonce
+        }
+
+        const tokenSet = await client.callback(redirectUrl, callbackParameters, callbackChecks)
 
         return tokenSet
     }

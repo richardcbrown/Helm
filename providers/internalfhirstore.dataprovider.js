@@ -10,13 +10,12 @@ class FhirStoreDataProvider extends CoreFhirDataProvider {
     /** @param {Logger} logger */
     /** @param {FhirStoreConfig} configuration */
     /** @param {import("./types").RequestAuthProvider} authProvider */
-    constructor(configuration, logger, authProvider, tracer) {
-        super(configuration, logger, authProvider, tracer)
+    constructor(configuration, logger, authProvider) {
+        super(configuration, logger, authProvider)
 
         this.logger = logger
         this.configuration = configuration
         this.authProvider = authProvider
-        this.tracer = tracer
     }
 
     configure(request) {}

@@ -30,6 +30,8 @@ async function getConfig() {
         tokenEndpointAuthSigningAlg: "RS512",
         privateKeyFilePath: await secretManager.getSecret("OIDCCLIENT_PRIVATE_KEY_FILE", true),
         redirectUrl: await secretManager.getSecret("OIDCCLIENT_REDIRECT_URI"),
+        testState: (await secretManager.getSecret("OIDC_CLIENT_TEST_STATE")) || undefined,
+        testNonce: (await secretManager.getSecret("OIDC_CLIENT_TEST_NONCE")) || undefined,
     }
 }
 

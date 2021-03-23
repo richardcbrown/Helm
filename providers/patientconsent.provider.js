@@ -97,7 +97,7 @@ class PatientConsentProvider {
      * @returns {Promise<fhir.Consent[]>} consent resources
      */
     async getConsent(reference) {
-        const consentBundle = await this.ctx.call("fhirservice.search", {
+        const consentBundle = await this.ctx.call("internalfhirservice.search", {
             resourceType: ResourceType.Consent,
             query: { consentor: reference },
         })

@@ -1,6 +1,16 @@
 version: "3"
 
 services:
+  helm-configuration:
+    build:
+      context: "./server"
+      dockerfile: "Dockerfile"
+    volumes:
+      - ./server:/code
+      - ./keys:/code/keys
+    ports: 
+      - 8070:8070
+
   redis:
     image: redis
     ports:
@@ -13,8 +23,6 @@ services:
         - "5672:5672"
 
   redis-commander:
-    container_name: redis-commander
-    hostname: redis-commander
     image: rediscommander/redis-commander:latest
     restart: always
     environment:
@@ -22,30 +30,57 @@ services:
     ports:
         - "8081:8081"
 
-  # fhirstore:
-  #   image: synaneticsltd/synfhir-store:linux-v2.5.0
-  #   restart: always
-  #   environment:
-  #     - ADVANCED_CONSENT=false
-  #     - ASYNCPAGESIZE=1000
-  #     - ASYNCEXPIRES=7
-  #     - AUDIT_ACCESS=true
-  #     - CACHEEXPIRES=600
-  #     - FHIR_STORE_ASYNC_URL=https://fhir.staging.helm.org/fhir/stu4/bulk
-  #     - FHIR_STORE_BASE_URL=https://fhir.staging.helm.org/fhir/stu3
-  #     - LOGGER=true
-  #     - LOGLEVEL=debug
-  #     - MAX_CLIENTS=1
-  #     - MAXPAGESIZE=1000
-  #     - METRICSENABLE=false
-  #     - NODE_ENV=development
-  #     - PG_CONNECTION=postgresql://postgres:postgres@fhir-database:5432
-  #     - PORT=3000
-  #     - SERVICEDIR=services
-  #     - TAG={"system":"https://yhcr.nhs.uk/Source","code":"YHCR","display":"YHCR Portal"}
-  #     - VALIDATE_JWT=false
-  #   ports:
-  #     - "3001:3000"
+  fhirstore:
+    image: synaneticsltd/synfhir-store:linux-v2.5.0
+    restart: always
+    environment:
+      - ADVANCED_CONSENT=false
+      - ASYNCPAGESIZE=1000
+      - ASYNCEXPIRES=7
+      - AUDIT_ACCESS=true
+      - CACHEEXPIRES=600
+      - FHIR_STORE_ASYNC_URL=https://fhir.staging.helm.org/fhir/stu4/bulk
+      - FHIR_STORE_BASE_URL=https://fhir.staging.helm.org/fhir/stu3
+      - LOGGER=true
+      - LOGLEVEL=debug
+      - MAX_CLIENTS=1
+      - MAXPAGESIZE=1000
+      - METRICSENABLE=false
+      - NODE_ENV=development
+      - PG_CONNECTION=postgresql://postgres:postgres@fhir-database:5432
+      - PORT=3000
+      - SERVICEDIR=services
+      - TAG={"system":"https://yhcr.nhs.uk/Source","code":"YHCR","display":"YHCR Portal"}
+      - VALIDATE_JWT=true
+      - JWT_SECRET_OR_PUBLIC_KEY=http://helm-configuration:8070/internal/certificate
+    ports:
+      - "3001:3000"
+
+  yhcr-fhirstore:
+    image: synaneticsltd/synfhir-store:linux-v2.5.0
+    restart: always
+    environment:
+      - ADVANCED_CONSENT=true
+      - ASYNCPAGESIZE=1000
+      - ASYNCEXPIRES=7
+      - AUDIT_ACCESS=true
+      - CACHEEXPIRES=600
+      - FHIR_STORE_ASYNC_URL=https://fhir.staging.helm.org/fhir/stu4/bulk
+      - FHIR_STORE_BASE_URL=https://fhir.staging.helm.org/fhir/stu3
+      - LOGGER=true
+      - LOGLEVEL=debug
+      - MAX_CLIENTS=1
+      - MAXPAGESIZE=1000
+      - METRICSENABLE=false
+      - NODE_ENV=development
+      - PG_CONNECTION=postgresql://postgres:postgres@fhir-database:5432
+      - PORT=3000
+      - SERVICEDIR=services
+      - TAG={"system":"https://yhcr.nhs.uk/Source","code":"YHCR","display":"YHCR Portal"}
+      - VALIDATE_JWT=true
+      - JWT_SECRET_OR_PUBLIC_KEY=http://helm-configuration:8070/internal/certificate
+    ports:
+      - "3002:3000"
 
   # fhirstore:
   #   build:

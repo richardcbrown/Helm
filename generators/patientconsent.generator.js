@@ -70,7 +70,11 @@ class PatientConsentGenerator {
         /** @type {Array<Promise<void>>} */
         const createPromises = []
 
-        consents.forEach((consent) => createPromises.push(createResource(consent, this.ctx)))
+        consents.forEach((consent) =>
+            createPromises.push(
+                this.ctx.call("internalfhirservice.create", { resource: consent, resourceType: consent.resourceType })
+            )
+        )
 
         await Promise.all(createPromises)
     }

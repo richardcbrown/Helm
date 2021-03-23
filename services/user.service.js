@@ -17,6 +17,7 @@ const RedisDataProvider = require("../providers/redis.dataprovider")
 const getRedisConfig = require("../config/config.redis")
 const { PatientCacheProvider } = require("../providers/patientcache.provider")
 const getNhsLoginConfig = require("../config/config.nhsauth")
+const getGeneralConfig = require("../config/config.general")
 
 function setDefaultPreferences(preferenceDetails, preferences) {
     Object.keys(preferenceDetails).map((section) => {
@@ -50,6 +51,13 @@ const UserService = {
                 const userDataClient = new UserDataClient(this.connectionPool)
                 const userGenerator = new UserGenerator(userDataClient)
                 const tokenDataClient = new TokenDataClient(this.connectionPool)
+
+                const alreadySetToken = await tokenDataClient.getToken(jti)
+
+                // already run so return
+                if (alreadySetToken && alreadySetToken.userId) {
+                    return
+                }
 
                 let user = await userDataClient.getUserByNhsNumber(nhsNumber)
 
@@ -95,6 +103,11 @@ const UserService = {
             async handler(ctx) {
                 const { userId } = ctx.params
 
+                const generalConfig = await getGeneralConfig()
+
+                const system = generalConfig.questionnaireSystem
+                const value = generalConfig.questionnaireValue
+
                 const userDataClient = new UserDataClient(this.connectionPool)
 
                 const user = await userDataClient.getUserById(userId)
@@ -109,7 +122,7 @@ const UserService = {
 
                 const questionnaireBundle = /** @type {fhir.Bundle} */ (await ctx.call("internalfhirservice.search", {
                     resourceType: "Questionnaire",
-                    query: { identifier: "http://test.com|test" },
+                    query: { identifier: `${system}|${value}` },
                 }))
 
                 const questionnaires = /** @type {fhir.QuestionnaireResponse[]} */ (getFromBundle(

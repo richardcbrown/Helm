@@ -21,7 +21,15 @@ class SiteAuthTokenProvider {
      * @returns {Promise<{ payload: any, token: string }>} jwt
      */
     async generateSiteToken(tokenSet) {
-        const { jwtSigningSecret, jwtExpiry, jwtSigningAlgorithm, issuer, audience, nhsNumberMap } = this.configuration
+        const {
+            publicKey,
+            privateKey,
+            jwtExpiry,
+            jwtSigningAlgorithm,
+            issuer,
+            audience,
+            nhsNumberMap,
+        } = this.configuration
 
         const idToken = tokenSet.id_token
 
@@ -53,7 +61,13 @@ class SiteAuthTokenProvider {
             sub: nhsNumber,
         }
 
-        return { payload: tokenPayload, token: jwt.encode(tokenPayload, jwtSigningSecret, jwtSigningAlgorithm) }
+        return { payload: tokenPayload, token: jwt.encode(tokenPayload, privateKey, jwtSigningAlgorithm) }
+    }
+
+    async generateSiteTokenInternal(payload) {
+        const { privateKey, jwtSigningAlgorithm } = this.configuration
+
+        return { payload: payload, token: jwt.encode(payload, privateKey, jwtSigningAlgorithm) }
     }
 
     async revokeSiteToken(token) {
@@ -69,7 +83,7 @@ class SiteAuthTokenProvider {
     }
 
     generateTestSiteToken(nhsNumber) {
-        const { jwtSigningSecret, jwtExpiry, jwtSigningAlgorithm, issuer, audience } = this.configuration
+        const { privateKey, jwtExpiry, jwtSigningAlgorithm, issuer, audience } = this.configuration
 
         const iat = Math.floor(Date.now() / 1000)
         const exp = iat + jwtExpiry
@@ -83,7 +97,7 @@ class SiteAuthTokenProvider {
             sub: nhsNumber,
         }
 
-        return { payload: tokenPayload, token: jwt.encode(tokenPayload, jwtSigningSecret, jwtSigningAlgorithm) }
+        return { payload: tokenPayload, token: jwt.encode(tokenPayload, privateKey, jwtSigningAlgorithm) }
     }
 
     /**
@@ -100,11 +114,11 @@ class SiteAuthTokenProvider {
      * @public
      */
     getSiteTokenStrategyOptions() {
-        const { jwtSigningSecret, issuer, audience } = this.configuration
+        const { publicKey, issuer, audience } = this.configuration
 
         return {
             jwtFromRequest: this.extractTokenFromRequest(),
-            secretOrKey: jwtSigningSecret,
+            secretOrKey: publicKey,
             ignoreExpies: false,
             issuer,
             audience,

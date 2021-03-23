@@ -91,7 +91,8 @@
 
 /**
  * @typedef {Object} SiteAuthConfiguration
- * @property {string} jwtSigningSecret
+ * @property {string} publicKey
+ * @property {string} privateKey
  * @property {number} jwtExpiry
  * @property {string} issuer
  * @property {string} audience

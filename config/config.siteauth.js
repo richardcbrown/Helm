@@ -7,13 +7,26 @@ const secretManager = new SecretManager(process.env.GCP_PROJECT_ID)
 
 /** @returns {Promise<SiteAuthConfiguration>} */
 async function getConfig() {
-    const jwtSigningSecret = await secretManager.getSecret("SITEAUTH_JWTSIGNINGSECRET")
+    const publicKey = await secretManager.getSecret("SITEAUTH_PUBLICKEY", true)
+    const privateKey = await secretManager.getSecret("SITEAUTH_PRIVATEKEY", true)
     const jwtExpiryString = await secretManager.getSecret("SITEAUTH_JWTEXPIRY")
     const jwtSigningAlgorithm = await secretManager.getSecret("SITEAUTH_JWTSIGNINGALGORITHM")
     const issuer = await secretManager.getSecret("SITEAUTH_ISSUER")
     const audience = await secretManager.getSecret("SITEAUTH_AUDIENCE")
 
-    if (!jwtSigningSecret) {
+    const nhsNumberMapDetails = await secretManager.getSecret("NHS_NUMBER_MAP", true)
+
+    let nhsNumberMap = {}
+
+    if (nhsNumberMapDetails) {
+        nhsNumberMap = typeof nhsNumberMap === "string" ? JSON.parse(nhsNumberMap) : JSON.parse(nhsNumberMap.toString())
+    }
+
+    if (!privateKey) {
+        throw new MoleculerError("JWT Signing Secret not set", 500)
+    }
+
+    if (!publicKey) {
         throw new MoleculerError("JWT Signing Secret not set", 500)
     }
 
@@ -40,24 +53,13 @@ async function getConfig() {
     }
 
     return {
-        jwtSigningSecret,
+        publicKey,
+        privateKey,
         jwtExpiry,
         jwtSigningAlgorithm,
         issuer,
         audience,
-        nhsNumberMap: {
-            "9990134243": "9449306265",
-            "9686367403": "9449306265",
-            "9686368663": "9449306265",
-            "9686367608": "9449306265",
-            "9686368353": "9449306265",
-            "9686368469": "9449306265",
-            "9686368728": "9449306265",
-            "9686368620": "9449306265",
-            "9686368485": "9449306265",
-            "9686368477": "9449306265",
-            "9686368450": "9449306265",
-        },
+        nhsNumberMap,
     }
 }
 

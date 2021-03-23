@@ -5,6 +5,17 @@
 
 const { getFromBundle } = require("../models/bundle.helpers")
 const { MoleculerError } = require("moleculer").Errors
+const getGeneralConfig = require("../config/config.general")
+const fhirservice = require("./fhir.service")
+const {
+    searchActionHandler,
+    readActionHandler,
+    createActionHandler,
+    updateActionHandler,
+} = require("../handlers/fhirservice.handlers")
+const getFhirStoreConfig = require("../config/config.internalfhirstore")
+const InternalAuthProvider = require("../providers/internal.authprovider")
+const InternalFhirDataProvider = require("../providers/internalfhirstore.dataprovider")
 
 /**
  *
@@ -152,12 +163,17 @@ async function topThreeThingsCompositionSearchHandler(ctx) {
     const { type, subject, patient } = ctx.params.query
 
     if (type !== "https://fhir.myhelm.org/STU3/ValueSet/phr-composition-type-1|T3T") {
-        return ctx.call("internalfhirservice.search", { ...ctx.params, resourceType: "Composition" })
+        return ctx.call("yhcrfhirservice.search", { ...ctx.params, resourceType: "Composition" })
     }
 
-    const questionnaireBundle = await ctx.call("internalfhirservice.search", {
+    const generalConfig = await getGeneralConfig()
+
+    const system = generalConfig.questionnaireSystem
+    const value = generalConfig.questionnaireValue
+
+    const questionnaireBundle = await ctx.call("yhcrfhirservice.search", {
         resourceType: "Questionnaire",
-        identifier: "http://test.com|test",
+        identifier: `${system}|${value}`,
     })
 
     const questionnaire = getFromBundle(questionnaireBundle, "Questionnaire")[0]
@@ -178,7 +194,7 @@ async function topThreeThingsCompositionSearchHandler(ctx) {
 
     query.questionnaire = `${questionnaire.resourceType}/${questionnaire.id}`
 
-    const questionnaireResponseBundle = await ctx.call("internalfhirservice.search", {
+    const questionnaireResponseBundle = await ctx.call("yhcrfhirservice.search", {
         query,
         resourceType: "QuestionnaireResponse",
     })
@@ -198,10 +214,10 @@ async function topThreeThingsCompositionReadHandler(ctx) {
     const { resourceId } = /** @type {{ resourceId: string }} */ (ctx.params)
 
     if (!resourceId.startsWith("T3T:")) {
-        return ctx.call("internalfhirservice.read", { ...ctx.params })
+        return ctx.call("yhcrfhirservice.read", { ...ctx.params })
     }
 
-    const questionnaireResponse = await ctx.call("internalfhirservice.read", {
+    const questionnaireResponse = await ctx.call("yhcrfhirservice.read", {
         resourceType: "QuestionnaireResponse",
         resourceId: resourceId.replace("T3T:", ""),
     })
@@ -220,7 +236,7 @@ async function topThreeThingsCompositionReadHandler(ctx) {
 async function auditEventSearchHandler(ctx) {
     const nhsNumber = ctx.meta.user.sub
 
-    return ctx.call("internalfhirservice.search", { ...ctx.params, resourceType: "AuditEvent" })
+    return ctx.call("yhcrfhirservice.search", { ...ctx.params, resourceType: "AuditEvent" })
 }
 
 /**
@@ -230,12 +246,13 @@ async function auditEventSearchHandler(ctx) {
 async function auditEventReadHandler(ctx) {
     const nhsNumber = ctx.meta.user.sub
 
-    return ctx.call("internalfhirservice.read", { ...ctx.params, resourceType: "AuditEvent" })
+    return ctx.call("yhcrfhirservice.read", { ...ctx.params, resourceType: "AuditEvent" })
 }
 
 /** @type {ServiceSchema} */
 const DemographicsService = {
     name: "yhcrfhirservice",
+    mixins: [fhirservice],
     actions: {
         topThreeThingsCompositionSearch: {
             handler: topThreeThingsCompositionSearchHandler,
@@ -248,6 +265,76 @@ const DemographicsService = {
         },
         auditEventRead: {
             handler: auditEventReadHandler,
+        },
+    },
+    methods: {
+        async searchActionHandler(ctx) {
+            const storeConfig = await getFhirStoreConfig()
+
+            const authProvider = new InternalAuthProvider()
+
+            let tokenProvider = {
+                authorize: async (request) => {
+                    const token = await authProvider.authenticate(ctx.meta.user)
+
+                    request.auth = { bearer: token.access_token }
+                },
+            }
+
+            const fhirStore = new InternalFhirDataProvider({ host: storeConfig.yhcrHost }, this.logger, tokenProvider)
+
+            return await searchActionHandler.call(this, ctx, fhirStore)
+        },
+        async readActionHandler(ctx) {
+            const storeConfig = await getFhirStoreConfig()
+
+            const authProvider = new InternalAuthProvider()
+
+            let tokenProvider = {
+                authorize: async (request) => {
+                    const token = await authProvider.authenticate(ctx.meta.user)
+
+                    request.auth = { bearer: token.access_token }
+                },
+            }
+
+            const fhirStore = new InternalFhirDataProvider({ host: storeConfig.yhcrHost }, this.logger, tokenProvider)
+
+            return await readActionHandler.call(this, ctx, fhirStore)
+        },
+        async createActionHandler(ctx) {
+            const storeConfig = await getFhirStoreConfig()
+
+            const authProvider = new InternalAuthProvider()
+
+            let tokenProvider = {
+                authorize: async (request) => {
+                    const token = await authProvider.authenticate(ctx.meta.user)
+
+                    request.auth = { bearer: token.access_token }
+                },
+            }
+
+            const fhirStore = new InternalFhirDataProvider({ host: storeConfig.yhcrHost }, this.logger, tokenProvider)
+
+            return await createActionHandler.call(this, ctx, fhirStore)
+        },
+        async updateActionHandler(ctx) {
+            const storeConfig = await getFhirStoreConfig()
+
+            const authProvider = new InternalAuthProvider()
+
+            let tokenProvider = {
+                authorize: async (request) => {
+                    const token = await authProvider.authenticate(ctx.meta.user)
+
+                    request.auth = { bearer: token.access_token }
+                },
+            }
+
+            const fhirStore = new InternalFhirDataProvider({ host: storeConfig.yhcrHost }, this.logger, tokenProvider)
+
+            return await updateActionHandler.call(this, ctx, fhirStore)
         },
     },
 }
