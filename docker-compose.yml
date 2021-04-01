@@ -18,7 +18,10 @@ services:
     restart: always
 
   rabbitmq:
-    image: "rabbitmq-delayed"
+    #image: "rabbitmq-delayed"
+    build:
+      context: "."
+      dockerfile: "RabbitDockerfile"
     ports:
         - "5672:5672"
 
@@ -31,7 +34,7 @@ services:
         - "8081:8081"
 
   fhirstore:
-    image: synaneticsltd/synfhir-store:linux-v2.5.0
+    image: synaneticsltd/synfhir-store:linux-v2.8.3
     restart: always
     environment:
       - ADVANCED_CONSENT=false
@@ -57,7 +60,7 @@ services:
       - "3001:3000"
 
   yhcr-fhirstore:
-    image: synaneticsltd/synfhir-store:linux-v2.5.0
+    image: synaneticsltd/synfhir-store:linux-v2.8.3
     restart: always
     environment:
       - ADVANCED_CONSENT=true
@@ -132,8 +135,9 @@ services:
     depends_on:
         - prometheus
     environment:
-        - GF_AUTH_ANONYMOUS_ENABLED=true
-        - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_SECURITY_ADMIN_PASSWORD=zaq1ZAQ!
+        # - GF_AUTH_ANONYMOUS_ENABLED=true
+        # - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
 
   helm-yhcr:
     build:

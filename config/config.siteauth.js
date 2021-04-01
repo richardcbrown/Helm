@@ -19,7 +19,10 @@ async function getConfig() {
     let nhsNumberMap = {}
 
     if (nhsNumberMapDetails) {
-        nhsNumberMap = typeof nhsNumberMap === "string" ? JSON.parse(nhsNumberMap) : JSON.parse(nhsNumberMap.toString())
+        nhsNumberMap =
+            typeof nhsNumberMapDetails === "string"
+                ? JSON.parse(nhsNumberMapDetails)
+                : JSON.parse(nhsNumberMapDetails.toString())
     }
 
     if (!privateKey) {

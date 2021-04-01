@@ -153,7 +153,7 @@ class JobConsumerProvider {
                     this.cacher,
                     this.logger,
                     this.configuration.registerpatientconsumer,
-                    this.adminFhirDataProvider,
+                    this.fhirDataProvider,
                     this.internalFhirStore
                 )
 

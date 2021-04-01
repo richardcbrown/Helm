@@ -91,7 +91,7 @@ const MetricsService = {
                 const { metrics } = ctx.meta
                 const { userId, sessionId } = ctx.params
 
-                this.broker.metrics.increment("helm.newsession", { ...metrics, userId, sessionId }, 1)
+                this.broker.metrics.set("helm.newsession", 1, { ...metrics, userId, sessionId })
             },
         },
         sessionDuration: {
@@ -107,7 +107,7 @@ const MetricsService = {
                 const { metrics } = ctx.meta
                 const { userId, sessionId } = ctx.params
 
-                this.broker.metrics.increment("helm.bouncedsession", { ...metrics, userId, sessionId }, 1)
+                this.broker.metrics.set("helm.bouncedsession", 1, { ...metrics, userId, sessionId })
             },
         },
         pageDuration: {

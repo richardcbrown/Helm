@@ -168,6 +168,9 @@ const JobService = {
             this.connectionPool = new pg.Pool(config)
 
             const fhirAuthConfig = await getFhirAuthConfig()
+
+            console.log(JSON.stringify(fhirAuthConfig))
+
             const pixAuthConfig = await getPixAuthConfig()
             const fhirStoreConfig = await getFhirStoreConfig()
             const pixConfig = await getPixConfig()
@@ -244,6 +247,38 @@ const JobService = {
             this.crons.push(activeTokensCron)
 
             this.crons.forEach((job) => job.start())
+
+            const { host } = fhirStoreConfig
+
+            const pixauth2 = new AuthProvider(pixAuthConfig, logger, "5")
+            const pixTokenProvider2 = new TokenProvider(pixauth2, logger)
+            const pixDataProvider2 = new PixDataProvider({ ...pixConfig, host }, logger, pixTokenProvider2)
+
+            const organizationResult = await pixDataProvider2.search(
+                "Organization",
+                {
+                    identifier: fhirAuthConfig.ods,
+                },
+                null
+            )
+
+            console.log(JSON.stringify(organizationResult))
+
+            const pixauth3 = new AuthProvider(pixAuthConfig, logger, "3")
+            const pixTokenProvider3 = new TokenProvider(pixauth3, logger)
+            const pixDataProvider3 = new PixDataProvider({ ...pixConfig, host }, logger, pixTokenProvider3)
+
+            setTimeout(async () => {
+                const testResult = await pixDataProvider3.search(
+                    "Composition",
+                    {
+                        _tag: "https://yhcr.nhs.uk/Source|212-03",
+                    },
+                    null
+                )
+
+                console.log(JSON.stringify(testResult))
+            }, 30000)
         } catch (error) {
             this.logger.error(error.stack || error.message)
             throw error

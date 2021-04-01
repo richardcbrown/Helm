@@ -212,6 +212,26 @@ function parseTelecom(telecomArray) {
     return primaryTelecom.value
 }
 
+function parseEmail(telecomArray) {
+    let blankTelecom = null
+
+    if (!telecomArray || !Array.isArray(telecomArray)) return blankTelecom
+
+    const filteredTelecoms = telecomArray.filter((tel) => {
+        if (tel.system !== "email" || tel.use === "old") return false
+
+        return isActive(tel.period)
+    })
+
+    if (!filteredTelecoms.length) return blankTelecom
+
+    let primaryTelecom = filteredTelecoms.find((tel) => tel.use === "home" && tel.value && tel.value !== "Not Recorded")
+
+    if (!primaryTelecom) return blankTelecom
+
+    return primaryTelecom.value
+}
+
 class DemographicsProvider {
     /**
      * @param {fhir.Reference[]} references
@@ -336,7 +356,8 @@ class DemographicsProvider {
             id: nhsIdentifier.value,
             nhsNumber: nhsIdentifier.value,
             gender: gender || detailNotFoundMessage,
-            telephone: parseTelecom(telecom) || detailNotFoundMessage,
+            phone: parseTelecom(telecom) || detailNotFoundMessage,
+            email: parseEmail(patient.telecom) || detailNotFoundMessage,
             name: parseName(name) || detailNotFoundMessage,
             address: parseAddress(address, "home") || detailNotFoundMessage,
             dateOfBirth: (birthDate && new Date(birthDate).getTime()) || detailNotFoundMessage,

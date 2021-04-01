@@ -24,8 +24,8 @@ async function getConfig() {
         certFile: await secretManager.getSecret("FHIRSTORE_SOS_CERTFILE", true),
         keyFile: await secretManager.getSecret("FHIRSTORE_SOS_KEYFILE", true),
         caFile: await secretManager.getSecret("FHIRSTORE_SOS_CA", true),
-        signingKeyFile: await secretManager.getSecret("FHIRSTORE_SOS_KEYFILE", true),
-        signingPassphrase: await secretManager.getSecret("FHIRSTORE_SOS_PASSPHRASE"),
+        signingKeyFile: await secretManager.getSecret("FHIRSTORE_SOS_SIGNING_KEYFILE", true),
+        signingPassphrase: await secretManager.getSecret("FHIRSTORE_SOS_SIGNING_PASSPHRASE"),
     }
 }
 

@@ -22,7 +22,6 @@ const SiteTokenProvider = require("../providers/siteauth.tokenprovider")
 const getSiteAuthConfiguration = require("../config/config.siteauth")
 const pg = require("pg")
 const TokenDataClient = require("../clients/token.dataclient")
-const UserDataClient = require("../clients/user.dataclient")
 const moment = require("moment")
 const getDatabaseConfiguration = require("../config/config.database")
 
@@ -90,13 +89,6 @@ async function callbackHandler(ctx, connectionPool) {
 
     ctx.call("jobservice.patientlogin", { token: tokenSet.access_token, nhsNumber: payload.sub })
 
-    // ctx.meta.$responseHeaders = {
-    //     "Set-Cookie": `JSESSIONID=${token}; Path=/;`,
-    // }
-
-    // ctx.meta.$location = "/#/login"
-    // ctx.meta.$statusCode = 302
-
     return { token }
 }
 
@@ -110,7 +102,9 @@ async function returnHandler(ctx) {
 
     const { code, state } = ctx.params
 
-    ctx.meta.$location = `/#/login?code=${code}&state=${state}`
+    const stateQuery = state ? `&state=${state}` : ""
+
+    ctx.meta.$location = `/#/login?code=${code}${stateQuery}`
     ctx.meta.$statusCode = 302
 }
 
