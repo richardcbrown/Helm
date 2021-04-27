@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="7px" height="14px" viewBox="0 0 7 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 60.1 (88133) - https://sketch.com -->
+    <title>Triangle-right</title>
+    <desc>Created with Sketch.</desc>
+    <g  stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g  transform="translate(-658.000000, -1538.000000)" fill="none" fill-rule="nonzero">
+            <g id="Triangle-right" transform="translate(658.000000, 1538.000000)">
+                <path d="M1.63894166,0.300109455 C1.36912789,0.0123187896 0.965448141,-0.077821196 0.610245654,0.0704059741 C0.255043167,0.218633144 0.0155712432,0.577162446 0,0.984045221 L0,13.0534999 C0.00499825289,13.4644958 0.243695111,13.8308884 0.602829118,13.9788248 C0.714313279,14.0070584 0.830436336,14.0070584 0.941920497,13.9788248 C1.20533752,13.9759801 1.45658018,13.8599678 1.63894166,13.6569727 L6.78182758,7.62224531 C7.07272414,7.24931821 7.07272414,6.70776391 6.78182758,6.33483681 L1.63894166,0.300109455 Z" ></path>
+            </g>
+        </g>
+    </g>
+</svg>

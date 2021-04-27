@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="423px" height="423px" viewBox="0 0 423 423" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 60.1 (88133) - https://sketch.com -->
+    <title>Combined Shape</title>
+    <desc>Created with Sketch.</desc>
+    <g  stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Buttons" transform="translate(-939.000000, -2824.000000)" fill="#203282">
+            <g id="Oval-+-Oval-Mask-Copy-5" transform="translate(939.000000, 2717.000000)">
+                <path d="M211.5,107 C328.308225,107 423,201.691775 423,318.5 C423,435.308225 328.308225,530 211.5,530 C94.6917754,530 0,435.308225 0,318.5 C0,201.691775 94.6917754,107 211.5,107 Z M211.5,161 C124.515152,161 54,231.515152 54,318.5 C54,405.484848 124.515152,476 211.5,476 C298.484848,476 369,405.484848 369,318.5 C369,231.515152 298.484848,161 211.5,161 Z" id="Combined-Shape"></path>
+            </g>
+        </g>
+    </g>
+</svg>

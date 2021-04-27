@@ -1,0 +1,63 @@
+{
+  "name": "helm-client",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [],
+  "main": "src/index.js",
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.12",
+    "@fortawesome/free-solid-svg-icons": "^5.12.1",
+    "@fortawesome/react-fontawesome": "^0.1.4",
+    "@material-ui/core": "^4.11.0",
+    "analytics": "^0.5.5",
+    "axios": "^0.18.1",
+    "bowser": "^2.11.0",
+    "cors-anywhere": "^0.4.1",
+    "deepmerge": "^3.2.0",
+    "jsonwebtoken": "^8.4.0",
+    "lodash": "^4.17.20",
+    "moment": "^2.23.0",
+    "prop-types": "15.6.2",
+    "pure-react-carousel": "^1.27.6",
+    "query-string": "^6.12.1",
+    "react": "^17.0.1",
+    "react-admin": "^3.9.5",
+    "react-app-polyfill": "^1.0.6",
+    "react-dom": ">=16.3.3",
+    "react-joyride": "^2.0.2",
+    "react-markdown": "^5.0.2",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "^4.0.0",
+    "react-signature-pad-wrapper": "^1.2.4",
+    "react-slick": "^0.27.13",
+    "recompose": "^0.30.0",
+    "redux-saga": "^1.1.3",
+    "slick-carousel": "^1.8.1",
+    "sort-array-objects": "^2.0.0",
+    "uuid": "^8.1.0"
+  },
+  "devDependencies": {
+    "@types/fhir": "0.0.31",
+    "eslint": "^7.1.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.3",
+    "prettier": "^2.0.5",
+    "clsx": "^1.1.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "k8s:cloud:dev:up": "gcloud config set project helm-development1 && gcloud auth configure-docker && npm run build && docker build --no-cache -t helm-ui . && docker tag helm-ui eu.gcr.io/helm-management/helm-ui:1.0.0 && docker push eu.gcr.io/helm-management/helm-ui:1.0.0 && gcloud container clusters get-credentials --zone=europe-west2-a helm-cluster && kubectl apply -f run/k8s && kubectl get all -l group=helm",
+    "k8s:cloud:staging:up": "gcloud config set project helm-staging && gcloud auth configure-docker && npm run build && docker build --no-cache -t helm-ui . && docker tag helm-ui eu.gcr.io/helm-management/helm-ui:1.0.0 && docker push eu.gcr.io/helm-management/helm-ui:1.0.0 && gcloud container clusters get-credentials --zone=europe-west2-a helm-cluster && kubectl apply -f run/k8s && kubectl get all -l group=helm",
+    "k8s:cloud:prod:up": "gcloud config set project helm-production1 && gcloud auth configure-docker && npm run build && docker build --no-cache -t helm-ui . && docker tag helm-ui eu.gcr.io/helm-management/helm-ui:1.0.0 && docker push eu.gcr.io/helm-management/helm-ui:1.0.0 && gcloud container clusters get-credentials --zone=europe-west2-a helm-cluster && kubectl apply -f run/k8s && kubectl get all -l group=helm"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "ie 11",
+    "not ie <= 10",
+    "not op_mini all"
+  ]
+}

@@ -1,0 +1,3 @@
+// CORE PLUGINS CONFIGURATION LIST
+
+export default []

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20px" height="4px" viewBox="0 0 20 4" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 60.1 (88133) - https://sketch.com -->
+    <title>Minus</title>
+    <desc>Created with Sketch.</desc>
+    <g  stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g  transform="translate(-656.000000, -1657.000000)" fill="none" fill-rule="nonzero">
+            <g id="Minus" transform="translate(656.000000, 1657.000000)">
+                <path d="M18,0 C19.1045695,0 20,0.8954305 20,2 C20,3.03959482 19.2068159,3.89393157 18.1926133,3.99084456 L18,4 L2,4 C0.8954305,4 0,3.1045695 0,2 C0,0.960405177 0.793184111,0.106068429 1.80738665,0.00915543741 L2,0 L18,0 Z" ></path>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="318px" height="313px" viewBox="0 0 318 313" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 60.1 (88133) - https://sketch.com -->
+    <title>Circle</title>
+    <desc>Created with Sketch.</desc>
+    <g  stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g  transform="translate(-904.000000, -2958.000000)" fill="#1385EC">
+            <path d="M1063,2958 C1150.81328,2958 1222,3028.06744 1222,3114.5 C1222,3200.93256 1150.81328,3271 1063,3271 C975.186725,3271 904,3200.93256 904,3114.5 C904,3028.06744 975.186725,2958 1063,2958 Z M1063.5,2994 C995.292833,2994 940,3047.94969 940,3114.5 C940,3181.05031 995.292833,3235 1063.5,3235 C1131.70717,3235 1187,3181.05031 1187,3114.5 C1187,3047.94969 1131.70717,2994 1063.5,2994 Z" id="Circle"></path>
+        </g>
+    </g>
+</svg>

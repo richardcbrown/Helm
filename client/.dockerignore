@@ -1,0 +1,10 @@
+.vscode
+node_modules
+public
+src
+.env
+.eslintrc.js
+.gitignore
+.pretterrc.js
+CODEOWNERS
+jsconfig.json
