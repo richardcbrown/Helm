@@ -83,19 +83,32 @@ class RedisDataProvider {
      * @public
      * @param {string} key
      * @param {any} value
+     * @param {number} [ttl]
      * @returns {Promise<void>}
      */
-    set(key, value) {
+    set(key, value, ttl) {
         return new Promise((resolve, reject) => {
-            this.client.set(key, JSON.stringify(value), (error) => {
-                if (error) {
-                    this.logger.error(error.stack || error.message || error)
+            if (ttl) {
+                this.client.set(key, JSON.stringify(value), "EX", ttl, (error) => {
+                    if (error) {
+                        this.logger.error(error.stack || error.message || error)
 
-                    reject(error)
-                } else {
-                    resolve()
-                }
-            })
+                        reject(error)
+                    } else {
+                        resolve()
+                    }
+                })
+            } else {
+                this.client.set(key, JSON.stringify(value), (error) => {
+                    if (error) {
+                        this.logger.error(error.stack || error.message || error)
+
+                        reject(error)
+                    } else {
+                        resolve()
+                    }
+                })
+            }
         })
     }
 }
