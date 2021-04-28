@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="12px" viewBox="0 0 24 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 60.1 (88133) - https://sketch.com -->
+    <title>Chevron-last</title>
+    <desc>Created with Sketch.</desc>
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g  transform="translate(-1031.000000, -1539.000000)" fill="none" fill-rule="nonzero">
+            <g id="Chevron-last" transform="translate(1031.000000, 1539.000000)">
+                <path d="M0.15,6.45 L4.2,10.95 C4.5,11.25 4.95,11.25 5.25,10.95 C5.4,10.8 5.4,10.65 5.4,10.5 L5.4,7.5 L21.9,7.5 C22.8,7.5 23.4,6.9 23.4,6 C23.4,5.1 22.8,4.5 21.9,4.5 L5.4,4.5 L5.4,1.5 C5.4,1.2 5.25,0.9 4.95,0.75 L4.65,0.75 C4.5,0.75 4.2,0.9 4.05,1.05 L8.8817842e-16,5.55 C8.8817842e-16,5.85 8.8817842e-16,6.15 0.15,6.45 L0.15,6.45 Z" ></path>
+            </g>
+        </g>
+    </g>
+</svg>

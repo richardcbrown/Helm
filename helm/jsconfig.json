@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "checkJs": true,
+        "target": "es2020",
+        "module": "commonjs",
+        "strictNullChecks": true
+    },
+    "include": [
+        "./services", 
+        "./providers", 
+        "./config", 
+        "./models", 
+        "./clients", 
+        "./generators", 
+        "./requestutilities",
+        "./handlers",
+        "./adapters",
+        "./jobs"
+    ]
+}

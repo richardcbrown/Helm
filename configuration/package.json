@@ -1,0 +1,30 @@
+{
+  "name": "helm-configuration",
+  "version": "0.0.1",
+  "description": "Helm Configuration",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "start:configuration": "node server/index",
+    "k8s:cloud:staging:up": "gcloud config set project helm-staging && gcloud auth configure-docker && docker build --no-cache -f YhcrDockerfile -t helm-yhcr . && docker tag helm-yhcr eu.gcr.io/helm-management/helm-yhcr:1.0.0 && docker push eu.gcr.io/helm-management/helm-yhcr:1.0.0 && docker build --no-cache -t helm . && docker tag helm eu.gcr.io/helm-management/helm:1.0.0 && docker push eu.gcr.io/helm-management/helm:1.0.0 && docker build --no-cache -f RedisDockerfile -t helm-redis . && docker tag helm-redis eu.gcr.io/helm-management/helm-redis:1.0.0 && docker push eu.gcr.io/helm-management/helm-redis:1.0.0 && docker build --no-cache -f RabbitDockerfile -t helm-rabbit . && docker tag helm-rabbit eu.gcr.io/helm-management/helm-rabbit:1.0.0 && docker push eu.gcr.io/helm-management/helm-rabbit:1.0.0 && docker build --no-cache -f test/TestDockerfile -t helm-test ./test && docker tag helm-test eu.gcr.io/helm-management/helm-test:1.0.0 && docker push eu.gcr.io/helm-management/helm-test:1.0.0 && docker tag synaneticsltd/synfhir-store:linux-v2.8.3 eu.gcr.io/helm-management/helm-fhirstore:1.0.0 && docker push eu.gcr.io/helm-management/helm-fhirstore:1.0.0 && gcloud container clusters get-credentials --zone=europe-west2-a helm-staging-cluster && kubectl create configmap helm-env --from-env-file run/k8s/staging/.env && kubectl create configmap fhirstore-env --from-env-file run/k8s/staging/fhirstore.env && kubectl apply -f run/k8s/staging && kubectl get all -l group=helm",
+    "k8s:cloud:staging:down": "gcloud config set project helm-staging && gcloud auth configure-docker && gcloud container clusters get-credentials --zone=europe-west2-a helm-staging-cluster && kubectl delete configmap helm-env && kubectl delete configmap fhirstore-env && kubectl delete all -l group=helm && kubectl get all",
+    "k8s:cloud:dev:up": "gcloud config set project helm-development1 && gcloud auth configure-docker && docker build --no-cache -f ./run/k8s/dev/YhcrDockerfile -t helm-yhcr ./run/k8s/dev && docker tag helm-yhcr eu.gcr.io/helm-management/helm-yhcr:1.0.0 && docker push eu.gcr.io/helm-management/helm-yhcr:1.0.0 && docker build --no-cache -t helm . && docker tag helm eu.gcr.io/helm-management/helm:1.0.0 && docker push eu.gcr.io/helm-management/helm:1.0.0 && docker build --no-cache -f RedisDockerfile -t helm-redis . && docker tag helm-redis eu.gcr.io/helm-management/helm-redis:1.0.0 && docker push eu.gcr.io/helm-management/helm-redis:1.0.0 && docker build --no-cache -f RabbitDockerfile -t helm-rabbit . && docker tag helm-rabbit eu.gcr.io/helm-management/helm-rabbit:1.0.0 && docker push eu.gcr.io/helm-management/helm-rabbit:1.0.0 && docker build --no-cache -f test/TestDockerfile -t helm-test ./test && docker tag helm-test eu.gcr.io/helm-management/helm-test:1.0.0 && docker push eu.gcr.io/helm-management/helm-test:1.0.0 && docker build --no-cache -t helm-fhirstore ../synfhir-store && docker tag helm-fhirstore eu.gcr.io/helm-management/helm-fhirstore:1.0.0 && docker push eu.gcr.io/helm-management/helm-fhirstore:1.0.0 && gcloud container clusters get-credentials --zone=europe-west2-a helm-cluster && kubectl create configmap helm-env --from-env-file run/k8s/dev/.env && kubectl create configmap fhirstore-env --from-env-file run/k8s/dev/fhirstore.env && kubectl apply -f run/k8s/dev && kubectl get all -l group=helm",
+    "k8s:cloud:dev:down": "gcloud config set project helm-development1 && gcloud auth configure-docker && gcloud container clusters get-credentials --zone=europe-west2-a helm-cluster && kubectl delete configmap helm-env && kubectl delete configmap fhirstore-env && kubectl delete all -l group=helm && kubectl get all"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/fhir": "^0.0.31",
+    "@types/winston": "^2.4.4",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.3",
+    "express": "^4.17.1",
+    "moleculer-repl": "^0.6.4",
+    "prettier": "^2.0.5"
+  },
+  "dependencies": {
+    "@google-cloud/secret-manager": "^3.1.0",
+    "dotenv": "^8.2.0"
+  }
+}

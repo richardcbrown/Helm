@@ -1,0 +1,12 @@
+# Directories
+node_modules/
+build/
+logs/
+
+#IDE generated
+.idea/
+
+default.conf
+nginx.conf
+
+run

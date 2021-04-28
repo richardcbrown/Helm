@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="201px" height="201px" viewBox="0 0 201 201" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 60.1 (88133) - https://sketch.com -->
+    <title>Group 3</title>
+    <desc>Created with Sketch.</desc>
+    <g  stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Loaders-and-spinners" transform="translate(-470.000000, -928.000000)">
+            <g id="Group" transform="translate(470.000000, 928.000000)">
+                <g id="Group-3">
+                    <path d="M100.5,0 C156.004617,0 201,44.9953826 201,100.5 C201,156.004617 156.004617,201 100.5,201 C44.9953826,201 0,156.004617 0,100.5 C0,44.9953826 44.9953826,0 100.5,0 Z M100.5,19 C55.4887929,19 19,55.4887929 19,100.5 C19,145.511207 55.4887929,182 100.5,182 C145.511207,182 182,145.511207 182,100.5 C182,55.4887929 145.511207,19 100.5,19 Z" id="Combined-Shape-Copy" fill="#D8DDE0"></path>
+                    <path d="M158.18997,158.068265 C162.999999,162.934732 167.085055,167.8012 170.445135,172.667667 C152.352307,190.204905 127.686818,201 100.5,201 C74.5284846,201 50.8579207,191.148456 33.0213535,174.978413 L46.4774335,161.524287 C60.8586075,174.264903 79.7759893,182 100.5,182 C123.005604,182 143.380604,172.877802 158.129203,158.129203 Z" id="Combined-Shape-Copy-2" fill="#1385EC"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

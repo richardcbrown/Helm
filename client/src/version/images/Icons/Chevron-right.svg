@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="12px" viewBox="0 0 24 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 60.1 (88133) - https://sketch.com -->
+    <title>Chevron-right</title>
+    <desc>Created with Sketch.</desc>
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g transform="translate(-843.000000, -1539.000000)" fill="none" fill-rule="nonzero">
+            <g transform="translate(843.000000, 1539.000000)">
+                <path d="M23.4,5.49 L19.305,0.99 C19.090162,0.775399088 18.7687338,0.708183137 18.4859054,0.818713776 C18.203077,0.929244414 18.0123985,1.196594 18,1.5 L18,4.5 L1.5,4.5 C0.671572875,4.5 0,5.17157288 0,6 C0,6.82842712 0.671572875,7.5 1.5,7.5 L18,7.5 L18,10.5 C18.0039798,10.8064731 18.1940411,11.0796862 18.48,11.19 C18.5687688,11.2110534 18.6612312,11.2110534 18.75,11.19 C18.9597446,11.1878787 19.1597955,11.1013703 19.305,10.95 L23.4,6.45 C23.6316251,6.17191421 23.6316251,5.76808579 23.4,5.49 L23.4,5.49 Z" ></path>
+            </g>
+        </g>
+    </g>
+</svg>
