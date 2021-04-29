@@ -1,7 +1,7 @@
 import React, { Component } from "react"
 import Tooltip from "@material-ui/core/Tooltip"
 import { ReactComponent as FeedbackIcon } from "../../../images/Feedback-XL.svg"
-import { Typography } from "@material-ui/core"
+import { SvgIcon, Typography } from "@material-ui/core"
 import { withStyles } from "@material-ui/core/styles"
 
 const styles = (theme) => {
@@ -31,7 +31,9 @@ class FeedbackButton extends Component {
           style={{ textDecoration: "none", display: "inline-block", color: "inherit" }}
         >
           <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-            <FeedbackIcon width={40} height={40} title="Feedback" />
+            <SvgIcon viewBox="0 0 40 40" fontSize="small" style={{ fontSize: 40 }}>
+              <FeedbackIcon />
+            </SvgIcon>
             <Typography className={classes.feedbackText} style={{ marginLeft: 20, fontWeight: "bold" }}>
               FEEDBACK
             </Typography>

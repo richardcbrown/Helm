@@ -83,7 +83,7 @@ class LayoutWithoutTheme extends Component {
       error,
       dashboard,
       logout,
-      menu,
+      menu = "div",
       notification,
       open,
       sidebar,
