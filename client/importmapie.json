@@ -1,15 +1,15 @@
 {
     "imports": {
-        "react": "./ie/react.js",
-        "react-dom": "./ie/react-dom.js",
-        "synrb-canvas-library": "./ie/synrb-canvas-library.js",
-        "synrb-panel-library": "./ie/synrb-panel-library.js",
-        "app": "./ie/app.js",
-        "uuid": "./ie/uuid.js",
-        "fhirpath": "./ie/fhirpath.js",
-        "@material-ui/core": "./ie/@material-ui/core.js",
-        "@material-ui/styles": "./ie/@material-ui/styles.js",
-        "@material-ui/icons": "./ie/@material-ui/icons.js",
-        "moment": "./ie/moment.js"
+        "react": "./react.js",
+        "react-dom": "./react-dom.js",
+        "synrb-canvas-library": "./synrb-canvas-library.js",
+        "synrb-panel-library": "http://localhost:8881/ie/synrb-panel-library.js",
+        "app": "./app.js",
+        "uuid": "./uuid.js",
+        "fhirpath": "http://localhost:8881/ie/fhirpath.js",
+        "@material-ui/core": "http://localhost:8881/ie/@material-ui/core.js",
+        "@material-ui/styles": "http://localhost:8881/ie/@material-ui/styles.js",
+        "@material-ui/icons": "http://localhost:8881/ie/@material-ui/icons.js",
+        "moment": "http://localhost:8881/ie/moment.js"
     }
 }

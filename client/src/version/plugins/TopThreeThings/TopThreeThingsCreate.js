@@ -583,6 +583,11 @@ class TopThreeThingsCreate extends Component {
         <PageTitle />
         <Breadcrumbs resource={breadcrumbsResource} />
         <TableHeader resource={resourceUrl} />
+
+        <syn-canvas library-root="http://localhost:8882/registry">
+          <syn-panel panel-id="test-panel" panel="sample-panel"></syn-panel>
+        </syn-canvas>
+
         <Grid item xs={12} sm={12} className={classes.createBlock}>
           {questionnaire && !loading ? (
             <Paper elevation={0}>

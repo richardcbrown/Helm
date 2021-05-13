@@ -43,20 +43,16 @@ function getManifest(env) {
     Object.keys(dependencies).forEach((dep) => {
         const packageDetails = require(dependencies[dep].package)
 
-        libraries[`${dep}/${packageDetails.version}`] = dependencies[dep].index
+        //libraries[`${dep}/${packageDetails.version}`] = dependencies[dep].index
+        libraries[`${dep}`] = dependencies[dep].index
     })
 
     const entryPoints = {
         panels: {
-            AuditEventViewer: {
-                webpackPath: "./src/components/CustomElements/AuditEventViewer.js",
-                metadataPath: "./src/components/CustomElements/Metadata/AuditEventViewer.js",
-                tagName: "syn-audit-event-viewer",
-                configuration: {
-                    tagName: "syn-audit-event-viewer-configuration",
-                    webpackName: "AuditEventViewerConfiguration",
-                    webpackPath: "./src/components/CustomElements/AuditEventViewerConfiguration.js",
-                },
+            SampleComponent: {
+                webpackPath: "./src/components/CustomElements/SampleComponent.js",
+                metadataPath: "",
+                tagName: "helm-sample-component",
             },
         },
         libraries,
@@ -65,7 +61,11 @@ function getManifest(env) {
     Object.keys(entryPoints.panels).forEach((panelName) => {
         const details = entryPoints.panels[panelName]
 
-        const { attributes } = require(details.metadataPath)
+        let attributes = []
+
+        if (details.metadataPath) {
+            attributes = require(details.metadataPath)
+        }
 
         manifest.panels[panelName] = {}
 

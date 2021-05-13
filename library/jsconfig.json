@@ -3,7 +3,8 @@
         "checkJs": true,
         "target": "es2020",
         "module": "commonjs",
-        "strictNullChecks": true
+        "strictNullChecks": true,
+        "jsx": "react"
     },
     "include": [
         "./src"
