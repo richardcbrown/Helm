@@ -12,7 +12,7 @@
     "@webcomponents/webcomponentsjs": "^2.5.0",
     "analytics": "^0.5.5",
     "antlr4": "^4.8.0",
-    "axios": "^0.18.1",
+    "axios": "^0.21.1",
     "bowser": "^2.11.0",
     "core-js": "^3.11.0",
     "cors-anywhere": "^0.4.1",
