@@ -1,0 +1,15 @@
+{
+    "imports": {
+        "react": "./react.js",
+        "react-dom": "./react-dom.js",
+        "synrb-canvas-library": "./synrb-canvas-library.js",
+        "synrb-panel-library": "http://localhost:8881/synrb-panel-library.js",
+        "app": "./app.js",
+        "uuid": "./uuid.js",
+        "fhirpath": "http://localhost:8881/fhirpath.js",
+        "@material-ui/core": "http://localhost:8881/@material-ui/core.js",
+        "@material-ui/styles": "http://localhost:8881/@material-ui/styles.js",
+        "@material-ui/icons": "http://localhost:8881/@material-ui/icons.js",
+        "moment": "http://localhost:8881/moment.js"
+    }
+}
