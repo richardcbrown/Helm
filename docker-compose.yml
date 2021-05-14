@@ -1,6 +1,17 @@
-version: "3"
+version: "3.7"
 
 services:
+  helm-ui:
+    image: nginx
+    ports:
+    - "80:80"
+    volumes:
+    - "./client/dist:/usr/share/nginx/html"
+    - "./client/default.conf:/etc/nginx/conf.d/default.conf"
+    - "./client/nginx.conf:/etc/nginx/nginx.conf"
+    depends_on:
+      - helm
+
   helm-configuration:
     build:
       context: "./configuration"
@@ -145,7 +156,7 @@ services:
 
   helm-yhcr:
     build:
-      dockerfile: YhcrDockerfile  
+      dockerfile: ./yhcr/YhcrDockerfile  
       context: ./run/k8s/local
     ports:
       - 3443:443
@@ -171,18 +182,8 @@ services:
     ports:
       - 9999:9999
 
-  helm-ui:
-    image: nginx
-    ports:
-        - "80:80"
-    volumes:
-    - "./client/dist:/usr/share/nginx/html"
-    - "./client/default.conf:/etc/nginx/conf.d/default.conf"
-    - "./client/nginx.conf:/etc/nginx/nginx.conf"
-    depends_on: 
-        - helm
-
   helm:
+    restart: always
     build:
       context: ./helm
       dockerfile: DebugDockerfile
@@ -196,6 +197,11 @@ services:
       - "9230:9230"
     depends_on: 
       - fhir-database
+      - helm-yhcr
+      - grafana
+      - prometheus
+      - yhcr-fhirstore
+      - fhirstore
 
   library:
     build:
