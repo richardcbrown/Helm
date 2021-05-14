@@ -501,7 +501,7 @@ class TopThreeThingsCreate extends Component {
   render() {
     const { classes, createResource, questionnaire, questionnaireResponse, loading } = this.props
 
-    const resourceUrl = "top3Things"
+    const resourceUrl = "about-me"
     const title = "About You"
 
     const breadcrumbsResource = [{ url: "/" + resourceUrl, title: title, isActive: false }]
