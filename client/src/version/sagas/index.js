@@ -11,6 +11,7 @@ import { getNhsServicesSaga } from "./nhsServicesSagas"
 import { getLeedsServicesSaga } from "./leedsServicesSagas"
 import { getLoopServicesSaga } from "./loopSagas"
 import { getPreferencesSaga, savePreferencesSaga } from "./preferencesSagas"
+import { aboutMeSaga } from './aboutMeSaga';
 
 /**
  * This componenr returns array of version sagas
@@ -36,4 +37,5 @@ export default [
   getLoopServicesSaga,
   getPreferencesSaga,
   savePreferencesSaga,
+  aboutMeSaga,
 ]

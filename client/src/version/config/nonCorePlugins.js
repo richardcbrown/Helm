@@ -7,6 +7,7 @@ import TopThreeThingsCreate from "../plugins/TopThreeThings/TopThreeThingsCreate
 import Directory from "../pages/Directory"
 // NHS WIDGETS
 import NhsWidgets from "../plugins/NhsWidgets/NhsWidgets"
+import AboutMe from "../plugins/AboutMe/AboutMe"
 
 export default [
   {
@@ -23,5 +24,10 @@ export default [
     name: "nhs-resources",
     label: "NHS Resources",
     list: NhsWidgets,
+  },
+  {
+    name: "about-me",
+    label: "About Me",
+    list: AboutMe,
   },
 ]
