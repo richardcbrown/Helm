@@ -2,12 +2,14 @@ import React from "react"
 import { Typography } from "@material-ui/core"
 import { withCanvas } from "synrb-panel-library"
 import { ReactMaterialComponentBase } from "./ReactMaterialComponentBase"
+import Questionnaire from './Questionnaire/Questionnaire';
 
 class SampleComponent extends ReactMaterialComponentBase {
     constructor() {
         super()
 
-        this.jsxRootComponent = () => <Typography>Hello World</Typography>
+        this.jsxRootComponent = () => <Questionnaire />
+
     }
 }
 

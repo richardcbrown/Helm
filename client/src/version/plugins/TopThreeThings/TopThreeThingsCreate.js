@@ -502,7 +502,7 @@ class TopThreeThingsCreate extends Component {
     const { classes, createResource, questionnaire, questionnaireResponse, loading } = this.props
 
     const resourceUrl = "top3Things"
-    const title = "Top Three Things"
+    const title = "About You"
 
     const breadcrumbsResource = [{ url: "/" + resourceUrl, title: title, isActive: false }]
 
