@@ -28,7 +28,7 @@ export default function AboutMe(props) {
             <TableHeader resource={resourceUrl} />
 
             <syn-canvas library-root="http://localhost:8882/registry">
-                <syn-panel panel-id="test-panel" panel="sample-panel"></syn-panel>
+                <syn-panel panel-id="test-panel" panel="sample-panel" questionnaire-src="https://fhir.myhelm.org/questionnaire-identifier|topThreeThings"></syn-panel>
             </syn-canvas>
 
         </React.Fragment>
