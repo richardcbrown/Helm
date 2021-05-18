@@ -19,5 +19,11 @@ export const useStyles = makeStyles((theme) => ({
     },
     buttonRight: {
         float: 'right'
-    }
+    },
+    spinner: {
+        display: 'flex',
+        '& > * + *': {
+            marginLeft: theme.spacing(2),
+        },
+    },
 }));

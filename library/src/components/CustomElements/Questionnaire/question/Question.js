@@ -11,8 +11,6 @@ import { useStyles } from '../Styles';
 import { useSelector, useDispatch } from 'react-redux';
 import {
     selectActiveStep,
-    selectQuestionList,
-    selectQuestionHelpList,
     handleNext,
     handleBack
 } from '../stepper/VerticalLinearStepperSlice';
@@ -21,19 +19,22 @@ import {
     selectEdit,
     setEdit
 } from './QuestionSlice';
+import {
+    selectQuestions
+} from '../QuestionnaireSlice';
 import PastQuestion from '../pastQuestions/PastQuestions';
 
-export default function Question({ questionnaire }) {
+export default function Question() {
     const classes = useStyles();
     const activeStep = useSelector(selectActiveStep);
-    const questions = useSelector(selectQuestionList);
+    const questionsObjects = useSelector(selectQuestions);
+    console.log(questionsObjects)
     const edit = useSelector(selectEdit);
-    const questionHelpList = useSelector(selectQuestionHelpList);
     const questionResponse = useSelector(selectQuestionAPIRes);
 
-    const getQuestionnaire = () => {
-        fetch(url, method="POST", body={})
-    }
+    // const getQuestionnaire = () => {
+    //     fetch(url, method="POST", body={})
+    // }
 
     const dispatch = useDispatch();
     return (
@@ -46,13 +47,13 @@ export default function Question({ questionnaire }) {
             spacing={2}>
             <Grid item>
                 <Typography variant="h5">
-                    {questions[activeStep]}
+                    {questionsObjects[activeStep].prefix}
                 </Typography>
             </Grid>
             <Grid item>
                 <FormControl fullWidth >
                     <p>
-                        {questionHelpList[activeStep]}
+                        {questionsObjects[activeStep].text}
                     </p>
                     <TextField
                         id="outlined-multiline-static"
@@ -111,7 +112,10 @@ export default function Question({ questionnaire }) {
                             <Button
                                 variant="contained"
                                 color="primary"
-                                onClick={() => dispatch(handleBack())}
+                                onClick={() => {
+                                    dispatch(setEdit(false))
+                                    dispatch(handleBack())
+                                }}
                                 className={classes.button}
                             >
                                 <ArrowBackIosIcon />
@@ -125,10 +129,13 @@ export default function Question({ questionnaire }) {
                             <Button
                                 variant="contained"
                                 color="primary"
-                                onClick={() => dispatch(handleNext())}
+                                onClick={() => {
+                                    dispatch(setEdit(false))
+                                    dispatch(handleNext())
+                                }}
                                 className={classes.button}
                             >
-                                {activeStep === questions.length - 1 ? 'Finish' : 'Next'}
+                                {activeStep === questionsObjects.length - 1 ? 'Finish' : 'Next'}
                                 <NavigateNextIcon />
                             </Button>
                         </div>

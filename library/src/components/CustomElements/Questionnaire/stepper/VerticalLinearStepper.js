@@ -11,12 +11,14 @@ import Typography from '@material-ui/core/Typography';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   selectActiveStep,
-  selectQuestionList,
   handleNext,
   handleBack,
   handleReset,
   changeToQuestion
 } from './VerticalLinearStepperSlice';
+import {
+  selectQuestions
+} from '../QuestionnaireSlice';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -39,35 +41,19 @@ const useStyles = makeStyles((theme) => ({
 
 
 export default function VerticalLinearStepper() {
-  const getStepContent = (step) => {
-    switch (step) {
-      case 0:
-        return `Please enter ODS code. Service will pull data from the
-                official database that matches the ODS code`;
-      case 1:
-        return 'Confirm details of your organisation are correct';
-      // case 2:
-      //   return `Try out different ad text to see what brings in the most customers,
-      //           and learn how to enhance your ads using features like ad extensions.
-      //           If you run into any problems with your ads, find out how to tell if
-      //           they're running and how to resolve approval issues.`;
-      default:
-        return 'Unknown step';
-    }
-  }
 
   const classes = useStyles();
   const activeStep = useSelector(selectActiveStep);
   const dispatch = useDispatch()
-  const steps = useSelector(selectQuestionList)
+  const steps = useSelector(selectQuestions)
 
   return (
     <div className={classes.root}>
       <Stepper activeStep={activeStep} orientation="vertical">
         {steps.map((label, index) => (
-          <Step key={label}>
+          <Step key={label.prefix}>
             <StepLabel className={classes.question} onClick={() => dispatch(changeToQuestion(index))}>
-              <Typography gutterBottom={true}><u><b>{label}</b></u></Typography>
+              <Typography gutterBottom={true}><u><b>{label.prefix}</b></u></Typography>
             </StepLabel>
             {/* <StepContent>
               <Typography>{getStepContent(index)}</Typography>

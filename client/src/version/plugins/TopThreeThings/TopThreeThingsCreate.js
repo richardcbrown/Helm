@@ -454,6 +454,7 @@ class TopThreeThingsCreate extends Component {
     this.state = {
       responseRequested: false,
     }
+
   }
 
   componentDidMount() {
@@ -578,15 +579,18 @@ class TopThreeThingsCreate extends Component {
       return incompleteItems.map((ii) => ({ item: ii.linkId, error: true, errorMessage: "Subject is required" }))
     }
 
+
     return (
       <>
         <PageTitle />
         <Breadcrumbs resource={breadcrumbsResource} />
         <TableHeader resource={resourceUrl} />
 
-        <syn-canvas library-root="http://localhost:8882/registry">
-          <syn-panel panel-id="test-panel" panel="sample-panel"></syn-panel>
-        </syn-canvas>
+        {/* <syn-canvas ref={this.canvasRef} library-root="http://localhost:8882/registry">
+          <syn-panel panel-id="test-panel" panel="sample-panel"
+            submit="http://helm-local.com/api/patient/fhir/Questionnaire?identifier=https://fhir.myhelm.org/questionnaire-identifier|topThreeThings"
+            questionnaire-src="http://helm-local.com/api/patient/fhir/Questionnaire?identifier=https://fhir.myhelm.org/questionnaire-identifier|topThreeThings"></syn-panel>
+        </syn-canvas> */}
 
         <Grid item xs={12} sm={12} className={classes.createBlock}>
           {questionnaire && !loading ? (

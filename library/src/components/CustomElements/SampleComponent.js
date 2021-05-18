@@ -10,11 +10,15 @@ class SampleComponent extends ReactMaterialComponentBase {
     constructor() {
         super()
 
-        // console.log(this.resources)
 
-        this.jsxRootComponent = () => <Provider store={store} ><Questionnaire /></Provider>
+
+        this.jsxRootComponent = () => {
+            console.log(this.resources.Questionnaire)
+            const questionnaireList = this.resources.Questionnaire
+            return <Provider store={store} ><Questionnaire questionnaireList={this.resources.Questionnaire} /></Provider >
+        }
 
     }
 }
 
-customElements.define("helm-sample-component", withCanvas(SampleComponent))
+customElements.define("helm-sample-component", withResource(withCanvas(SampleComponent), "Questionnaire"))

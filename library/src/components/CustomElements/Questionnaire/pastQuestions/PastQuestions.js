@@ -8,7 +8,6 @@ import {
 
 export default function PastQuestion() {
     const questionResponse = useSelector(selectQuestionAPIRes);
-    console.log(questionResponse)
     return (
         <Grid
             container
