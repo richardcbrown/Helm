@@ -37,7 +37,10 @@ export default function AboutMe(props) {
             <TableHeader resource={resourceUrl} />
 
             <syn-canvas ref={canvasRef} library-root="http://localhost:8882/registry">
-                <syn-panel panel-id="test-panel" panel="sample-panel" submit="http://helm-local.com/api/patient/fhir/Questionnaire?identifier=https://fhir.myhelm.org/questionnaire-identifier|aboutMe"
+                <syn-panel
+                    panel-id="test-panel"
+                    panel="sample-panel"
+                    submit="http://helm-local.com/api/patient/fhir"
                     questionnaire-src="http://helm-local.com/api/patient/fhir/Questionnaire?identifier=https://fhir.myhelm.org/questionnaire-identifier|aboutMe"></syn-panel>
             </syn-canvas>
 

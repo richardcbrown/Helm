@@ -17,7 +17,9 @@ import {
   changeToQuestion
 } from './VerticalLinearStepperSlice';
 import {
-  selectQuestions
+  selectQuestions,
+  selectQuestionnaireResponse,
+  obtainAnsweredQuestions
 } from '../QuestionnaireSlice';
 
 const useStyles = makeStyles((theme) => ({
@@ -40,12 +42,22 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-export default function VerticalLinearStepper() {
+export default function VerticalLinearStepper(props) {
 
   const classes = useStyles();
   const activeStep = useSelector(selectActiveStep);
+  const questionnaireResponse = useSelector(selectQuestionnaireResponse);
   const dispatch = useDispatch()
   const steps = useSelector(selectQuestions)
+
+  const onSubmitHandler = () => {
+    dispatch(obtainAnsweredQuestions())
+    const changedResources = {
+      changedResource: questionnaireResponse,
+      changeOperation: "POST",
+    }
+    props.submit(changedResources)
+  }
 
   return (
     <div className={classes.root}>
@@ -85,6 +97,9 @@ export default function VerticalLinearStepper() {
           <Typography>All steps completed - you&apos;re finished</Typography>
           <Button onClick={() => dispatch(handleReset())} className={classes.button}>
             Reset
+          </Button>
+          <Button onClick={() => onSubmitHandler()} color="primary" variant="contained" className={classes.button}>
+            Submit
           </Button>
         </Paper>
       )}

@@ -15,7 +15,7 @@ class SampleComponent extends ReactMaterialComponentBase {
         this.jsxRootComponent = () => {
             console.log(this.resources.Questionnaire)
             const questionnaireList = this.resources.Questionnaire
-            return <Provider store={store} ><Questionnaire questionnaireList={this.resources.Questionnaire} submit={this.submit} /></Provider >
+            return <Provider store={store} ><Questionnaire questionnaireList={this.resources.Questionnaire} submit={(changedResource) => this.submit([changedResource])} /></Provider >
         }
 
     }

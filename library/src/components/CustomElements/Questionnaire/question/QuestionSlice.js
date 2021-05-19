@@ -10,8 +10,9 @@ const questionSlice = createSlice({
             date: "11-Jan-2020",
             answer: "prev answer 2"
         }],
-        questionResponse: {},
-        edit: false
+        questionResponse: "",
+        edit: false,
+        questionnaireResponse: {}
     },
     reducers: {
         getResponse: (state, action) => {
@@ -22,6 +23,11 @@ const questionSlice = createSlice({
             const bool = Boolean(action.payload)
             state.edit = bool;
         },
+        setQuestionResponse: (state, action) => {
+            const text = String(action.payload);
+            state.questionResponse = text;
+        },
+
     }
 })
 
@@ -29,6 +35,6 @@ export const selectQuestionAPIRes = (state) => state.question.questionAPIRes;
 export const selectQuestionResponse = (state) => state.question.questionResponse;
 export const selectEdit = (state) => state.question.edit;
 
-export const { setEdit } = questionSlice.actions;
+export const { setEdit, setQuestionResponse } = questionSlice.actions;
 
 export default questionSlice.reducer;

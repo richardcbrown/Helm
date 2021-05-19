@@ -36,6 +36,7 @@ export default function Questionnaire(props) {
     useEffect(() => {
         obtainQuestionObjects(questionnaireList);
     }, [questionnaireList])
+
     return (
         questionList.length === 0 ?
             <Paper elevation={0}>
@@ -71,16 +72,16 @@ export default function Questionnaire(props) {
                     {activeStep === questionList.length ? null :
                         <Typography variant="h5" align="right">
                             {activeStep + 1} -
-                </Typography>
+                        </Typography>
                     }
                 </Grid>
                 <Grid item xs={6}>
                     {activeStep === questionList.length ?
-                        <QuestionSubmitted /> :
-                        <Question />}
+                        <QuestionSubmitted submit={props.submit} /> :
+                        <Question submit={props.submit} />}
                 </Grid>
                 <Grid item xs={5}>
-                    <VerticalLinearStepper />
+                    <VerticalLinearStepper submit={props.submit} />
                 </Grid>
             </Grid >
 

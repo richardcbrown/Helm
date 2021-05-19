@@ -327,6 +327,9 @@ const ApiGateway = {
                 path: "/api/patient/fhir",
                 use: [headerCheck, cookieParser(), passport.initialize(), userAuthHandler, bodyParser.json()],
                 async onBeforeCall(ctx, route, req, res) {
+                    console.log("1 api/patient/fhir $params: ", req.body)
+                    console.log("1 api/patient/fhir ctx.params: ", ctx.params)
+
                     populateContextWithUser(ctx, req)
                     await checkUserConsent(ctx)
                     await populateContextWithUserReference(ctx, req)
