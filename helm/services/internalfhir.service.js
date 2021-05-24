@@ -23,6 +23,8 @@ function getQuestionnaire(config) {
     /** @type {fhir.Questionnaire} */
     const questionnaire = {
         resourceType: "Questionnaire",
+        name: "what-matters-to-me",
+        title: "HELM What Matters To Me",
         status: "active",
         identifier: [
             {
@@ -33,69 +35,55 @@ function getQuestionnaire(config) {
         item: [
             {
                 linkId: "item1",
-                type: "group",
-                item: [
-                    {
-                        linkId: "title1",
-                        type: "string",
-                        prefix: "#1",
-                        text: "Title for the first top three things",
-                        maxLength: 75,
-                    },
-                    {
-                        linkId: "description1",
-                        type: "text",
-                        prefix: "Description #1",
-                        text: "Description for the first top three things",
-                        maxLength: 500,
-                    },
-                ],
+                type: "text",
+                id: "1",
+                prefix: "What Matters to Me?",
+                text: "Think about your core values, spiritual beliefs, culture, ethnicity and religion as they relate to your care. " +
+                    "Think about meaningful activities you enjoy, pets, objects, computer games, exercise sport, places you like to visit, " +
+                    "education or spending time with family and friends.",
+                maxLength: 500
+
             },
             {
                 linkId: "item2",
-                type: "group",
-                item: [
-                    {
-                        linkId: "title2",
-                        type: "string",
-                        prefix: "#2",
-                        text: "Title for the second top three things",
-                        maxLength: 75,
-                    },
-                    {
-                        linkId: "description2",
-                        type: "text",
-                        prefix: "Description #2",
-                        text: "Description for the second top three things",
-                        maxLength: 500,
-                    },
-                ],
+                type: "text",
+                id: "2",
+                prefix: 'Who are the most important people in my life?',
+                text: "Consider friends, family, staff in the care home and people who support you at home, in the community or at a club." +
+                    "  Also include how you stay connected to these people." +
+                    "\nPlease Do: Consider any preferences and what you want someone to do when caring for or supporting you." +
+                    "\nPlease Don’t: Consider the important things that you don’t want someone to do when caring for or supporting you." +
+                    "  This could include not asking questions about certain topics, making assumptions about something, and providing support when it is not wanted.",
+                maxLength: 500
             },
             {
                 linkId: "item3",
-                type: "group",
-                item: [
-                    {
-                        linkId: "title3",
-                        type: "string",
-                        prefix: "#3",
-                        text: "Title for the third top three things",
-                        maxLength: 75,
-                    },
-                    {
-                        linkId: "description3",
-                        type: "text",
-                        prefix: "Description #3",
-                        text: "Description for the third top three things",
-                        maxLength: 500,
-                    },
-                ],
+                type: "text",
+                id: "3",
+                prefix: 'What do I do to keep myself well?',
+                text: "Consider how you feel on a typical day through to how you feel on a day when you are unwell or very unwell. " +
+                    "\nConsider any conditions or symptoms that you live with, how they affect you and how you manage them.  This could" +
+                    " include, for example, long-term pain and how you currently manage it. " +
+                    "\nConsider anything that can help or hinder your wellness.  Include what causes" +
+                    " you to become unwell and how you avoid or address them.  Also Include any signs that may indicate that you are " +
+                    "becoming unwell and how do you manage them.",
+                maxLength: 500
+            },
+            {
+                linkId: "item4",
+                type: "text",
+                id: "4",
+                prefix: 'Things to think about in the future',
+                text: "Consider your goals and hopes. Include what drives you to keep well or to manage a condition.  " +
+                    "This could include being able to do the things that you enjoy, such as specific activities with your friends and family members.",
+                maxLength: 500
             },
         ],
     }
 
     return questionnaire
 }
+
 
 async function getPolicies() {
     const config = await getConfig()

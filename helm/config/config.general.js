@@ -12,8 +12,8 @@ async function getConfig() {
     }
 
     return {
-        questionnaireSystem: await secretManager.getSecret("TOP_THREE_THINGS_QUESTIONNAIRE_IDENTIFIER_SYSTEM"),
-        questionnaireValue: await secretManager.getSecret("TOP_THREE_THINGS_QUESTIONNAIRE_IDENTIFIER_VALUE"),
+        questionnaireSystem: await secretManager.getSecret("ABOUT_ME_QUESTIONNAIRE_IDENTIFIER_SYSTEM"),
+        questionnaireValue: await secretManager.getSecret("ABOUT_ME_QUESTIONNAIRE_IDENTIFIER_VALUE"),
         policies,
     }
 }

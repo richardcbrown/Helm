@@ -7,6 +7,7 @@ import TopThreeThingsSimpleList from "../version/plugins/TopThreeThings/TopThree
 import Directory from "../version/pages/Directory"
 import Settings from "../version/plugins/Settings/Settings"
 import Accessibility from "../version/pages/Accessibility"
+import AboutMe from "../version/plugins/AboutMe/AboutMe"
 
 export default [
   <Route exact path="/summary" component={PatientSummary} />,
@@ -15,4 +16,5 @@ export default [
   <Route exact path="/terms" component={Terms} noLayout />,
   <Route exact path="/settings" component={Settings} />,
   <Route exact path="/accessibility" component={Accessibility} noLayout />,
+  <Route exact path="/about-me" component={AboutMe} />,
 ]

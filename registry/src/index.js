@@ -19,10 +19,10 @@ app.post("/registry/search", (req, res) => {
             {
                 id: "1",
                 libraryId: "1",
-                panelTag: "helm-sample-component",
+                panelTag: "helm-questionnaire-component",
                 libraryRoot: "http://localhost:8881",
-                panelPath: `/SampleComponent.js`,
-                panelName: "sample-panel",
+                panelPath: `/QuestionnaireComponent.js`,
+                panelName: "questionnaire-panel",
             },
         ],
     }
