@@ -8,6 +8,7 @@ import {
     selectQuestionnaireResponse,
     obtainAnsweredQuestions
 } from '../QuestionnaireSlice';
+import ConfirmationDialog from '../confirmationDialog/ConfirmationDialog';
 
 export default function QuestionSubmitted(props) {
     const questions = useSelector(selectQuestions);
@@ -28,17 +29,27 @@ export default function QuestionSubmitted(props) {
         })
         return responseEntered;
     }
+
+    const getDate = (linkId) => {
+        const questionObj = questionResponseItems.find((item) => item.linkId == linkId)
+        // const foundQuestionObj = questionResponseItems.find((item) => item.linkId == questionsObjects[activeStep + step].linkId)
+        console.log(questionObj)
+        return questionObj.answer[0].valueDateTime
+    }
+
     return (
         <div>
-
-
             <Grid
                 container
                 direction="column"
-                justify="flex-start"
+                justify="center"
                 alignItems="stretch"
                 spacing={3}>
-                {console.log(questions)}
+                <Grid item>
+                    <FormControl fullWidth>
+                        <Typography>All steps completed - you&apos;re finished</Typography>
+                    </FormControl>
+                </Grid>
                 {questions.map((question, index) => (
                     < Grid item >
                         <FormControl fullWidth>
@@ -59,6 +70,7 @@ export default function QuestionSubmitted(props) {
 
 
             </Grid>
+            <ConfirmationDialog />
         </div >
     )
 }

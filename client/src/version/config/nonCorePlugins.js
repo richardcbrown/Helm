@@ -11,11 +11,6 @@ import AboutMe from "../plugins/AboutMe/AboutMe"
 
 export default [
   {
-    name: "top3Things",
-    label: "Top Three Things",
-    list: TopThreeThingsCreate,
-  },
-  {
     name: "leeds-information",
     label: "Leeds Information",
     list: Directory,

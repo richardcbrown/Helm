@@ -49,10 +49,10 @@ function getManifest(env) {
 
     const entryPoints = {
         panels: {
-            SampleComponent: {
-                webpackPath: "./src/components/CustomElements/SampleComponent.js",
+            QuestionnaireComponent: {
+                webpackPath: "./src/components/CustomElements/QuestionnaireComponent.js",
                 metadataPath: "",
-                tagName: "helm-sample-component",
+                tagName: "helm-questionnaire-component",
             },
         },
         libraries,

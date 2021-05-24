@@ -51,7 +51,6 @@ function getQuestionnaire(config) {
                 prefix: 'Who are the most important people in my life?',
                 text: "Consider friends, family, staff in the care home and people who support you at home, in the community or at a club." +
                     "  Also include how you stay connected to these people." +
-                    "Please do and please don't" +
                     "\nPlease Do: Consider any preferences and what you want someone to do when caring for or supporting you." +
                     "\nPlease Don’t: Consider the important things that you don’t want someone to do when caring for or supporting you." +
                     "  This could include not asking questions about certain topics, making assumptions about something, and providing support when it is not wanted.",

@@ -14,7 +14,7 @@ const VerticalLinearStepperSlice = createSlice({
             state.activeStep > 0 ? state.activeStep = state.activeStep - 1 : null
         },
         handleReset: (state) => {
-            state.activeStep = 0;
+            state.activeStep === 0 ? null : state.activeStep = 0
         },
         changeToQuestion: (state, action) => {
             const questionNo = Number(action.payload)

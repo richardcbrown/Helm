@@ -12,8 +12,12 @@ import {
 } from './stepper/VerticalLinearStepperSlice';
 import {
     selectQuestions,
-    updateQuestions
+    updateQuestions,
+    updateId
 } from './QuestionnaireSlice';
+import {
+    updatePreviousAnswers
+} from './pastAnswers/PastAnswersSlice';
 
 export default function Questionnaire(props) {
     const classes = useStyles()
@@ -21,21 +25,32 @@ export default function Questionnaire(props) {
     const questionList = useSelector(selectQuestions);
     const dispatch = useDispatch()
 
-    const { questionnaireList } = props;
+    const { resources } = props;
+    const questionnaireList = resources.Questionnaire;
+    const questionnaireResponse = resources.QuestionnaireResponse;
 
     const obtainQuestionObjects = (questionnaireList) => {
         var questionsArray = []
+        var id = ""
         questionnaireList ?
             questionnaireList.map((questionnaire, index) => {
                 questionsArray = (questionnaire.item);
+                id = questionnaire.id
             })
             : null
         dispatch(updateQuestions(questionsArray));
+        dispatch(updateId(id))
     }
 
     useEffect(() => {
         obtainQuestionObjects(questionnaireList);
     }, [questionnaireList])
+
+    useEffect(() => {
+        questionnaireResponse ?
+            dispatch(updatePreviousAnswers(questionnaireResponse))
+            : null
+    }, [questionnaireResponse])
 
     return (
         questionList.length === 0 ?
@@ -62,28 +77,53 @@ export default function Questionnaire(props) {
                 </Grid>
             </Paper>
             :
-            <Grid
-                container
-                direction="row"
-                justify="flex-start"
-                alignItems="flex-start"
-                spacing={1}>
-                <Grid item xs={1}>
-                    {activeStep === questionList.length ? null :
-                        <Typography variant="h5" align="right">
-                            {activeStep + 1} -
+
+            <div>
+                <div className={classes.sectionDesktop}>
+                    <Grid
+                        container
+                        direction="row"
+                        justify="flex-start"
+                        alignItems="flex-start"
+                        spacing={1}>
+                        <Grid item xs={1}>
+                            {activeStep === questionList.length ? null :
+                                <Typography variant="h5" align="right">
+                                    {activeStep + 1} -
                         </Typography>
-                    }
-                </Grid>
-                <Grid item xs={6}>
-                    {activeStep === questionList.length ?
-                        <QuestionSubmitted submit={props.submit} /> :
-                        <Question submit={props.submit} />}
-                </Grid>
-                <Grid item xs={5}>
-                    <VerticalLinearStepper submit={props.submit} />
-                </Grid>
-            </Grid >
+                            }
+                        </Grid>
+                        <Grid item xs={6}>
+                            {activeStep === questionList.length ?
+                                <QuestionSubmitted submit={props.submit} /> :
+                                <Question submit={props.submit} requestResources={props.requestResources} />}
+                        </Grid>
+                        <Grid item xs={5}>
+                            <VerticalLinearStepper submit={props.submit} />
+                        </Grid>
+                    </Grid >
+                </div>
+                <div className={classes.sectionMobile}>
+                    <Grid
+                        container
+                        direction="column"
+                        justify="center"
+                        alignItems="center"
+                        spacing={3}>
+
+                        <Grid item xs={10}>
+                            {activeStep === questionList.length ?
+                                <QuestionSubmitted submit={props.submit} /> :
+                                <Question submit={props.submit} requestResources={props.requestResources} />}
+                        </Grid>
+                        <Grid item xs={10}>
+                            <VerticalLinearStepper submit={props.submit} />
+                        </Grid>
+
+                    </Grid>
+                </div>
+            </div>
+
 
     )
 }

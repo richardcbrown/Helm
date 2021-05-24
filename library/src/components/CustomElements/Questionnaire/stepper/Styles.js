@@ -1,4 +1,6 @@
+
 import { makeStyles } from '@material-ui/core/styles';
+
 
 export const useStyles = makeStyles((theme) => ({
     root: {
@@ -17,28 +19,17 @@ export const useStyles = makeStyles((theme) => ({
     question: {
         cursor: "pointer",
     },
-    buttonRight: {
-        float: 'right'
-    },
-    spinner: {
-        display: 'flex',
-        '& > * + *': {
-            marginLeft: theme.spacing(2),
-        },
-    },
     sectionDesktop: {
         display: 'none',
         [theme.breakpoints.up('md')]: {
             display: 'flex',
         },
-        paddingTop: "1%",
     },
     sectionMobile: {
         display: 'flex',
         [theme.breakpoints.up('md')]: {
             display: 'none',
         },
-        paddingTop: "1%",
     },
     viewButton: {
         display: "flex",

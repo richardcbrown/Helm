@@ -5,7 +5,8 @@ const questionnaireSlice = createSlice({
     initialState: {
         questions: [],
         questionnaireResponse: {},
-        questionResponseItems: []
+        questionResponseItems: [],
+        questionnaireId: ""
     },
     reducers: {
         updateQuestions: (state, action) => {
@@ -19,7 +20,7 @@ const questionnaireSlice = createSlice({
          */
         updateQuestionResponses: (state, actions) => {
             const questionResponse = Object(actions.payload)
-            console.log(questionResponse)
+            console.log("updateQuestionResponses: ", questionResponse)
             var count = 0;
             state.questionResponseItems.map((item, index) => {
                 if (item.linkId === questionResponse.linkId) {
@@ -36,9 +37,15 @@ const questionnaireSlice = createSlice({
             const finalObject = {
                 "resourceType": "QuestionnaireResponse",
                 "authored": new Date().toISOString(),
-                "item": state.questionResponseItems
+                "item": state.questionResponseItems,
+                "questionnaire": { "reference": `Questionnaire/${state.questionnaireId}` },
+                "status": "completed"
             }
             state.questionnaireResponse = finalObject;
+        },
+        updateId: (state, action) => {
+            const id = String(action.payload)
+            state.questionnaireId = id;
         }
     }
 })
@@ -46,7 +53,8 @@ const questionnaireSlice = createSlice({
 export const selectQuestions = (state) => state.questionnaire.questions;
 export const selectQuestionResponseItems = (state) => state.questionnaire.questionResponseItems;
 export const selectQuestionnaireResponse = (state) => state.questionnaire.questionnaireResponse;
+export const selectId = (state) => state.questionnaire.questionnaireId;
 
-export const { updateQuestions, updateQuestionResponses, obtainAnsweredQuestions } = questionnaireSlice.actions;
+export const { updateQuestions, updateQuestionResponses, obtainAnsweredQuestions, updateId } = questionnaireSlice.actions;
 
 export default questionnaireSlice.reducer;

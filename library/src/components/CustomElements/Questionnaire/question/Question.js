@@ -1,10 +1,12 @@
-import { FormControl, Grid, Typography, TextField, Button, IconButton, Accordion, AccordionSummary, AccordionDetails } from '@material-ui/core';
-import React from 'react';
+import { FormControl, Grid, Typography, TextField, Button, IconButton, Accordion, AccordionSummary, AccordionDetails, ListItemAvatar } from '@material-ui/core';
+import React, { useEffect } from 'react';
 import EditIcon from '@material-ui/icons/Edit';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import DoneIcon from '@material-ui/icons/Done';
+
+import PastAnswers from '../pastAnswers/PastAnswers';
 
 import { useStyles } from '../Styles';
 
@@ -18,6 +20,9 @@ import {
     selectQuestionResponse,
     selectEdit,
     setEdit,
+    selectDate,
+    setDate,
+    selectDisplayDate,
     setQuestionResponse
 } from './QuestionSlice';
 import {
@@ -27,64 +32,105 @@ import {
     updateQuestionResponses,
     obtainAnsweredQuestions
 } from '../QuestionnaireSlice';
-import PastQuestion from '../pastQuestions/PastQuestions';
+import {
+    selectPreviousAnswers
+} from '../pastAnswers/PastAnswersSlice';
+
+import {
+    getDate
+} from '../Utils/Utils';
+
 
 export default function Question(props) {
     const classes = useStyles();
     const activeStep = useSelector(selectActiveStep);
     const questionsObjects = useSelector(selectQuestions);
+    const date = useSelector(selectDate);
+    const displayDate = useSelector(selectDisplayDate);
     const questionResponseItems = useSelector(selectQuestionResponseItems);
+    const prevAnswers = useSelector(selectPreviousAnswers);
     const questionnnaireResponse = useSelector(selectQuestionnaireResponse);
-    console.log(questionsObjects)
     const edit = useSelector(selectEdit);
     const questionResponse = useSelector(selectQuestionResponse);
     const dispatch = useDispatch();
 
     const { submit } = props;
 
+    useEffect(() => {
+        obtainCurrentResponse(0)
+    }, [activeStep])
+
+    const onUpdateAnswer = () => {
+        if (activeStep <= questionsObjects.length - 1) {
+            const item = {
+                "linkId": questionsObjects[activeStep].linkId,
+                "text": questionsObjects[activeStep].prefix,
+                "answer": [{ "valueString": questionResponse, "valueDateTime": date }]
+            }
+            dispatch(updateQuestionResponses(item))
+        }
+    }
+
     const onAnswerChangeHandler = (e) => {
         dispatch(setQuestionResponse(e.target.value))
     }
 
-    const onUpdateAnswer = () => {
-        const item = {
-            "linkId": questionsObjects[activeStep].linkId,
-            "answer": [{ "valueString": questionResponse }]
-        }
-        dispatch(updateQuestionResponses(item))
-    }
-
     const onNextClickHandler = async () => {
-        dispatch(setEdit(false))
+        edit ? dispatch(setEdit(false)) : null
         await dispatch(handleNext())
         onUpdateAnswer()
-        activeStep + 1 < questionsObjects.length ? obtainCurrentResponse(+1) : null
+        // activeStep + 1 < questionsObjects.length ? obtainCurrentResponse(+1) : null
     }
 
     const onBackClickHandler = async () => {
-        dispatch(setEdit(false))
+        edit ? dispatch(setEdit(false)) : null
         await dispatch(handleBack())
         onUpdateAnswer()
-        activeStep - 1 > questionsObjects.length ? obtainCurrentResponse(-1) : null
+        // obtainCurrentResponse(-1)
     }
 
     const obtainCurrentResponse = (step) => {
-        var responseEntered = ""
-        questionResponseItems.map((item, index) => {
-            if (questionsObjects[activeStep + step].linkId) {
-                if (item.linkId === questionsObjects[activeStep + step].linkId) {
-                    responseEntered = questionResponseItems[index].answer[0].valueString;
-                }
+        if (questionsObjects.length > 0) {
+            const foundQuestionObj = questionResponseItems.find((item) => item.linkId == questionsObjects[activeStep + step].linkId)
+            console.log(foundQuestionObj)
+            if (foundQuestionObj) {
+                dispatch(setQuestionResponse(foundQuestionObj.answer[0].valueString))
+                dispatch(setDate(foundQuestionObj.answer[0].valueDateTime))
+            }
+            else {
+                obtainPrevResponse(step)
             }
 
-        })
-        dispatch(setQuestionResponse(responseEntered));
+        }
     }
 
-    const onSubmitQuestionnaire = () => {
-        onNextClickHandler();
-        dispatch(obtainAnsweredQuestions())
-        console.log(questionnnaireResponse)
+
+
+    const obtainPrevResponse = (step) => {
+        if (questionsObjects.length > 0 && prevAnswers.length > 0) {
+            const foundPrevObj = prevAnswers[0].answers.find((item) => item.linkId == questionsObjects[activeStep + step].linkId)
+            console.log(foundPrevObj)
+            if (foundPrevObj) {
+                dispatch(setQuestionResponse(foundPrevObj.answer[0].valueString))
+                dispatch(setDate(foundPrevObj.answer[0].valueDateTime))
+            } else {
+                dispatch(setQuestionResponse("")) && dispatch(setDate(""))
+            }
+        } else {
+            dispatch(setQuestionResponse("")) && dispatch(setDate(""))
+        }
+
+    }
+
+    const getLatestPrevAnswer = () => {
+        var latestPrevAnswer = ""
+        if (prevAnswers.length > 0) {
+            prevAnswers[prevAnswers.length - 1].answers.map((item) => {
+                item.linkId === questionsObjects[activeStep].linkId ?
+                    latestPrevAnswer = item.answer[0].valueString : null
+            })
+        }
+        return latestPrevAnswer
     }
 
 
@@ -103,17 +149,18 @@ export default function Question(props) {
             </Grid>
             <Grid item>
                 <FormControl fullWidth >
-                    <p>
+                    <Typography>
                         {questionsObjects[activeStep].text}
-                    </p>
+                    </Typography>
                     <TextField
                         id="outlined-multiline-static"
                         // label="Multiline"
                         multiline
                         rows={4}
-                        defaultValue="prev answer 1"
+                        // defaultValue={getLatestPrevAnswer()}
                         value={questionResponse}
                         variant="outlined"
+                        helperText={displayDate}
                         onChange={(e) => onAnswerChangeHandler(e)}
                         disabled={!edit}
                     />
@@ -127,7 +174,8 @@ export default function Question(props) {
                         color="primary"
                         onClick={() => {
                             dispatch(setEdit(!edit))
-                            onUpdateAnswer()
+                            dispatch(setDate(new Date().toString()))
+                            // onUpdateAnswer().then(obtainCurrentResponse(0))
                         }}
                         className={classes.button}
                     >
@@ -148,11 +196,11 @@ export default function Question(props) {
                         expandIcon={<ExpandMoreIcon />}
                         aria-controls="panel1a-content">
                         <Typography>
-                            <u><b>Previous answers ({2})</b></u>
+                            <u><b>Previous answers ({prevAnswers.length})</b></u>
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                        <PastQuestion />
+                        <PastAnswers requestResources={props.requestResources} />
                     </AccordionDetails>
                 </Accordion>
             </Grid>
@@ -183,11 +231,7 @@ export default function Question(props) {
                                 variant="contained"
                                 color="primary"
                                 onClick={() => {
-                                    activeStep === questionsObjects.length - 1
-                                        ?
-                                        onSubmitQuestionnaire()
-                                        :
-                                        onNextClickHandler()
+                                    onNextClickHandler()
                                 }}
                                 className={classes.button}
                             >

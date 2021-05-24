@@ -143,6 +143,8 @@ class PatientFhirResourceChecker {
      */
     isAllowedResource(resourceType) {
         const { allowedResources } = this.configuration
+        console.log("allowedResources: ", allowedResources)
+        console.log("resourceType: ", resourceType)
 
         return allowedResources.some((allowedResource) => allowedResource === resourceType)
     }

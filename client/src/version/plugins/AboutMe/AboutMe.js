@@ -17,7 +17,7 @@ export default function AboutMe(props) {
         window.analytics.page({ url: window.location.hash })
         const token = localStorage.getItem("token");
 
-        const headers = { Authorization: `Bearer ${token}`, "X-Requested-With": "XMLHttpRequest" }
+        const headers = { Authorization: `Bearer ${token}`, "X-Requested-With": "XMLHttpRequest", "Content-Type": "application/json" }
 
         canvasRef.current.setAuthHandler((request, options) => {
             request.headers = headers
@@ -36,14 +36,20 @@ export default function AboutMe(props) {
             <Breadcrumbs resource={breadcrumbsResource} />
             <TableHeader resource={resourceUrl} />
 
+
             <syn-canvas ref={canvasRef} library-root="http://localhost:8882/registry">
-                <syn-panel
-                    panel-id="test-panel"
-                    panel="sample-panel"
-                    submit="http://helm-local.com/api/patient/fhir"
-                    questionnaire-src="http://helm-local.com/api/patient/fhir/Questionnaire?identifier=https://fhir.myhelm.org/questionnaire-identifier|aboutMe"></syn-panel>
+                <div style={{ background: `url${backgroundImage}` }}>
+                    <syn-panel
+                        panel-id="questionnaire-panel"
+                        panel="questionnaire-panel"
+                        questionnaire-src="http://helm-local.com/api/patient/fhir/Questionnaire?identifier=https://fhir.myhelm.org/questionnaire-identifier|aboutMe"
+                        submit="http://helm-local.com/api/patient/fhir"
+                        questionnaireresponse-root="http://helm-local.com/api/patient/fhir/QuestionnaireResponse?_sort=-authored"
+                    ></syn-panel>
+                </div>
             </syn-canvas>
 
-        </React.Fragment>
+
+        </React.Fragment >
     )
 }
