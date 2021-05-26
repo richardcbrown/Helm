@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
@@ -9,7 +9,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import {
     selectTabTitles,
     selectValue,
-    setValue
+    setValue,
+    setTabTitles
 } from './ObservationTabsSlice';
 
 const useStyles = makeStyles((theme) => ({
@@ -19,12 +20,20 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function ObservationTabs() {
+export default function ObservationTabs(props) {
     const classes = useStyles();
     const theme = useTheme();
     const value = useSelector(selectValue);
-    const tabTitles = useSelector(selectTabTitles)
-    const dispatch = useDispatch()
+    const tabTitles = useSelector(selectTabTitles);
+    const dispatch = useDispatch();
+
+    const {
+        configuration
+    } = props
+
+    useEffect(() => {
+        dispatch(setTabTitles(configuration.observations))
+    }, [])
 
     const handleChange = (event, newValue) => {
         dispatch(setValue(newValue));
@@ -55,8 +64,6 @@ export default function ObservationTabs() {
                         <Tab label={tabTitle} {...a11yProps(index)} />
                     ))}
 
-                    {/* <Tab label="Blood Pressure" />
-                    <Tab label="Oxygen Saturation" /> */}
                 </Tabs>
             </AppBar>
         </div >

@@ -1,12 +1,13 @@
 import { Grid } from '@material-ui/core';
-import React from 'react';
+import React, { useEffect } from 'react';
 import ObservationTabs from './tabs/ObservationTabs';
-import DatePicker from './datePicker/DatePicker';
+import Content from './content/Content';
 
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import {
     selectValue
 } from './tabs/ObservationTabsSlice';
+import { setObservations } from './ObservationSlice';
 
 export default function Observation(props) {
     const {
@@ -17,38 +18,35 @@ export default function Observation(props) {
     } = props
 
     const value = useSelector(selectValue);
+    const dispatch = useDispatch()
 
-    const objVal = {
-        0: "height&weight",
-        1: "blood pressure",
-        2: "oxySat"
-    }
-
-    console.log(objVal[value])
+    useEffect(() => {
+        dispatch(setObservations(configuration.observations))
+    }, [configuration])
 
     return (
 
         <Grid
             container
             direction="column"
-            justify="space-around"
-            alignItems="flex-start"
+            justify="flex-start"
+            alignItems="stretch"
             spacing={3}>
             <Grid item >
-                <ObservationTabs />
+                <ObservationTabs configuration={configuration} />
             </Grid>
             <Grid item>
                 <Grid
                     container
                     direction="row"
                     justify="space-evenly"
-                    alignItems="flex-start"
+                    alignItems="stretch"
                     spacing={3}>
-                    <Grid item xs={10}>
-                        {objVal[value]}
+                    <Grid item xs={12}>
+                        <Content />
                     </Grid>
                 </Grid>
             </Grid>
-        </Grid>
+        </Grid >
     )
 }
