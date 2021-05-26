@@ -7,6 +7,7 @@ import Tab from '@material-ui/core/Tab';
 
 import { useSelector, useDispatch } from 'react-redux';
 import {
+    selectTabTitles,
     selectValue,
     setValue
 } from './ObservationTabsSlice';
@@ -14,7 +15,7 @@ import {
 const useStyles = makeStyles((theme) => ({
     root: {
         backgroundColor: theme.palette.background.paper,
-        width: 500,
+        width: "100%",
     },
 }));
 
@@ -22,6 +23,7 @@ export default function ObservationTabs() {
     const classes = useStyles();
     const theme = useTheme();
     const value = useSelector(selectValue);
+    const tabTitles = useSelector(selectTabTitles)
     const dispatch = useDispatch()
 
     const handleChange = (event, newValue) => {
@@ -31,6 +33,12 @@ export default function ObservationTabs() {
     const handleChangeIndex = (index) => {
         dispatch(setValue(index));
     };
+    function a11yProps(index) {
+        return {
+            id: `simple-tab-${index}`,
+            'aria-controls': `simple-tabpanel-${index}`,
+        };
+    }
 
     return (
         <div className={classes.root}>
@@ -40,12 +48,15 @@ export default function ObservationTabs() {
                     onChange={handleChange}
                     indicatorColor="primary"
                     textColor="primary"
-                    variant="fullWidth"
-                    aria-label="full width tabs example"
+                    variant="scrollable"
+                    scrollButtons="off"
                 >
-                    <Tab label="Height &#38; Weight" />
-                    <Tab label="Blood Pressure" />
-                    <Tab label="Oxygen Saturation" />
+                    {tabTitles.map((tabTitle, index) => (
+                        <Tab label={tabTitle} {...a11yProps(index)} />
+                    ))}
+
+                    {/* <Tab label="Blood Pressure" />
+                    <Tab label="Oxygen Saturation" /> */}
                 </Tabs>
             </AppBar>
         </div >

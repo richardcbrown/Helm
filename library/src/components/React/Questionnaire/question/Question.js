@@ -69,6 +69,7 @@ export default function Question(props) {
             }
             dispatch(updateQuestionResponses(item))
         }
+        dispatch(obtainAnsweredQuestions())
     }
 
     const onAnswerChangeHandler = (e) => {

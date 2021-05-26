@@ -27,17 +27,27 @@ export default function Observation(props) {
     console.log(objVal[value])
 
     return (
+
         <Grid
             container
             direction="column"
             justify="space-around"
-            alignItems="center"
+            alignItems="flex-start"
             spacing={3}>
             <Grid item >
                 <ObservationTabs />
             </Grid>
             <Grid item>
-                {objVal[value]}
+                <Grid
+                    container
+                    direction="row"
+                    justify="space-evenly"
+                    alignItems="flex-start"
+                    spacing={3}>
+                    <Grid item xs={10}>
+                        {objVal[value]}
+                    </Grid>
+                </Grid>
             </Grid>
         </Grid>
     )
