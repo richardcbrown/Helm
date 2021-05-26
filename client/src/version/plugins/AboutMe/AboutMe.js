@@ -26,7 +26,7 @@ export default function AboutMe(props) {
     }, [])
 
     const resourceUrl = "about-me"
-    const title = "About You"
+    const title = "About Me"
 
     const breadcrumbsResource = [{ url: "/" + resourceUrl, title: title, isActive: false }]
 

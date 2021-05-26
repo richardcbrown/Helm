@@ -40,7 +40,10 @@ function getQuestionnaire(config) {
                 prefix: "What Matters to Me?",
                 text: "Think about your core values, spiritual beliefs, culture, ethnicity and religion as they relate to your care. " +
                     "Think about meaningful activities you enjoy, pets, objects, computer games, exercise sport, places you like to visit, " +
-                    "education or spending time with family and friends.",
+                    "education or spending time with family and friends." +
+                    "\nPlease Do: Consider any preferences and what you want someone to do when caring for or supporting you." +
+                    "\nPlease Don’t: Consider the important things that you don’t want someone to do when caring for or supporting you." +
+                    "  This could include not asking questions about certain topics, making assumptions about something, and providing support when it is not wanted.",
                 maxLength: 500
 
             },
@@ -50,10 +53,7 @@ function getQuestionnaire(config) {
                 id: "2",
                 prefix: 'Who are the most important people in my life?',
                 text: "Consider friends, family, staff in the care home and people who support you at home, in the community or at a club." +
-                    "  Also include how you stay connected to these people." +
-                    "\nPlease Do: Consider any preferences and what you want someone to do when caring for or supporting you." +
-                    "\nPlease Don’t: Consider the important things that you don’t want someone to do when caring for or supporting you." +
-                    "  This could include not asking questions about certain topics, making assumptions about something, and providing support when it is not wanted.",
+                    "  Also include how you stay connected to these people.",
                 maxLength: 500
             },
             {
