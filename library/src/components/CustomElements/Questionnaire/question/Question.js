@@ -78,17 +78,13 @@ export default function Question(props) {
     const onNextClickHandler = async () => {
         edit ? dispatch(setEdit(false)) : null
         await dispatch(handleNext())
-
         onUpdateAnswer()
-        // activeStep + 1 < questionsObjects.length ? obtainCurrentResponse(+1) : null
     }
 
     const onBackClickHandler = async () => {
         edit ? dispatch(setEdit(false)) : null
         await dispatch(handleBack())
-
         onUpdateAnswer()
-        // obtainCurrentResponse(-1)
     }
 
     const obtainCurrentResponse = (step) => {
