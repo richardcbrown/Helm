@@ -1,0 +1,321 @@
+{
+    "observations": [
+        {
+            "title": "Weight & Height",
+            "input": {
+                "definitions": [
+                    {
+                        "resourceType": "ObservationDefinition",
+                        "category": [
+                            {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/observation-category",
+                                        "code": "vital-signs",
+                                        "display": "Vital Signs"
+                                    }
+                                ]
+                            }
+                        ],
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://snomed.info/sct",
+                                    "code": "60621009",
+                                    "display": "Body mass index"
+                                },
+                                {
+                                    "system": "http://loinc.org",
+                                    "code": "39156-5",
+                                    "display": "Body mass index (BMI)"
+                                }
+                            ],
+                            "text": "Body mass index"
+                        },
+                        "permittedDataType": "Quantity",
+                        "unit": {
+                            "system": "http://unitsofmeasure.org",
+                            "unit": "kg/m2",
+                            "code": "kg/m2"
+                        }
+                    },
+                    {
+                        "resourceType": "ObservationDefinition",
+                        "category": [
+                            {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/observation-category",
+                                        "code": "vital-signs",
+                                        "display": "Vital Signs"
+                                    }
+                                ]
+                            }
+                        ],
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://snomed.info/sct",
+                                    "code": "27113001",
+                                    "display": "Body weight (observable entity)"
+                                }
+                            ],
+                            "text": "Body weight"
+                        },
+                        "permittedDataType": "Quantity",
+                        "unit": {
+                            "system": "http://unitsofmeasure.org",
+                            "unit": "kg",
+                            "code": "kg"
+                        }
+                    },
+                    {
+                        "resourceType": "ObservationDefinition",
+                        "category": [
+                            {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/observation-category",
+                                        "code": "vital-signs",
+                                        "display": "Vital Signs"
+                                    }
+                                ]
+                            }
+                        ],
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://snomed.info/sct",
+                                    "code": "50373000",
+                                    "display": "Body height measure (observable entity)"
+                                }
+                            ],
+                            "text": "Body height"
+                        },
+                        "permittedDataType": "Quantity",
+                        "unit": {
+                            "system": "http://unitsofmeasure.org",
+                            "unit": "cm",
+                            "code": "cm"
+                        }
+                    }
+                ]
+            },
+            "display": {
+                "definitions": [
+                    {
+                        "resourceType": "ObservationDefinition",
+                        "category": [
+                            {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/observation-category",
+                                        "code": "vital-signs",
+                                        "display": "Vital Signs"
+                                    }
+                                ]
+                            }
+                        ],
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://snomed.info/sct",
+                                    "code": "27113001",
+                                    "display": "Body weight (observable entity)"
+                                }
+                            ],
+                            "text": "Body weight"
+                        },
+                        "permittedDataType": "Quantity",
+                        "unit": {
+                            "system": "http://unitsofmeasure.org",
+                            "unit": "kg",
+                            "code": "kg"
+                        }
+                    },
+                    {
+                        "resourceType": "ObservationDefinition",
+                        "category": [
+                            {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/observation-category",
+                                        "code": "vital-signs",
+                                        "display": "Vital Signs"
+                                    }
+                                ]
+                            }
+                        ],
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://snomed.info/sct",
+                                    "code": "50373000",
+                                    "display": "Body height measure (observable entity)"
+                                }
+                            ],
+                            "text": "Body height"
+                        },
+                        "permittedDataType": "Quantity",
+                        "unit": {
+                            "system": "http://unitsofmeasure.org",
+                            "unit": "cm",
+                            "code": "cm"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "title": "Blood Pressure",
+            "input": {
+                "definitions": [
+                    {
+                        "resourceType": "ObservationDefinition",
+                        "category": [
+                            {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/observation-category",
+                                        "code": "vital-signs",
+                                        "display": "Vital Signs"
+                                    }
+                                ]
+                            }
+                        ],
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://snomed.info/sct",
+                                    "code": "364075005",
+                                    "display": "Heart rate"
+                                },
+                                {
+                                    "system": "http://loinc.org",
+                                    "code": "8867-4"
+                                }
+                            ]
+                        },
+                        "permittedDataType": "integer",
+                        "quantitativeDetails": {
+                            "customaryUnit": {
+                                "coding": [
+                                    {
+                                        "system": "http://unitsofmeasure.org",
+                                        "unit": "/min"
+                                    }
+                                ]
+                            },
+                            "unit": {
+                                "coding": [
+                                    {
+                                        "system": "http://unitsofmeasure.org",
+                                        "unit": "/min"
+                                    }
+                                ]
+                            },
+                            "conversionFactor": 1,
+                            "decimalPrecision": 0
+                        }
+                    },
+                    {
+                        "resourceType": "ObservationDefinition",
+                        "category": [
+                            {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/observation-category",
+                                        "code": "vital-signs",
+                                        "display": "Vital Signs"
+                                    }
+                                ]
+                            }
+                        ],
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://snomed.info/sct",
+                                    "code": "364075005",
+                                    "display": "Heart rate"
+                                },
+                                {
+                                    "system": "http://loinc.org",
+                                    "code": "8867-4"
+                                }
+                            ]
+                        },
+                        "permittedDataType": "integer",
+                        "quantitativeDetails": {
+                            "customaryUnit": {
+                                "coding": [
+                                    {
+                                        "system": "http://unitsofmeasure.org",
+                                        "unit": "/min"
+                                    }
+                                ]
+                            },
+                            "unit": {
+                                "coding": [
+                                    {
+                                        "system": "http://unitsofmeasure.org",
+                                        "unit": "/min"
+                                    }
+                                ]
+                            },
+                            "conversionFactor": 1,
+                            "decimalPrecision": 0
+                        }
+                    }
+                ]
+            },
+            "display": {
+                "definitions": [
+                    {
+                        "resourceType": "ObservationDefinition",
+                        "category": [
+                            {
+                                "system": "http://hl7.org/fhir/observation-category",
+                                "code": "vital-signs",
+                                "display": "Vital Signs"
+                            }
+                        ],
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://snomed.info/sct",
+                                    "code": "364075005",
+                                    "display": "Heart rate"
+                                },
+                                {
+                                    "system": "http://loinc.org",
+                                    "code": "8867-4"
+                                }
+                            ]
+                        },
+                        "permittedDataType": "integer",
+                        "quantitativeDetails": {
+                            "customaryUnit": {
+                                "coding": [
+                                    {
+                                        "system": "http://unitsofmeasure.org",
+                                        "unit": "/min"
+                                    }
+                                ]
+                            },
+                            "unit": {
+                                "coding": [
+                                    {
+                                        "system": "http://unitsofmeasure.org",
+                                        "unit": "/min"
+                                    }
+                                ]
+                            },
+                            "conversionFactor": 1,
+                            "decimalPrecision": 0
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
