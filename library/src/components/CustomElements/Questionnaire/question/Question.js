@@ -65,7 +65,7 @@ export default function Question(props) {
             const item = {
                 "linkId": questionsObjects[activeStep].linkId,
                 "text": questionsObjects[activeStep].prefix,
-                "answer": [{ "valueString": questionResponse, "valueDateTime": date }]
+                "answer": [{ "valueString": questionResponse, "valueDateTime": date === null ? new Date().toString() : date }]
             }
             dispatch(updateQuestionResponses(item))
         }
@@ -79,14 +79,12 @@ export default function Question(props) {
         edit ? dispatch(setEdit(false)) : null
         await dispatch(handleNext())
         onUpdateAnswer()
-        // activeStep + 1 < questionsObjects.length ? obtainCurrentResponse(+1) : null
     }
 
     const onBackClickHandler = async () => {
         edit ? dispatch(setEdit(false)) : null
         await dispatch(handleBack())
         onUpdateAnswer()
-        // obtainCurrentResponse(-1)
     }
 
     const obtainCurrentResponse = (step) => {
