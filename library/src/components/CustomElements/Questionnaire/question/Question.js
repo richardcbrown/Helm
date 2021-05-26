@@ -65,7 +65,7 @@ export default function Question(props) {
             const item = {
                 "linkId": questionsObjects[activeStep].linkId,
                 "text": questionsObjects[activeStep].prefix,
-                "answer": [{ "valueString": questionResponse, "valueDateTime": date === null ? new Date().toString() : null }]
+                "answer": [{ "valueString": questionResponse, "valueDateTime": date === null ? new Date().toString() : date }]
             }
             dispatch(updateQuestionResponses(item))
         }
