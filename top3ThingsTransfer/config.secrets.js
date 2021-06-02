@@ -15,7 +15,6 @@ class SecretManager {
 
             if (!this.isGcpSecret(envSecret)) {
                 if (isFileSecret && envSecret) {
-                    console.log("fs.readfilesync")
                     return fs.readFileSync(path.join(__dirname, envSecret))
                 } else {
                     return envSecret
@@ -23,7 +22,6 @@ class SecretManager {
             }
 
             const { project } = this
-            console.log("project: ", project)
 
             if (!project) {
                 throw new Error("Project has not been defined")
