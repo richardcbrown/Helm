@@ -110,6 +110,14 @@ export default function ObservationForm(props) {
     const onFieldValueChangeCheck = (payload) => {
         const fieldsForTab = getFieldsArrayForTab()
         const fieldObj = fieldsForTab.find((fieldObj) => fieldObj.text === payload.fieldName)
+
+        fieldsForTab.map((fieldObj) => {
+            if (fieldObj.calculated.value) {
+                const derivedValue = calculateDerivedField(fieldObj.calculated.derivedFrom)
+                dispatch(onFieldsValueChangeHandler({ "tabNo": value, fieldName: fieldObj.text, "newValue": derivedValue }))
+            }
+        })
+
         return decimalPlaceCheck(payload, fieldObj)
     }
 
@@ -200,6 +208,7 @@ export default function ObservationForm(props) {
             dispatch(setOpen(true))
             return
         }
+
         const observationsToSave = []
         getFieldsArrayForTab().map((fieldObj) => {
             const observationResource = {
@@ -213,11 +222,19 @@ export default function ObservationForm(props) {
                 },
                 "comment": fieldsValue[value]["Notes"].value
             }
-            saveObservations(observationResource)
             observationsToSave.push(observationResource)
+        })
+
+
+        observationsToSave.map((observationResource) => {
+            saveObservations(observationResource)
         })
         getObservations()
         dispatch(setOpen(true))
+    }
+
+    const calculateDerivedField = (derivedString) => {
+        return (fieldsValue[value]["Weight"].value / ((fieldsValue[value]["Height"].value / 100) ** 2)).toFixed(2)
     }
 
     return (

@@ -56,7 +56,7 @@ export default function content(props) {
                             {informationArray.length > 0 ?
                                 <ul>
                                     {informationArray[value].body.map((point) => (
-                                        <li>{point}</li>
+                                        <li dangerouslySetInnerHTML={{ __html: point }}></li>
                                     ))}
                                 </ul>
                                 : null}
@@ -88,7 +88,18 @@ export default function content(props) {
                     alignItems="stretch"
                     spacing={3}>
                     <Grid item xs={10}>
-                        {informationArray.length > 0 ? informationArray[value].footer : null}
+                        {informationArray.length > 0 ?
+                            <div><Typography>
+                                {informationArray[value].footer.header}
+                            </Typography>
+                                <Typography>
+                                    <ul>
+                                        {informationArray[value].footer.body.map((point) => (
+                                            <li>{point}</li>
+                                        ))}
+                                    </ul>
+                                </Typography>
+                            </div> : null}
                     </Grid>
                 </Grid>
             </Grid>

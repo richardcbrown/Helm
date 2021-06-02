@@ -5,12 +5,20 @@
             "information": {
                 "header": "Weigh yourself:",
                 "body": [
-                    "Once a week",
+                    "<b>Once a week</b>",
                     "In the mornings",
                     "During the same conditions (e.g. same scales, with or without clothes etc.)",
                     "If you are worried about your weight being too high or too low or if your weight is causing you anxiety, click here"
                 ],
-                "footer": "As an adult if your BMI is: \nbelow 18.5 - you are in the underweight range \nbetween 18.5 and 24.9 - you are in the healthy weight range \nbetween 25.0 and 29.9 - you are in the overweight range \nbetween 30.0 and 39.9 - you are in the obese range"
+                "footer": {
+                    "header": "As an adult if your BMI is:",
+                    "body": [
+                        "below 18.5 - you are in the underweight range",
+                        "between 18.5 and 24.9 - you are in the healthy weight range",
+                        "between 25.0 and 29.9 - you are in the overweight range",
+                        "between 30.0 and 39.9 - you are in the obese range"
+                    ]
+                }
             },
             "input": {
                 "definitions": [
@@ -62,7 +70,10 @@
                             "conversionFactor": 1,
                             "decimalPrecision": 2
                         },
-                        "display": "true"
+                        "display": "true",
+                        "calculated": {
+                            "value": false
+                        }
                     },
                     {
                         "resourceType": "ObservationDefinition",
@@ -112,7 +123,64 @@
                             "conversionFactor": 1,
                             "decimalPrecision": 2
                         },
-                        "display": "true"
+                        "display": "true",
+                        "calculated": {
+                            "value": false
+                        }
+                    },
+                    {
+                        "resourceType": "ObservationDefinition",
+                        "category": [
+                            {
+                                "coding": [
+                                    {
+                                        "system": "http://hl7.org/fhir/observation-category",
+                                        "code": "vital-signs",
+                                        "display": "Vital Signs"
+                                    }
+                                ]
+                            }
+                        ],
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "http://snomed.info/sct",
+                                    "code": "60621009",
+                                    "display": "Body Mass Index"
+                                },
+                                {
+                                    "system": "http://loinc.org",
+                                    "code": "35925-4"
+                                }
+                            ],
+                            "text": "Body Mass Index"
+                        },
+                        "permittedDataType": "Quantity",
+                        "quantitativeDetails": {
+                            "customaryUnit": {
+                                "coding": [
+                                    {
+                                        "system": "http://unitsofmeasure.org",
+                                        "unit": "kg/m^2"
+                                    }
+                                ]
+                            },
+                            "unit": {
+                                "coding": [
+                                    {
+                                        "system": "http://unitsofmeasure.org",
+                                        "unit": "kg/m^2"
+                                    }
+                                ]
+                            },
+                            "conversionFactor": 1,
+                            "decimalPrecision": 2
+                        },
+                        "display": "false",
+                        "calculated": {
+                            "value": true,
+                            "derivedFrom": "Height / ( Weight * Weight )"
+                        }
                     }
                 ]
             }
@@ -124,7 +192,10 @@
                 "body": [
                     ""
                 ],
-                "footer": ""
+                "footer": {
+                    "header": "",
+                    "body": []
+                }
             },
             "input": {
                 "definitions": [
@@ -176,7 +247,10 @@
                             "conversionFactor": 1,
                             "decimalPrecision": 0
                         },
-                        "display": "true"
+                        "display": "true",
+                        "calculated": {
+                            "value": false
+                        }
                     }
                 ]
             }
@@ -188,7 +262,10 @@
                 "body": [
                     ""
                 ],
-                "footer": ""
+                "footer": {
+                    "header": "",
+                    "body": []
+                }
             },
             "input": {
                 "definitions": [
@@ -240,7 +317,10 @@
                             "conversionFactor": 1,
                             "decimalPrecision": 1
                         },
-                        "display": "true"
+                        "display": "true",
+                        "calculated": {
+                            "value": false
+                        }
                     },
                     {
                         "resourceType": "ObservationDefinition",
@@ -290,7 +370,10 @@
                             "conversionFactor": 1,
                             "decimalPrecision": 1
                         },
-                        "display": "true"
+                        "display": "true",
+                        "calculated": {
+                            "value": false
+                        }
                     }
                 ]
             }
@@ -302,7 +385,10 @@
                 "body": [
                     ""
                 ],
-                "footer": ""
+                "footer": {
+                    "header": "",
+                    "body": []
+                }
             },
             "input": {
                 "definitions": [
@@ -354,7 +440,10 @@
                             "conversionFactor": 1,
                             "decimalPrecision": 2
                         },
-                        "display": "true"
+                        "display": "true",
+                        "calculated": {
+                            "value": false
+                        }
                     }
                 ]
             }
@@ -366,7 +455,10 @@
                 "body": [
                     ""
                 ],
-                "footer": ""
+                "footer": {
+                    "header": "",
+                    "body": []
+                }
             },
             "input": {
                 "definitions": [
@@ -418,7 +510,10 @@
                             "conversionFactor": 1,
                             "decimalPrecision": 2
                         },
-                        "display": "true"
+                        "display": "true",
+                        "calculated": {
+                            "value": false
+                        }
                     }
                 ]
             }

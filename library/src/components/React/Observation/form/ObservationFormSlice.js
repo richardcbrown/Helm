@@ -22,8 +22,8 @@ const ObservationFormSlice = createSlice({
                         "display": defObj.display == "false" ? false : true,
                         "type": defObj.permittedDataType,
                         "decimalPlaces": defObj.quantitativeDetails.decimalPrecision,
-                        "code": defObj.code
-
+                        "code": defObj.code,
+                        "calculated": defObj.calculated
                     }
                     titleArray.push(objToPush)
                 })
