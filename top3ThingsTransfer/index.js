@@ -199,24 +199,10 @@ class FhirStoreDataProvider {
 
 
 async function loadEntries() {
-    const client = await connectionPool.connect()
+    const fhirStoreDataProvider = new FhirStoreDataProvider({ host: process.env.INTERNAL_FHIRSTORE_URL }, { error: (err) => console.log(err) }, new EmptyTokenProvider())
 
-    try {
-        const { rows } = await client.query(`
-            SELECT "NhsNumber" AS nhsnumber, "EcisTopThreeThings" AS ecistopthreethings, "Id" AS id FROM transfer.transferdata
-        `)
+    const questionnaireBundle = await fhirStoreDataProvider.search("QuestionnaireResponse", { identifier: process.env.QUESTIONNAIRE_IDENTIFIER }, null)
 
-        console.log(`${rows.length} found in transfer database`)
-
-        return rows
-    } catch (error) {
-
-        console.log(error.stack || error.message)
-
-        throw error
-    } finally {
-        client.release()
-    }
 }
 
 /**
