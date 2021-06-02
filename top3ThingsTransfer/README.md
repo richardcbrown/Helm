@@ -12,6 +12,7 @@ How to set up?
 * Add the following on a different line without the quotation marks: "ABOUT_ME_QUESTIONNAIRE_IDENTIFIER=https://fhir.myhelm.org/questionnaire-identifier|aboutMe"
 * Specify the location of the fhirstore which the migration will be happening on using the "INTERNAL_FHIRSTORE_URL" variable name 
 * Specify the location of the private .pem fhirstore key using the "PRIVATE_KEY" variable name (you can find the keys in the [helmrunfiles](https://bitbucket.org/synanetics/helmrunfiles/src/master/) repository)
+* Specify the CRON frequency for this job using the "CRON" variable
 
 ## Logic
 
