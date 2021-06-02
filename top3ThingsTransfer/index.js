@@ -203,6 +203,8 @@ async function loadEntries() {
 
     const questionnaireBundle = await fhirStoreDataProvider.search("QuestionnaireResponse", { identifier: process.env.QUESTIONNAIRE_IDENTIFIER }, null)
 
+    console.log(questionnaireBundle)
+
 }
 
 /**
