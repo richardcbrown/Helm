@@ -204,14 +204,12 @@ async function loadEntries() {
     const fhirStoreDataProvider = new FhirStoreDataProvider({ host: process.env.INTERNAL_FHIRSTORE_URL }, { error: (err) => console.log(err) }, tokenProvider)
     const questionnaireBundle = await fhirStoreDataProvider.search("Questionnaire", { identifier: process.env.TOP3THINGS_QUESTIONNAIRE_IDENTIFIER }, null)
 
-    // console.log("questionnaireBundle: ", questionnaireBundle)
-    // console.log(questionnaireBundle.entry[0].resource)
-    // console.log("ID: ", questionnaireBundle.entry[0].resource.id)
+    const top3ThingsId = questionnaireBundle.entry[0].resource.id
 
-    const questionnaireResponseBundle = await fhirStoreDataProvider.search("QuestionnaireResponse", { questionnaire: "Questionnaire/" + questionnaireBundle.entry[0].resource.id }, null)
+    console.log("Top3Things Questionnaire ID: ", top3ThingsId)
 
-    // console.log("questionnaireResponseBundle: ", questionnaireResponseBundle)
-    // console.log(questionnaireResponseBundle.entry[0].resource)
+    const questionnaireResponseBundle = await fhirStoreDataProvider.search("QuestionnaireResponse", { questionnaire: "Questionnaire/" + top3ThingsId }, null)
+
     return questionnaireResponseBundle.entry
 }
 
@@ -249,21 +247,18 @@ async function transformEntries(entries) {
 
     const aboutMeId = questionnaireBundle.entry[0].resource.id
 
-    // console.log("aboutMeId: ", aboutMeId)
+    console.log("aboutMeId: ", aboutMeId)
+
     const searchForId = await fhirStoreDataProvider.search("QuestionnaireResponse", { questionnaire: "Questionnaire/" + aboutMeId }, null)
 
+    const questionnaires = []
     entries.map(async (entry) => {
-        // console.log("entry: ", entry)
         const answersArray = []
         entry.resource.item.map((item) => {
-            // console.log("item: ", item)
             item.item.map((indItem) => {
-                // console.log("indItem: ", indItem)
                 const answer = indItem.answer[0].valueString
-                // console.log("answer: ", answer)
                 answersArray.push(answer)
             })
-            // console.log("concatted answers: ", answersArray.join(" "))
             const concattedAnswer = answersArray.join(" ")
             entry.resource.questionnaire = { "reference": "Questionnaire/" + aboutMeId }
             const newItem = [{
@@ -275,18 +270,12 @@ async function transformEntries(entries) {
 
         })
         const finalEntry = entry.resource
-        // console.log("finalEntry: ", entry.resource)
-        // console.log("searchforId: ", searchForId)
         if (readyToBeTransformed(searchForId.entry, finalEntry.id)) {
-            console.log("ready")
             const submitT3T = await fhirStoreDataProvider.update("QuestionnaireResponse", entry.resource.id, finalEntry, null)
-            console.log(submitT3T)
+            console.log("response from FhirStore: ", submitT3T.body)
+            questionnaires.push(finalEntry)
         }
     })
-
-
-    /** @type {fhir.QuestionnaireResponse[]} */
-    const questionnaires = []
 
     console.log(`${questionnaires.length} questionnaire responses transformed`)
 
@@ -303,90 +292,12 @@ function readyToBeTransformed(searchRes, id) {
     return returnBool
 }
 
-/**
- * @param {fhir.QuestionnaireResponse} questionnaireResponse 
- */
-function getIdentifier(questionnaireResponse) {
-    const { identifier } = questionnaireResponse
-
-    if (!identifier) {
-        return null
-    }
-
-    const { system, value } = identifier
-
-    if (!value) {
-        return null
-    }
-
-    return system ? `${system}|${value}` : `${value}`
-}
-
-/**
- * @param {fhir.QuestionnaireResponse[]} questionnaires 
- */
-async function writeToFhirStore(questionnaires) {
-
-    const fhirStoreDataProvider = new FhirStoreDataProvider({ host: process.env.INTERNAL_FHIRSTORE_URL }, { error: (err) => console.log(err) }, new EmptyTokenProvider())
-
-    const questionnaireBundle = await fhirStoreDataProvider.search("Questionnaire", { identifier: process.env.QUESTIONNAIRE_IDENTIFIER }, null)
-
-    const questionnaire = getFromBundle(questionnaireBundle, "Questionnaire")[0]
-
-    if (!questionnaire) {
-        throw Error("Questionnaire not found")
-    }
-
-    const questionnaireResponseBundle = await fhirStoreDataProvider.search("QuestionnaireResponse", { questionnaire: `Questionnaire/${questionnaire.id}` }, null)
-
-    const existingQuestionnaireResponses = /** @type {fhir.QuestionnaireResponse[]} */ (getFromBundle(questionnaireResponseBundle, "QuestionnaireResponse"))
-
-    console.log(`${existingQuestionnaireResponses.length} existing questionnaire responses in fhir store`)
-
-    const qResponsesToBeWritten = questionnaires.filter((qr) => {
-        const newIdentifier = getIdentifier(qr)
-
-        return !existingQuestionnaireResponses.some((eqr) => {
-            const existingIdentifier = getIdentifier(eqr)
-
-            return newIdentifier && existingIdentifier && newIdentifier === existingIdentifier
-        })
-    })
-
-    console.log(`${qResponsesToBeWritten.length} to be written to fhirstore`)
-
-    const success = []
-    const errors = []
-
-    for (let writeRequest of qResponsesToBeWritten) {
-        const response = await fhirStoreDataProvider.create("QuestionnaireResponse", writeRequest, null)
-
-        const { body, statusCode } = response
-
-        if (statusCode === 200 || statusCode === 201) {
-            success.push(body)
-        } else {
-            errors.push(body)
-        }
-    }
-
-    console.log(`${success.length} successful responses`)
-    console.log(`${errors.length} error responses`)
-
-    console.log("error details")
-
-    for (let error of errors) {
-        console.log(error)
-    }
-}
 
 const transferJob = new CronJob(process.env.CRON, () => {
     console.log("Run Started")
 
     loadEntries()
         .then(transformEntries)
-        // .then(writeToFhirStore)
-        // .then(() => console.log("Import run complete"))
         .catch((error) => console.log(error.stack || error.message))
         .finally(() => console.log("Run Complete"))
 })
