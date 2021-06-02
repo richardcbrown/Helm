@@ -14,14 +14,19 @@ class QuestionnaireComponent extends ReactMaterialComponentBase {
         this.jsxRootComponent = () => {
             console.log(this.resources)
             const questionnaireList = this.resources.Questionnaire
+            const top3ThingsQuestionnaire = this.resources.top3ThingsQuestionnaire
+            console.log(top3ThingsQuestionnaire)
             return <Provider store={store} ><ThemeProvider theme={getCurrentTheme()}><Questionnaire
-                // questionnaireList={this.resources.Questionnaire}
                 resources={this.resources}
                 submit={(changedResource) => this.submit([changedResource])}
                 requestResources={(questionResponse, queryParams, bodyParams) => this.requestResources(questionResponse, queryParams, bodyParams)} /></ThemeProvider></Provider >
         }
 
     }
+
+    getTop3Things() {
+
+    }
 }
 
-customElements.define("helm-questionnaire-component", withResourceRoot(withSubmit(withResource(withCanvas(QuestionnaireComponent), "Questionnaire")), "QuestionnaireResponse"))
+customElements.define("helm-questionnaire-component", withResourceRoot(withSubmit(withResource(withResource(withCanvas(QuestionnaireComponent), "Questionnaire"), "top3ThingsQuestionnaire")), "QuestionnaireResponse"))

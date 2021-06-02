@@ -1,4 +1,4 @@
-import { Grid, Typography } from '@material-ui/core';
+import { Divider, Grid, Typography } from '@material-ui/core';
 import React, { useEffect } from 'react';
 import ObservationForm from '../form/ObservationForm';
 import ObeservationGraph from '../graph/ObservationGraph';
@@ -22,6 +22,11 @@ export default function content(props) {
     const observations = useSelector(selectObservations)
     const dispatch = useDispatch()
 
+    const {
+        saveObservations,
+        getObservations
+    } = props
+
     useEffect(() => {
         dispatch(populateInformation(observations))
     }, [observations])
@@ -41,18 +46,25 @@ export default function content(props) {
                     alignItems="stretch"
                     spacing={3}>
                     <Grid item xs={5}>
-                        <ObservationForm />
+                        <ObservationForm saveObservations={saveObservations} getObservations={getObservations} />
                     </Grid>
                     <Grid item xs={5}>
                         <Typography variant="h4">
                             {informationArray.length > 0 ? informationArray[value].header : null}
                         </Typography>
                         <Typography variant="subtitle1">
-                            {informationArray.length > 0 ? informationArray[value].body : null}
+                            {informationArray.length > 0 ?
+                                <ul>
+                                    {informationArray[value].body.map((point) => (
+                                        <li>{point}</li>
+                                    ))}
+                                </ul>
+                                : null}
                         </Typography>
                     </Grid>
                 </Grid>
             </Grid>
+            <Divider />
             <Grid item>
                 <Grid
                     container

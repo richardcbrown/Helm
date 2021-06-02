@@ -30,9 +30,9 @@ class ObservationComponent extends ReactMaterialComponentBase {
      * @returns {Promise<void>}
      */
     refreshResources(codes) {
-        const codeString = codes.map((code) => (code.system ? `${code.system}|${code.code}` : code)).join(",")
+        // const codeString = codes.map((code) => (code.system ? `${code.system}|${code.code}` : code)).join(",")
 
-        return this.requestResources("Observation", `code=${codeString}`, {})
+        return this.requestResources("Observation", "", {})
     }
 
     /**
@@ -40,12 +40,16 @@ class ObservationComponent extends ReactMaterialComponentBase {
      * @returns {Promise<void>}
      */
     saveResources(observations) {
-        const changeRequests = observations.map((observation) => ({
+        // const changeRequests = observations.map((observation) => ({
+        //     changeOperation: "POST",
+        //     changedResource: observation,
+        // }))
+        const changeRequest = {
             changeOperation: "POST",
-            changedResource: observation,
-        }))
+            changedResource: observations
+        }
 
-        return this.submit(changeRequests)
+        return this.submit([changeRequest])
     }
 
     configurationChangedCallback() {

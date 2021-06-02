@@ -8,6 +8,7 @@ import Directory from "../version/pages/Directory"
 import Settings from "../version/plugins/Settings/Settings"
 import Accessibility from "../version/pages/Accessibility"
 import AboutMe from "../version/plugins/AboutMe/AboutMe"
+import Measurements from "../version/plugins/Measurements/Measurements"
 
 export default [
   <Route exact path="/summary" component={PatientSummary} />,
@@ -17,4 +18,5 @@ export default [
   <Route exact path="/settings" component={Settings} />,
   <Route exact path="/accessibility" component={Accessibility} noLayout />,
   <Route exact path="/about-me" component={AboutMe} />,
+  <Route exact path="/measurements" component={Measurements} />
 ]

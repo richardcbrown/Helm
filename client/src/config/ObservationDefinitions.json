@@ -4,62 +4,16 @@
             "title": "Weight & Height",
             "information": {
                 "header": "Weigh yourself:",
-                "body": "Once a week \nIn the mornings \nDuring the same conditions (e.g. same scales, with or without clothes etc.) \nIf you are worried about your weight being too high or too low or if your weight is causing you anxiety, click here",
+                "body": [
+                    "Once a week",
+                    "In the mornings",
+                    "During the same conditions (e.g. same scales, with or without clothes etc.)",
+                    "If you are worried about your weight being too high or too low or if your weight is causing you anxiety, click here"
+                ],
                 "footer": "As an adult if your BMI is: \nbelow 18.5 - you are in the underweight range \nbetween 18.5 and 24.9 - you are in the healthy weight range \nbetween 25.0 and 29.9 - you are in the overweight range \nbetween 30.0 and 39.9 - you are in the obese range"
             },
             "input": {
                 "definitions": [
-                    {
-                        "resourceType": "ObservationDefinition",
-                        "category": [
-                            {
-                                "coding": [
-                                    {
-                                        "system": "http://hl7.org/fhir/observation-category",
-                                        "code": "vital-signs",
-                                        "display": "Vital Signs"
-                                    }
-                                ]
-                            }
-                        ],
-                        "code": {
-                            "coding": [
-                                {
-                                    "system": "http://snomed.info/sct",
-                                    "code": "60621009",
-                                    "display": "Body mass index"
-                                },
-                                {
-                                    "system": "http://loinc.org",
-                                    "code": "39156-5",
-                                    "display": "Body mass index"
-                                }
-                            ],
-                            "text": "Body Mass Index (BMI)"
-                        },
-                        "permittedDataType": "integer",
-                        "quantitativeDetails": {
-                            "customaryUnit": {
-                                "coding": [
-                                    {
-                                        "system": "http://unitsofmeasure.org",
-                                        "unit": "kg/m2"
-                                    }
-                                ]
-                            },
-                            "unit": {
-                                "coding": [
-                                    {
-                                        "system": "http://unitsofmeasure.org",
-                                        "unit": "kg/m2"
-                                    }
-                                ]
-                            },
-                            "conversionFactor": 1,
-                            "decimalPrecision": 2
-                        },
-                        "display": "false"
-                    },
                     {
                         "resourceType": "ObservationDefinition",
                         "category": [
@@ -87,7 +41,7 @@
                             ],
                             "text": "Weight"
                         },
-                        "permittedDataType": "integer",
+                        "permittedDataType": "Quantity",
                         "quantitativeDetails": {
                             "customaryUnit": {
                                 "coding": [
@@ -137,7 +91,7 @@
                             ],
                             "text": "Height"
                         },
-                        "permittedDataType": "integer",
+                        "permittedDataType": "Quantity",
                         "quantitativeDetails": {
                             "customaryUnit": {
                                 "coding": [
@@ -165,6 +119,13 @@
         },
         {
             "title": "Pulse",
+            "information": {
+                "header": "",
+                "body": [
+                    ""
+                ],
+                "footer": ""
+            },
             "input": {
                 "definitions": [
                     {
@@ -191,9 +152,10 @@
                                     "system": "http://loinc.org",
                                     "code": "8867-4"
                                 }
-                            ]
+                            ],
+                            "text": "Heart Rate"
                         },
-                        "permittedDataType": "integer",
+                        "permittedDataType": "Quantity",
                         "quantitativeDetails": {
                             "customaryUnit": {
                                 "coding": [
@@ -213,61 +175,21 @@
                             },
                             "conversionFactor": 1,
                             "decimalPrecision": 0
-                        }
-                    }
-                ]
-            },
-            "display": {
-                "definitions": [
-                    {
-                        "resourceType": "ObservationDefinition",
-                        "category": [
-                            {
-                                "system": "http://hl7.org/fhir/observation-category",
-                                "code": "vital-signs",
-                                "display": "Vital Signs"
-                            }
-                        ],
-                        "code": {
-                            "coding": [
-                                {
-                                    "system": "http://snomed.info/sct",
-                                    "code": "364075005",
-                                    "display": "Heart rate"
-                                },
-                                {
-                                    "system": "http://loinc.org",
-                                    "code": "8867-4"
-                                }
-                            ]
                         },
-                        "permittedDataType": "integer",
-                        "quantitativeDetails": {
-                            "customaryUnit": {
-                                "coding": [
-                                    {
-                                        "system": "http://unitsofmeasure.org",
-                                        "unit": "/min"
-                                    }
-                                ]
-                            },
-                            "unit": {
-                                "coding": [
-                                    {
-                                        "system": "http://unitsofmeasure.org",
-                                        "unit": "/min"
-                                    }
-                                ]
-                            },
-                            "conversionFactor": 1,
-                            "decimalPrecision": 0
-                        }
+                        "display": "true"
                     }
                 ]
             }
         },
         {
             "title": "Blood Pressure",
+            "information": {
+                "header": "",
+                "body": [
+                    ""
+                ],
+                "footer": ""
+            },
             "input": {
                 "definitions": [
                     {
@@ -294,9 +216,10 @@
                                     "system": "http://loinc.org",
                                     "code": "8480-6"
                                 }
-                            ]
+                            ],
+                            "text": "Systolic Blood Pressure"
                         },
-                        "permittedDataType": "integer",
+                        "permittedDataType": "Quantity",
                         "quantitativeDetails": {
                             "customaryUnit": {
                                 "coding": [
@@ -316,7 +239,8 @@
                             },
                             "conversionFactor": 1,
                             "decimalPrecision": 1
-                        }
+                        },
+                        "display": "true"
                     },
                     {
                         "resourceType": "ObservationDefinition",
@@ -342,9 +266,10 @@
                                     "system": "http://loinc.org",
                                     "code": "8480-6"
                                 }
-                            ]
+                            ],
+                            "text": "Diastolic Blood Pressure"
                         },
-                        "permittedDataType": "integer",
+                        "permittedDataType": "Quantity",
                         "quantitativeDetails": {
                             "customaryUnit": {
                                 "coding": [
@@ -364,113 +289,21 @@
                             },
                             "conversionFactor": 1,
                             "decimalPrecision": 1
-                        }
-                    }
-                ]
-            },
-            "display": {
-                "definitions": [
-                    {
-                        "resourceType": "ObservationDefinition",
-                        "category": [
-                            {
-                                "coding": [
-                                    {
-                                        "system": "http://hl7.org/fhir/observation-category",
-                                        "code": "vital-signs",
-                                        "display": "Vital Signs"
-                                    }
-                                ]
-                            }
-                        ],
-                        "code": {
-                            "coding": [
-                                {
-                                    "system": "http://snomed.info/sct",
-                                    "code": "271649006",
-                                    "display": "Systolic blood pressure"
-                                },
-                                {
-                                    "system": "http://loinc.org",
-                                    "code": "8480-6"
-                                }
-                            ]
                         },
-                        "permittedDataType": "integer",
-                        "quantitativeDetails": {
-                            "customaryUnit": {
-                                "coding": [
-                                    {
-                                        "system": "http://unitsofmeasure.org",
-                                        "unit": "mm[Hg]"
-                                    }
-                                ]
-                            },
-                            "unit": {
-                                "coding": [
-                                    {
-                                        "system": "http://unitsofmeasure.org",
-                                        "unit": "mm[Hg]"
-                                    }
-                                ]
-                            },
-                            "conversionFactor": 1,
-                            "decimalPrecision": 1
-                        }
-                    },
-                    {
-                        "resourceType": "ObservationDefinition",
-                        "category": [
-                            {
-                                "coding": [
-                                    {
-                                        "system": "http://hl7.org/fhir/observation-category",
-                                        "code": "vital-signs",
-                                        "display": "Vital Signs"
-                                    }
-                                ]
-                            }
-                        ],
-                        "code": {
-                            "coding": [
-                                {
-                                    "system": "http://snomed.info/sct",
-                                    "code": "271650006",
-                                    "display": "Diastolic blood pressure"
-                                },
-                                {
-                                    "system": "http://loinc.org",
-                                    "code": "8480-6"
-                                }
-                            ]
-                        },
-                        "permittedDataType": "integer",
-                        "quantitativeDetails": {
-                            "customaryUnit": {
-                                "coding": [
-                                    {
-                                        "system": "http://unitsofmeasure.org",
-                                        "unit": "mm[Hg]"
-                                    }
-                                ]
-                            },
-                            "unit": {
-                                "coding": [
-                                    {
-                                        "system": "http://unitsofmeasure.org",
-                                        "unit": "mm[Hg]"
-                                    }
-                                ]
-                            },
-                            "conversionFactor": 1,
-                            "decimalPrecision": 1
-                        }
+                        "display": "true"
                     }
                 ]
             }
         },
         {
             "title": "Oxygen Saturation",
+            "information": {
+                "header": "",
+                "body": [
+                    ""
+                ],
+                "footer": ""
+            },
             "input": {
                 "definitions": [
                     {
@@ -497,9 +330,10 @@
                                     "system": "http://loinc.org",
                                     "code": "59408-5"
                                 }
-                            ]
+                            ],
+                            "text": "Oxygen Saturation"
                         },
-                        "permittedDataType": "integer",
+                        "permittedDataType": "Quantity",
                         "quantitativeDetails": {
                             "customaryUnit": {
                                 "coding": [
@@ -519,65 +353,21 @@
                             },
                             "conversionFactor": 1,
                             "decimalPrecision": 2
-                        }
-                    }
-                ]
-            },
-            "display": {
-                "definitions": [
-                    {
-                        "resourceType": "ObservationDefinition",
-                        "category": [
-                            {
-                                "coding": [
-                                    {
-                                        "system": "http://hl7.org/fhir/observation-category",
-                                        "code": "vital-signs",
-                                        "display": "Vital Signs"
-                                    }
-                                ]
-                            }
-                        ],
-                        "code": {
-                            "coding": [
-                                {
-                                    "system": "http://snomed.info/sct",
-                                    "code": "431314004",
-                                    "display": "Oxygen Saturation"
-                                },
-                                {
-                                    "system": "http://loinc.org",
-                                    "code": "59408-5"
-                                }
-                            ]
                         },
-                        "permittedDataType": "integer",
-                        "quantitativeDetails": {
-                            "customaryUnit": {
-                                "coding": [
-                                    {
-                                        "system": "http://unitsofmeasure.org",
-                                        "unit": "%"
-                                    }
-                                ]
-                            },
-                            "unit": {
-                                "coding": [
-                                    {
-                                        "system": "http://unitsofmeasure.org",
-                                        "unit": "%"
-                                    }
-                                ]
-                            },
-                            "conversionFactor": 1,
-                            "decimalPrecision": 2
-                        }
+                        "display": "true"
                     }
                 ]
             }
         },
         {
             "title": "Peak Flow",
+            "information": {
+                "header": "",
+                "body": [
+                    ""
+                ],
+                "footer": ""
+            },
             "input": {
                 "definitions": [
                     {
@@ -604,9 +394,10 @@
                                     "system": "http://loinc.org",
                                     "code": "9279-1"
                                 }
-                            ]
+                            ],
+                            "text": "Respiratory Rate"
                         },
-                        "permittedDataType": "integer",
+                        "permittedDataType": "Quantity",
                         "quantitativeDetails": {
                             "customaryUnit": {
                                 "coding": [
@@ -626,59 +417,8 @@
                             },
                             "conversionFactor": 1,
                             "decimalPrecision": 2
-                        }
-                    }
-                ]
-            },
-            "display": {
-                "definitions": [
-                    {
-                        "resourceType": "ObservationDefinition",
-                        "category": [
-                            {
-                                "coding": [
-                                    {
-                                        "system": "http://hl7.org/fhir/observation-category",
-                                        "code": "vital-signs",
-                                        "display": "Vital Signs"
-                                    }
-                                ]
-                            }
-                        ],
-                        "code": {
-                            "coding": [
-                                {
-                                    "system": "http://snomed.info/sct",
-                                    "code": "86290005",
-                                    "display": "Respiratory Rate"
-                                },
-                                {
-                                    "system": "http://loinc.org",
-                                    "code": "9279-1"
-                                }
-                            ]
                         },
-                        "permittedDataType": "integer",
-                        "quantitativeDetails": {
-                            "customaryUnit": {
-                                "coding": [
-                                    {
-                                        "system": "http://unitsofmeasure.org",
-                                        "unit": "L/min"
-                                    }
-                                ]
-                            },
-                            "unit": {
-                                "coding": [
-                                    {
-                                        "system": "http://unitsofmeasure.org",
-                                        "unit": "L/min"
-                                    }
-                                ]
-                            },
-                            "conversionFactor": 1,
-                            "decimalPrecision": 2
-                        }
+                        "display": "true"
                     }
                 ]
             }

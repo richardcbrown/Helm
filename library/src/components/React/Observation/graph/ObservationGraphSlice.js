@@ -3,34 +3,42 @@ import { createSlice } from '@reduxjs/toolkit';
 const ObservationGraphSlice = createSlice({
     name: "observationGraph",
     initialState: {
-        data: {
-            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-            datasets: [
-                {
-                    label: "First dataset",
-                    data: [33, 53, 85, 41, 44, 65],
-                    fill: true,
-                    backgroundColor: "rgba(75,192,192,0.2)",
-                    borderColor: "rgba(75,192,192,1)"
-                },
-                {
-                    label: "Second dataset",
-                    data: [33, 25, 35, 51, 54, 76],
-                    fill: false,
-                    borderColor: "#742774"
-                }
-            ]
-        }
+        labels: [],
+        datasets: [],
+        colourArray: [
+            "rgba(75,192,192,1)",
+            "#742774",
+            "#808080",
+            "#808000"
+        ]
     },
     reducers: {
-        populateData: (state, action) => {
-
+        populateLabels: (state, action) => {
+            console.log("populateLabels: ", action.payload)
+            state.labels = action.payload["Date"]
+        },
+        populateDatasets: (state, action) => {
+            const keyArray = Object.keys(action.payload)
+            const newDatasetArray = []
+            keyArray.map((label, index) => {
+                if (label !== "Date") {
+                    const dataset = {}
+                    dataset.label = label
+                    dataset.data = action.payload[label]
+                    dataset.borderColor = state.colourArray[index]
+                    dataset.spanGaps = true
+                    dataset.tension = 0.4
+                    newDatasetArray.push(dataset)
+                }
+            })
+            state.datasets = newDatasetArray
         }
     }
 })
 
-export const selectData = (state) => state.observationGraph.data;
+export const selectLabels = (state) => state.observationGraph.labels;
+export const selectDatasets = (state) => state.observationGraph.datasets;
 
-export const { populateData } = ObservationGraphSlice.actions;
+export const { populateLabels, populateDatasets } = ObservationGraphSlice.actions;
 
 export default ObservationGraphSlice.reducer;
