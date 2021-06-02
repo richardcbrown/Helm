@@ -132,6 +132,26 @@ export default function Question(props) {
         return latestPrevAnswer
     }
 
+    const activeStepToLinkIdObj = {
+        0: "item1",
+        1: "item2",
+        2: "item3",
+        3: "item4"
+    }
+
+    const countNoOfPrevAnswers = () => {
+        var noOfPrevAnswers = 0
+        prevAnswers.map((prevAnswer) => {
+            const answers = prevAnswer.answers
+            answers.map((answerObj) => {
+                if (answerObj.linkId == activeStepToLinkIdObj[activeStep]) {
+                    noOfPrevAnswers++
+                }
+            })
+        })
+        return noOfPrevAnswers
+    }
+
 
     return (
 
@@ -195,7 +215,7 @@ export default function Question(props) {
                         expandIcon={<ExpandMoreIcon />}
                         aria-controls="panel1a-content">
                         <Typography>
-                            <u><b>Previous answers ({prevAnswers.length})</b></u>
+                            <u><b>Previous answers ({countNoOfPrevAnswers()})</b></u>
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails>

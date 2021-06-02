@@ -13,7 +13,8 @@ import {
 import {
     selectQuestions,
     updateQuestions,
-    updateId
+    updateId,
+    selectId
 } from './QuestionnaireSlice';
 import {
     updatePreviousAnswers
@@ -23,6 +24,7 @@ export default function Questionnaire(props) {
     const classes = useStyles()
     const activeStep = useSelector(selectActiveStep);
     const questionList = useSelector(selectQuestions);
+    const id = useSelector(selectId)
     const dispatch = useDispatch()
 
     const { resources } = props;
@@ -48,7 +50,7 @@ export default function Questionnaire(props) {
 
     useEffect(() => {
         questionnaireResponse ?
-            dispatch(updatePreviousAnswers(questionnaireResponse))
+            dispatch(updatePreviousAnswers({ "pastAnswersArray": questionnaireResponse, "id": id }))
             : null
     }, [questionnaireResponse])
 

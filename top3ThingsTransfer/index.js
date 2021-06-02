@@ -3,6 +3,7 @@ const pg = require("pg")
 const request = require("request-promise-native")
 const CronJob = require("cron").CronJob
 const jwt = require("jsonwebtoken")
+const fs = require("fs")
 
 const SecretManager = require("./config.secrets")
 
@@ -199,12 +200,19 @@ class FhirStoreDataProvider {
 
 
 async function loadEntries() {
-    const fhirStoreDataProvider = new FhirStoreDataProvider({ host: process.env.INTERNAL_FHIRSTORE_URL }, { error: (err) => console.log(err) }, new EmptyTokenProvider())
+    const tokenProvider = new EmptyTokenProvider()
+    const fhirStoreDataProvider = new FhirStoreDataProvider({ host: process.env.INTERNAL_FHIRSTORE_URL }, { error: (err) => console.log(err) }, tokenProvider)
+    const questionnaireBundle = await fhirStoreDataProvider.search("Questionnaire", { identifier: process.env.TOP3THINGS_QUESTIONNAIRE_IDENTIFIER }, null)
 
-    const questionnaireBundle = await fhirStoreDataProvider.search("QuestionnaireResponse", { identifier: process.env.QUESTIONNAIRE_IDENTIFIER }, null)
+    // console.log("questionnaireBundle: ", questionnaireBundle)
+    // console.log(questionnaireBundle.entry[0].resource)
+    // console.log("ID: ", questionnaireBundle.entry[0].resource.id)
 
-    console.log(questionnaireBundle)
+    const questionnaireResponseBundle = await fhirStoreDataProvider.search("QuestionnaireResponse", { questionnaire: "Questionnaire/" + questionnaireBundle.entry[0].resource.id }, null)
 
+    // console.log("questionnaireResponseBundle: ", questionnaireResponseBundle)
+    // console.log(questionnaireResponseBundle.entry[0].resource)
+    return questionnaireResponseBundle.entry
 }
 
 /**
@@ -232,116 +240,67 @@ async function transformEntries(entries) {
 
     const fhirStoreDataProvider = new FhirStoreDataProvider({ host: process.env.INTERNAL_FHIRSTORE_URL }, { error: (err) => console.log(err) }, new EmptyTokenProvider())
 
-    const questionnaireBundle = await fhirStoreDataProvider.search("Questionnaire", { identifier: process.env.QUESTIONNAIRE_IDENTIFIER }, null)
+    const questionnaireBundle = await fhirStoreDataProvider.search("Questionnaire", { identifier: process.env.ABOUT_ME_QUESTIONNAIRE_IDENTIFIER }, null)
 
     const questionnaire = getFromBundle(questionnaireBundle, "Questionnaire")[0]
-
     if (!questionnaire) {
         throw Error("Questionnaire not found")
     }
 
+    const aboutMeId = questionnaireBundle.entry[0].resource.id
+
+    // console.log("aboutMeId: ", aboutMeId)
+    const searchForId = await fhirStoreDataProvider.search("QuestionnaireResponse", { questionnaire: "Questionnaire/" + aboutMeId }, null)
+
+    entries.map(async (entry) => {
+        // console.log("entry: ", entry)
+        const answersArray = []
+        entry.resource.item.map((item) => {
+            // console.log("item: ", item)
+            item.item.map((indItem) => {
+                // console.log("indItem: ", indItem)
+                const answer = indItem.answer[0].valueString
+                // console.log("answer: ", answer)
+                answersArray.push(answer)
+            })
+            // console.log("concatted answers: ", answersArray.join(" "))
+            const concattedAnswer = answersArray.join(" ")
+            entry.resource.questionnaire = { "reference": "Questionnaire/" + aboutMeId }
+            const newItem = [{
+                "linkId": "item1",
+                "text": "What matters to me?",
+                "answer": [{ "valueString": concattedAnswer, "valueDateTime": entry.resource.authored }]
+            }]
+            entry.resource.item = newItem
+
+        })
+        const finalEntry = entry.resource
+        // console.log("finalEntry: ", entry.resource)
+        // console.log("searchforId: ", searchForId)
+        if (readyToBeTransformed(searchForId.entry, finalEntry.id)) {
+            console.log("ready")
+            const submitT3T = await fhirStoreDataProvider.update("QuestionnaireResponse", entry.resource.id, finalEntry, null)
+            console.log(submitT3T)
+        }
+    })
+
+
     /** @type {fhir.QuestionnaireResponse[]} */
     const questionnaires = []
-
-    entries.forEach((entry) => {
-        const { nhsnumber, ecistopthreethings, id } = entry
-
-        const t3tComponents = ecistopthreethings["/composition[openEHR-EHR-COMPOSITION.encounter.v1 and name/value='Top issues']"]["/content[openEHR-EHR-OBSERVATION.story.v1]"][0]["/data[at0001]"]["/events"]["/events[at0002]"][0]["/data[at0003]"]["/items[openEHR-EHR-CLUSTER.issue.v0]"]
-        const dateComponent = ecistopthreethings["/composition[openEHR-EHR-COMPOSITION.encounter.v1 and name/value='Top issues']"]["/content[openEHR-EHR-OBSERVATION.story.v1]"][0]["/data[at0001]"]["/origin"]["/value"].value
-
-        const firstItem = t3tComponents.find((com) => com["/name"][0].value === "Issue 1")
-        const secondItem = t3tComponents.find((com) => com["/name"][0].value === "Issue 2")
-        const thirdItem = t3tComponents.find((com) => com["/name"][0].value === "Issue 3")
-
-        const firstItemName = (firstItem && firstItem["/items[at0001]"] && firstItem["/items[at0001]"][0] && firstItem["/items[at0001]"][0]["/value"].value) || null
-        const firstItemDetail = (firstItem && firstItem["/items[at0002]"] && firstItem["/items[at0002]"][0] && firstItem["/items[at0002]"][0]["/value"].value) || null
-        const secondItemName = (secondItem && secondItem["/items[at0001]"] && secondItem["/items[at0001]"][0] && secondItem["/items[at0001]"][0]["/value"].value) || null
-        const secondItemDetail = (secondItem && secondItem["/items[at0002]"] && secondItem["/items[at0002]"][0] && secondItem["/items[at0002]"][0]["/value"].value) || null
-        const thirdItemName = (thirdItem && thirdItem["/items[at0001]"] && thirdItem["/items[at0001]"][0] && thirdItem["/items[at0001]"][0]["/value"].value) || null
-        const thirdItemDetail = (thirdItem && thirdItem["/items[at0002]"] && thirdItem["/items[at0002]"][0] && thirdItem["/items[at0002]"][0]["/value"].value) || null
-
-        /** @type {fhir.QuestionnaireResponse} */
-        const questionnaireResponse = {
-            status: "completed",
-            resourceType: "QuestionnaireResponse",
-            questionnaire: {
-                reference: `${questionnaire.resourceType}/${questionnaire.id}`
-            },
-            identifier: {
-                system: "https://fhir.helm.org/identifier/ecis-legacy-id",
-                value: id
-            },
-            author: {
-                reference: `Patient/TMP:${nhsnumber}`,
-                identifier: {
-                    system: "https://fhir.nhs.uk/Id/nhs-number",
-                    value: `${nhsnumber}`
-                }
-            },
-            subject: {
-                reference: `Patient/TMP:${nhsnumber}`,
-                identifier: {
-                    system: "https://fhir.nhs.uk/Id/nhs-number",
-                    value: `${nhsnumber}`
-                }
-            },
-            source: {
-                reference: `Patient/TMP:${nhsnumber}`,
-                identifier: {
-                    system: "https://fhir.nhs.uk/Id/nhs-number",
-                    value: `${nhsnumber}`
-                }
-            },
-            item: [
-                {
-                    linkId: "item1",
-                    item: [
-                        {
-                            linkId: "title1",
-                            answer: [{ valueString: firstItemName || "" }]
-                        },
-                        {
-                            linkId: "description1",
-                            answer: [{ valueString: firstItemDetail || "" }]
-                        },
-                    ],
-                },
-                {
-                    linkId: "item2",
-                    item: [
-                        {
-                            linkId: "title2",
-                            answer: [{ valueString: secondItemName || "" }]
-                        },
-                        {
-                            linkId: "description2",
-                            answer: [{ valueString: secondItemDetail || "" }]
-                        },
-                    ],
-                },
-                {
-                    linkId: "item3",
-                    item: [
-                        {
-                            linkId: "title3",
-                            answer: [{ valueString: thirdItemName || "" }]
-                        },
-                        {
-                            linkId: "description3",
-                            answer: [{ valueString: thirdItemDetail || "" }]
-                        },
-                    ],
-                },
-            ],
-            authored: dateComponent
-        }
-
-        questionnaires.push(questionnaireResponse)
-    })
 
     console.log(`${questionnaires.length} questionnaire responses transformed`)
 
     return questionnaires
+}
+
+function readyToBeTransformed(searchRes, id) {
+    let returnBool = true
+    searchRes.map((entry) => {
+        if (entry.resource.id == id) {
+            returnBool = false
+        }
+    })
+    return returnBool
 }
 
 /**
@@ -426,8 +385,8 @@ const transferJob = new CronJob(process.env.CRON, () => {
 
     loadEntries()
         .then(transformEntries)
-        .then(writeToFhirStore)
-        .then(() => console.log("Import run complete"))
+        // .then(writeToFhirStore)
+        // .then(() => console.log("Import run complete"))
         .catch((error) => console.log(error.stack || error.message))
         .finally(() => console.log("Run Complete"))
 })

@@ -42,9 +42,10 @@ export default function PastAnswers(props) {
     }, [activeStep])
 
     const obtainPrevAnswer = (item) => {
-        console.log("item.answers[activeStep].answer[0].valueString: ", item.answers[activeStep].answer[0].valueString)
-
-        return item.answers[activeStep].answer[0].valueString
+        console.log(item)
+        if (item.answers[activeStep]) {
+            return item.answers[activeStep].answer[0].valueString
+        }
     }
 
     const obtainFormattedDate = (item) => {
@@ -58,7 +59,7 @@ export default function PastAnswers(props) {
             justify="flex-start"
             alignItems="stretch"
             spacing={2}>
-            { prevAnswers.map((item, index) => (
+            { prevAnswers.length > 0 && prevAnswers.map((item, index) => (
                 index < maxPrevAnswers * (pageNo + 1) && index >= maxPrevAnswers * pageNo &&
                 < Grid item >
                     <FormControl fullWidth>

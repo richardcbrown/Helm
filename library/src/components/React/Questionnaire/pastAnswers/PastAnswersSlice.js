@@ -54,20 +54,22 @@ id: '2da09971-38d2-41bd-a4e0-28f67604cfc9'
   reducers: {
     updatePreviousAnswers: (state, action) => {
       const previousAnswers = []
-      const pastAnswersArray = (action.payload)
+      const pastAnswersArray = (action.payload.pastAnswersArray)
       pastAnswersArray.map((pastAnswerObject, index) => {
         console.log("pastAnswerObject: ", pastAnswerObject)
-        const pushObj = {
-          answers: pastAnswerObject.item,
-          dateTime: pastAnswerObject.authored,
-          id: pastAnswerObject.id
+        if (pastAnswerObject.questionnaire.reference === "Questionnaire/" + action.payload.id) {
+          const pushObj = {
+            answers: pastAnswerObject.item,
+            dateTime: pastAnswerObject.authored,
+            id: pastAnswerObject.id
+          }
+          // var count = 0;
+          // state.previousAnswers.map((obj) => {
+          //   obj.id === pastAnswerObject.id ? count += 1 : null
+          // })
+          // count === 0 ? previousAnswers.push(pushObj) : null
+          previousAnswers.push(pushObj)
         }
-        // var count = 0;
-        // state.previousAnswers.map((obj) => {
-        //   obj.id === pastAnswerObject.id ? count += 1 : null
-        // })
-        // count === 0 ? previousAnswers.push(pushObj) : null
-        previousAnswers.push(pushObj)
 
       })
       previousAnswers.length !== state.previousAnswers.length ? state.previousAnswers = previousAnswers : null
