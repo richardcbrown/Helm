@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "jsx": "react",
+        "checkJs": true,
+        "target": "es2020",
+        "rootDir": "src",
+        "strictNullChecks": true,
+        "moduleResolution": "node",
+        "resolveJsonModule": true
+    },
+    "include": ["index.js"]
+}

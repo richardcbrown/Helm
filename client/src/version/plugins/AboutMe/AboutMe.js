@@ -43,7 +43,7 @@ export default function AboutMe(props) {
                         panel-id="questionnaire-panel"
                         panel="questionnaire-panel"
                         questionnaire-src="http://helm-local.com/api/patient/fhir/Questionnaire?identifier=https://fhir.myhelm.org/questionnaire-identifier|aboutMe"
-                        top3ThingsQuestionnaire-src="http://helm-local.com/api/patient/fhir/Questionnaire?identifier=https://fhir.myhelm.org/questionnaire-identifier|topThreeThings"
+                        // top3ThingsQuestionnaire-src="http://helm-local.com/api/patient/fhir/Questionnaire?identifier=https://fhir.myhelm.org/questionnaire-identifier|topThreeThings"
                         submit="http://helm-local.com/api/patient/fhir"
                         questionnaireresponse-root="http://helm-local.com/api/patient/fhir/QuestionnaireResponse?_sort=-authored"
                     ></syn-panel>

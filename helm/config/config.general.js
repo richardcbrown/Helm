@@ -18,20 +18,4 @@ async function getConfig() {
     }
 }
 
-async function getConfigTop3Things() {
-    const policyDetails = await secretManager.getSecret("POLICIES", true)
-
-    let policies = []
-
-    if (policyDetails) {
-        policies = typeof policyDetails === "string" ? JSON.parse(policyDetails) : JSON.parse(policyDetails.toString())
-    }
-
-    return {
-        questionnaireSystem: await secretManager.getSecret("TOP_THREE_THINGS_QUESTIONNAIRE_IDENTIFIER_SYSTEM"),
-        questionnaireValue: await secretManager.getSecret("TOP_THREE_THINGS_QUESTIONNAIRE_IDENTIFIER_VALUE"),
-        policies,
-    }
-}
-
-module.exports = getConfig, getConfigTop3Things
+module.exports = getConfig
