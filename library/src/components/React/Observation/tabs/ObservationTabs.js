@@ -39,9 +39,6 @@ export default function ObservationTabs(props) {
         dispatch(setValue(newValue));
     };
 
-    const handleChangeIndex = (index) => {
-        dispatch(setValue(index));
-    };
     function a11yProps(index) {
         return {
             id: `simple-tab-${index}`,

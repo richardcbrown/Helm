@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 
-import Moment from 'react-moment';
 import moment from 'moment';
 
 import { Line } from "react-chartjs-2";

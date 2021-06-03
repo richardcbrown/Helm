@@ -81,7 +81,10 @@ id: '2da09971-38d2-41bd-a4e0-28f67604cfc9'
         })
         groupedPrevAnswers[i] = indexArray
       }
-      previousAnswers.length !== state.previousAnswers.length ? state.groupedPrevAnswers = groupedPrevAnswers : null
+      if (previousAnswers.length !== state.previousAnswers.length) {
+        state.previousAnswers = previousAnswers
+        state.groupedPrevAnswers = groupedPrevAnswers
+      }
     },
     nextPage: (state) => {
       state.pageNo += 1;

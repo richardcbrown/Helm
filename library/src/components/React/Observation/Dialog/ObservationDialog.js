@@ -20,9 +20,7 @@ export default function ObservationDialog(props) {
     } = props
     const open = useSelector(selectOpen);
     const dispatch = useDispatch()
-    const handleClickOpen = () => {
-        dispatch(setOpen(true));
-    };
+
 
     const handleClose = () => {
         dispatch(setOpen(false));

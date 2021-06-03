@@ -1,4 +1,4 @@
-import { FormControl, InputAdornment, Button, Grid, TextField, Typography, IconButton, InputLabel } from '@material-ui/core';
+import { FormControl, InputAdornment, Button, Grid, TextField, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import SaveIcon from '@material-ui/icons/Save';
 
@@ -22,7 +22,6 @@ import {
     setOpen
 } from './ObservationFormSlice';
 import ObservationDialog from '../Dialog/ObservationDialog';
-import { Label } from '@material-ui/icons';
 
 export default function ObservationForm(props) {
     const observations = useSelector(selectObservations);

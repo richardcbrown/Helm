@@ -107,7 +107,7 @@ export default function Question(props) {
 
 
     const obtainPrevResponse = (step) => {
-        if (questionsObjects.length > 0 && groupedPrevAnswers[activeStep] > 0) {
+        if (questionsObjects.length > 0 && groupedPrevAnswers[activeStep]) {
             // const foundPrevObj = prevAnswers[0].answers.find((item) => item.linkId == questionsObjects[activeStep + step].linkId)
             const foundPrevObj = groupedPrevAnswers[activeStep][0]
             if (foundPrevObj) {

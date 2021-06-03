@@ -5,18 +5,12 @@ import Content from './content/Content';
 
 import { useSelector, useDispatch } from 'react-redux';
 import {
-    selectValue
-} from './tabs/ObservationTabsSlice';
-import {
     selectObservations,
-    selectPrevResponses,
     setObservations,
     setPrevResponses,
     updatePrevResponses
 } from './ObservationSlice';
-import {
-    selectFieldsArray, selectFieldsValue
-} from './form/ObservationFormSlice';
+
 
 export default function Observation(props) {
     const {
@@ -27,10 +21,7 @@ export default function Observation(props) {
     } = props
 
     const observationsState = useSelector(selectObservations);
-    const value = useSelector(selectValue);
-    const fieldsArray = useSelector(selectFieldsArray)
-    const fieldsValue = useSelector(selectFieldsValue)
-    const prevResponses = useSelector(selectPrevResponses)
+
     const dispatch = useDispatch()
 
 
