@@ -41,10 +41,19 @@ export default function PastAnswers(props) {
         extractPrevAnswers()
     }, [activeStep])
 
+    const activeStepToLinkIdObj = {
+        0: "item1",
+        1: "item2",
+        2: "item3",
+        3: "item4"
+    }
+
     const obtainPrevAnswer = (item) => {
         console.log(item)
         if (item.answers[activeStep]) {
+            // if (item.answers[activeStep].linkId == activeStep[activeStep]) {
             return item.answers[activeStep].answer[0].valueString
+            // }
         }
     }
 
@@ -61,6 +70,7 @@ export default function PastAnswers(props) {
             spacing={2}>
             { prevAnswers.length > 0 && prevAnswers.map((item, index) => (
                 index < maxPrevAnswers * (pageNo + 1) && index >= maxPrevAnswers * pageNo &&
+                // item.answers[activeStep] &&
                 < Grid item >
                     <FormControl fullWidth>
                         <TextField

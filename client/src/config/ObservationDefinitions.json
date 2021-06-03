@@ -179,7 +179,7 @@
                         "display": "false",
                         "calculated": {
                             "value": true,
-                            "derivedFrom": "Height / ( Weight * Weight )"
+                            "derivedFrom": "Weight / ( Height/100 * Height/100 )"
                         }
                     }
                 ]
