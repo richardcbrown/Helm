@@ -204,13 +204,19 @@ async function loadEntries() {
     const fhirStoreDataProvider = new FhirStoreDataProvider({ host: process.env.INTERNAL_FHIRSTORE_URL }, { error: (err) => console.log(err) }, tokenProvider)
     const questionnaireBundle = await fhirStoreDataProvider.search("Questionnaire", { identifier: process.env.TOP3THINGS_QUESTIONNAIRE_IDENTIFIER }, null)
 
-    const top3ThingsId = questionnaireBundle.entry[0].resource.id
+    if ("entry" in Object.keys(questionnaireBundle)) {
+        const top3ThingsId = questionnaireBundle.entry[0].resource.id
 
-    console.log("Top3Things Questionnaire ID: ", top3ThingsId)
+        console.log("Top3Things Questionnaire ID: ", top3ThingsId)
 
-    const questionnaireResponseBundle = await fhirStoreDataProvider.search("QuestionnaireResponse", { questionnaire: "Questionnaire/" + top3ThingsId }, null)
-
-    return questionnaireResponseBundle.entry
+        const questionnaireResponseBundle = await fhirStoreDataProvider.search("QuestionnaireResponse", { questionnaire: "Questionnaire/" + top3ThingsId }, null)
+        if ("entry" in Object.keys(questionnaireResponseBundle))
+            console.log(questionnaireResponseBundle.entry.length, " number of Top 3 Things responses found")
+        return questionnaireResponseBundle.entry
+    } else {
+        console.log("0 Top 3 Things found")
+    }
+    return []
 }
 
 /**
@@ -269,7 +275,7 @@ async function transformEntries(entries) {
             entry.resource.item = newItem
 
         })
-        const finalEntry = entry.resource
+        const finalEntry = { ...entry.resource }
         if (readyToBeTransformed(searchForId.entry, finalEntry.id)) {
             const submitT3T = await fhirStoreDataProvider.update("QuestionnaireResponse", entry.resource.id, finalEntry, null)
             console.log("response from FhirStore: ", submitT3T.body)

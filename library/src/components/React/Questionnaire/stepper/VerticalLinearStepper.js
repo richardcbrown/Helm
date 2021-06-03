@@ -32,6 +32,7 @@ import {
   updateQuestionResponses,
 } from '../QuestionnaireSlice';
 import {
+  selectGroupedPrevAnswers,
   selectPreviousAnswers
 } from '../pastAnswers/PastAnswersSlice';
 
@@ -82,14 +83,15 @@ export default function VerticalLinearStepper(props) {
   const questionResponse = useSelector(selectQuestionResponse);
   const questionResponseItems = useSelector(selectQuestionResponseItems);
   const prevAnswers = useSelector(selectPreviousAnswers);
+  const groupedPrevAnswers = useSelector(selectGroupedPrevAnswers);
   const dispatch = useDispatch()
   const steps = useSelector(selectQuestions)
 
 
   useEffect(() => {
-    obtainPrevResponse(0, 0)
+    obtainPrevResponse(0)
     // dispatch(handleReset())
-  }, [prevAnswers])
+  }, [groupedPrevAnswers])
 
   useEffect(() => {
     onUpdateAnswer()
@@ -118,10 +120,9 @@ export default function VerticalLinearStepper(props) {
     }
   }
 
-  const obtainCurrentResponse = (step, activeStepChosen) => {
+  const obtainCurrentResponse = (step) => {
     if (questionsObjects.length > 0) {
-      const foundQuestionObj = questionResponseItems.find((item) => item.linkId == questionsObjects[activeStepChosen].linkId)
-      console.log(foundQuestionObj)
+      const foundQuestionObj = questionResponseItems.find((item) => item.linkId == questionsObjects[step].linkId)
       if (foundQuestionObj) {
         dispatch(setQuestionResponse(foundQuestionObj.answer[0].valueString))
         dispatch(setDate(foundQuestionObj.answer[0].valueDateTime))
@@ -130,13 +131,12 @@ export default function VerticalLinearStepper(props) {
     }
   }
 
-  const obtainPrevResponse = (step, activeStepChosen) => {
-    if (questionsObjects.length > 0 && prevAnswers.length > 0) {
-      const foundPrevObj = prevAnswers[0].answers.find((item) => item.linkId == questionsObjects[activeStepChosen + step].linkId)
-      console.log(foundPrevObj)
+  const obtainPrevResponse = (step) => {
+    if (questionsObjects.length > 0 && groupedPrevAnswers[activeStep]) {
+      const foundPrevObj = groupedPrevAnswers[activeStep][0]
       if (foundPrevObj) {
-        dispatch(setQuestionResponse(foundPrevObj.answer[0].valueString))
-        dispatch(setDate(foundPrevObj.answer[0].valueDateTime))
+        dispatch(setQuestionResponse(foundPrevObj.valueString))
+        dispatch(setDate(foundPrevObj.valueDateTime))
       } else {
         obtainCurrentResponse(step)
       }

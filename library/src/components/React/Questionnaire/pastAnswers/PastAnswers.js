@@ -14,7 +14,9 @@ import {
     selectPageNo,
     updatePreviousAnswers,
     nextPage,
-    prevPage
+    prevPage,
+    selectGroupedPrevAnswers,
+    resetPageNo
 } from './PastAnswersSlice';
 import {
     selectQuestions
@@ -27,7 +29,8 @@ export default function PastAnswers(props) {
     const questionObjects = useSelector(selectQuestions);
     const maxPrevAnswers = useSelector(selectMaxPrevAnswers);
     const pageNo = useSelector(selectPageNo);
-    const totalPages = Math.ceil(prevAnswers.length / maxPrevAnswers)
+    const groupedPrevAnswers = useSelector(selectGroupedPrevAnswers);
+    var totalPages = groupedPrevAnswers[activeStep] ? Math.ceil(groupedPrevAnswers[activeStep].length / maxPrevAnswers) : 0
     const theme = useTheme()
     const dispatch = useDispatch()
 
@@ -39,28 +42,26 @@ export default function PastAnswers(props) {
             requestResources("QuestionnaireResponse", "", {})
         }
         extractPrevAnswers()
+        totalPages = groupedPrevAnswers[activeStep] ? Math.ceil(groupedPrevAnswers[activeStep].length / maxPrevAnswers) : 0
+        dispatch(resetPageNo())
     }, [activeStep])
 
-    const activeStepToLinkIdObj = {
-        0: "item1",
-        1: "item2",
-        2: "item3",
-        3: "item4"
-    }
+
 
     const obtainPrevAnswer = (item) => {
         console.log(item)
-        if (item.answers[activeStep]) {
-            // if (item.answers[activeStep].linkId == activeStep[activeStep]) {
-            return item.answers[activeStep].answer[0].valueString
-            // }
-        }
+        // if (item.answers[activeStep]) {
+        // if (item.answers[activeStep].linkId == activeStep[activeStep]) {
+        return item.answers[activeStep].answer[0].valueString
+        // }
+        // }
     }
 
     const obtainFormattedDate = (item) => {
-        let date = new Date(item.dateTime)
+        let date = new Date(item)
         return `Submitted on: ${date.toLocaleTimeString("en-GB")} ${date.toDateString()} `
     }
+
     return (
         <Grid
             container
@@ -68,18 +69,20 @@ export default function PastAnswers(props) {
             justify="flex-start"
             alignItems="stretch"
             spacing={2}>
-            { prevAnswers.length > 0 && prevAnswers.map((item, index) => (
+            { groupedPrevAnswers[activeStep] && groupedPrevAnswers[activeStep].map((item, index) => (
+
                 index < maxPrevAnswers * (pageNo + 1) && index >= maxPrevAnswers * pageNo &&
-                // item.answers[activeStep] &&
+                // console.log("item: ", item) &&
+
                 < Grid item >
                     <FormControl fullWidth>
                         <TextField
                             multiline
                             rows={3}
-                            value={obtainPrevAnswer(item)}
+                            value={item.valueString}
                             variant="outlined"
                             disabled
-                            helperText={obtainFormattedDate(item)}
+                            helperText={obtainFormattedDate(item.valueDateTime)}
                         />
                     </FormControl>
                 </Grid>
