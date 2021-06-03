@@ -28,4 +28,5 @@ export const nonCoreSynopsisData = [
   },
   { id: "block-loop", title: "Leeds Information", list: "leeds-information", icon: faSearch, isActive: true },
   { id: "block-aboutme", title: "About Me", list: "about-me", icon: faUserMd, isActive: true },
+  { id: "block-observation", title: "Measurements", list: "measurements", icon: faUserMd, isActive: true },
 ]

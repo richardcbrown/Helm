@@ -10,7 +10,7 @@ import Typography from "@material-ui/core/Typography"
 import { useEffect } from "react"
 import { PageTitle } from "../../../core/common/PageTitle"
 
-export default function AboutMe(props) {
+export default function Measurements(props) {
     const canvasRef = useRef(null)
 
     useEffect(() => {
@@ -25,8 +25,8 @@ export default function AboutMe(props) {
         })
     }, [])
 
-    const resourceUrl = "about-me"
-    const title = "About Me"
+    const resourceUrl = "measurements"
+    const title = "Measurements"
 
     const breadcrumbsResource = [{ url: "/" + resourceUrl, title: title, isActive: false }]
 
@@ -40,12 +40,11 @@ export default function AboutMe(props) {
             <syn-canvas ref={canvasRef} library-root="http://localhost:8882/registry">
                 <div style={{ background: `url${backgroundImage}` }}>
                     <syn-panel
-                        panel-id="questionnaire-panel"
-                        panel="questionnaire-panel"
-                        questionnaire-src="http://helm-local.com/api/patient/fhir/Questionnaire?identifier=https://fhir.myhelm.org/questionnaire-identifier|aboutMe"
-                        // top3ThingsQuestionnaire-src="http://helm-local.com/api/patient/fhir/Questionnaire?identifier=https://fhir.myhelm.org/questionnaire-identifier|topThreeThings"
+                        panel-id="observation-panel"
+                        panel="observation-panel"
                         submit="http://helm-local.com/api/patient/fhir"
-                        questionnaireresponse-root="http://helm-local.com/api/patient/fhir/QuestionnaireResponse?_sort=-authored"
+                        observation-root="http://helm-local.com/api/patient/fhir/Observation"
+                        configuration="http://helm-local.com/ObservationDefinitions.json"
                     ></syn-panel>
                 </div>
             </syn-canvas>

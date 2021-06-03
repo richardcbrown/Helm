@@ -1,24 +1,18 @@
 import { FormControl, Grid, TextField, Typography } from '@material-ui/core';
-import React, { useEffect } from 'react';
+import React from 'react';
 
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import {
     selectQuestions,
     selectQuestionResponseItems,
-    selectQuestionnaireResponse,
-    obtainAnsweredQuestions
 } from '../QuestionnaireSlice';
 import ConfirmationDialog from '../confirmationDialog/ConfirmationDialog';
 
 export default function QuestionSubmitted(props) {
     const questions = useSelector(selectQuestions);
     const questionResponseItems = useSelector(selectQuestionResponseItems);
-    const questionnaireResponse = useSelector(selectQuestionnaireResponse);
-    const dispatch = useDispatch();
 
-    // useEffect(() => {
-    //     dispatch(obtainAnsweredQuestions());
-    // }, [questionnaireResponse]);
+
 
     const getAnswer = (linkId) => {
         var responseEntered = ""
@@ -28,13 +22,6 @@ export default function QuestionSubmitted(props) {
             }
         })
         return responseEntered;
-    }
-
-    const getDate = (linkId) => {
-        const questionObj = questionResponseItems.find((item) => item.linkId == linkId)
-        // const foundQuestionObj = questionResponseItems.find((item) => item.linkId == questionsObjects[activeStep + step].linkId)
-        console.log(questionObj)
-        return questionObj.answer[0].valueDateTime
     }
 
     return (

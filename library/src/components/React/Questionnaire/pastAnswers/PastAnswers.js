@@ -1,20 +1,19 @@
-import { TextField, Grid, Typography, FormControl, Button, MobileStepper } from '@material-ui/core';
+import { TextField, Grid, FormControl, Button, MobileStepper } from '@material-ui/core';
 import { KeyboardArrowLeft, KeyboardArrowRight } from '@material-ui/icons';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
+import { useTheme } from '@material-ui/core/styles';
 import React, { useEffect } from 'react';
 
 import { useSelector, useDispatch } from 'react-redux';
-import {
-    selectQuestionAPIRes
-} from '../question/QuestionSlice';
+
 import { selectActiveStep } from '../stepper/VerticalLinearStepperSlice';
 import {
     selectMaxPrevAnswers,
     selectPreviousAnswers,
     selectPageNo,
-    updatePreviousAnswers,
     nextPage,
-    prevPage
+    prevPage,
+    selectGroupedPrevAnswers,
+    resetPageNo
 } from './PastAnswersSlice';
 import {
     selectQuestions
@@ -22,12 +21,11 @@ import {
 
 
 export default function PastAnswers(props) {
-    const prevAnswers = useSelector(selectPreviousAnswers);
     const activeStep = useSelector(selectActiveStep);
-    const questionObjects = useSelector(selectQuestions);
     const maxPrevAnswers = useSelector(selectMaxPrevAnswers);
     const pageNo = useSelector(selectPageNo);
-    const totalPages = Math.ceil(prevAnswers.length / maxPrevAnswers)
+    const groupedPrevAnswers = useSelector(selectGroupedPrevAnswers);
+    var totalPages = groupedPrevAnswers[activeStep] ? Math.ceil(groupedPrevAnswers[activeStep].length / maxPrevAnswers) : 0
     const theme = useTheme()
     const dispatch = useDispatch()
 
@@ -39,18 +37,15 @@ export default function PastAnswers(props) {
             requestResources("QuestionnaireResponse", "", {})
         }
         extractPrevAnswers()
+        totalPages = groupedPrevAnswers[activeStep] ? Math.ceil(groupedPrevAnswers[activeStep].length / maxPrevAnswers) : 0
+        dispatch(resetPageNo())
     }, [activeStep])
 
-    const obtainPrevAnswer = (item) => {
-        console.log("item.answers[activeStep].answer[0].valueString: ", item.answers[activeStep].answer[0].valueString)
-
-        return item.answers[activeStep].answer[0].valueString
-    }
-
     const obtainFormattedDate = (item) => {
-        let date = new Date(item.dateTime)
+        let date = new Date(item)
         return `Submitted on: ${date.toLocaleTimeString("en-GB")} ${date.toDateString()} `
     }
+
     return (
         <Grid
             container
@@ -58,17 +53,18 @@ export default function PastAnswers(props) {
             justify="flex-start"
             alignItems="stretch"
             spacing={2}>
-            { prevAnswers.map((item, index) => (
+            { groupedPrevAnswers[activeStep] && groupedPrevAnswers[activeStep].map((item, index) => (
                 index < maxPrevAnswers * (pageNo + 1) && index >= maxPrevAnswers * pageNo &&
+
                 < Grid item >
                     <FormControl fullWidth>
                         <TextField
                             multiline
                             rows={3}
-                            value={obtainPrevAnswer(item)}
+                            value={item.valueString}
                             variant="outlined"
                             disabled
-                            helperText={obtainFormattedDate(item)}
+                            helperText={obtainFormattedDate(item.valueDateTime)}
                         />
                     </FormControl>
                 </Grid>

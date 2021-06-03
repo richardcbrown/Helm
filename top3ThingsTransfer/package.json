@@ -1,0 +1,28 @@
+{
+  "name": "helmdatatransfer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "k8s:cloud:dev:up": "gcloud config set project helm-development1 && gcloud auth configure-docker && docker build --no-cache -f Dockerfile -t helm-transfer . && docker tag helm-transfer eu.gcr.io/helm-management/helm-transfer:1.0.0 && docker push eu.gcr.io/helm-management/helm-transfer:1.0.0 && gcloud container clusters get-credentials --zone=europe-west2-a helm-cluster && kubectl create configmap helm-transfer-env --from-env-file run/k8s/dev/.env && kubectl apply -f run/k8s/dev && kubectl get all -l group=helm",
+    "k8s:cloud:dev:down": "gcloud config set project helm-development1 && kubectl delete configmap helm-transfer-env",
+    "k8s:cloud:staging:up": "gcloud config set project helm-staging && gcloud auth configure-docker && docker build --no-cache -f Dockerfile -t helm-transfer . && docker tag helm-transfer eu.gcr.io/helm-management/helm-transfer:1.0.0 && docker push eu.gcr.io/helm-management/helm-transfer:1.0.0 && gcloud container clusters get-credentials --zone=europe-west2-a helm-cluster && kubectl create configmap helm-transfer-env --from-env-file run/k8s/staging/.env && kubectl apply -f run/k8s/staging && kubectl get all -l group=helm",
+    "k8s:cloud:staging:down": "gcloud config set project helm-staging && kubectl delete configmap helm-transfer-env",
+    "k8s:cloud:prod:up": "gcloud config set project helm-production1 && gcloud auth configure-docker && docker build --no-cache -f Dockerfile -t helm-transfer . && docker tag helm-transfer eu.gcr.io/helm-management/helm-transfer:1.0.0 && docker push eu.gcr.io/helm-management/helm-transfer:1.0.0 && gcloud container clusters get-credentials --zone=europe-west2-a helm-cluster && kubectl create configmap helm-transfer-env --from-env-file run/k8s/prod/.env && kubectl apply -f run/k8s/prod && kubectl get all -l group=helm",
+    "k8s:cloud:prod:down": "gcloud config set project helm-production1 && kubectl delete configmap helm-transfer-env",
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google-cloud/secret-manager": "^3.1.0",
+    "@types/fhir": "0.0.31",
+    "cron": "^1.8.2",
+    "dotenv": "^8.2.0",
+    "jsonwebtoken": "^8.5.1",
+    "pg": "^8.5.0",
+    "request": "^2.88.2",
+    "request-promise-native": "^1.0.9"
+  }
+}

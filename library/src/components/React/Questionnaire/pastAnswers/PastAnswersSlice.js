@@ -49,28 +49,42 @@ id: '2da09971-38d2-41bd-a4e0-28f67604cfc9'
      */
     previousAnswers: [],
     maxPrevAnswers: 2,
-    pageNo: 0
+    pageNo: 0,
+    groupedPrevAnswers: []
   },
   reducers: {
     updatePreviousAnswers: (state, action) => {
       const previousAnswers = []
-      const pastAnswersArray = (action.payload)
+      const pastAnswersArray = (action.payload.pastAnswersArray)
       pastAnswersArray.map((pastAnswerObject, index) => {
-        console.log("pastAnswerObject: ", pastAnswerObject)
-        const pushObj = {
-          answers: pastAnswerObject.item,
-          dateTime: pastAnswerObject.authored,
-          id: pastAnswerObject.id
+        if (pastAnswerObject.questionnaire.reference === "Questionnaire/" + action.payload.id) {
+          const pushObj = {
+            answers: pastAnswerObject.item,
+            dateTime: pastAnswerObject.authored,
+            id: pastAnswerObject.id
+          }
+          previousAnswers.push(pushObj)
         }
-        // var count = 0;
-        // state.previousAnswers.map((obj) => {
-        //   obj.id === pastAnswerObject.id ? count += 1 : null
-        // })
-        // count === 0 ? previousAnswers.push(pushObj) : null
-        previousAnswers.push(pushObj)
 
       })
-      previousAnswers.length !== state.previousAnswers.length ? state.previousAnswers = previousAnswers : null
+
+      const groupedPrevAnswers = new Array(4)
+      for (var i = 0; i < 4; i++) {
+        const indexArray = []
+        previousAnswers.map((prevAnswer) => {
+          prevAnswer.answers.map((answer, index) => {
+            const obj =
+              index == i ?
+                indexArray.push(answer.answer[0])
+                : null
+          })
+        })
+        groupedPrevAnswers[i] = indexArray
+      }
+      if (previousAnswers.length !== state.previousAnswers.length) {
+        state.previousAnswers = previousAnswers
+        state.groupedPrevAnswers = groupedPrevAnswers
+      }
     },
     nextPage: (state) => {
       state.pageNo += 1;
@@ -78,13 +92,17 @@ id: '2da09971-38d2-41bd-a4e0-28f67604cfc9'
     prevPage: (state) => {
       state.pageNo -= 1;
     },
+    resetPageNo: (state) => {
+      state.pageNo = 0
+    }
   }
 })
 
 export const selectPreviousAnswers = (state) => state.pastAnswers.previousAnswers;
 export const selectMaxPrevAnswers = (state) => state.pastAnswers.maxPrevAnswers;
 export const selectPageNo = (state) => state.pastAnswers.pageNo;
+export const selectGroupedPrevAnswers = (state) => state.pastAnswers.groupedPrevAnswers;
 
-export const { updatePreviousAnswers, nextPage, prevPage } = pastAnswersSlice.actions;
+export const { updatePreviousAnswers, nextPage, prevPage, resetPageNo } = pastAnswersSlice.actions;
 
 export default pastAnswersSlice.reducer;

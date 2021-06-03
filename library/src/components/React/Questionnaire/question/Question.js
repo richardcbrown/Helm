@@ -33,6 +33,7 @@ import {
     obtainAnsweredQuestions
 } from '../QuestionnaireSlice';
 import {
+    selectGroupedPrevAnswers,
     selectPreviousAnswers
 } from '../pastAnswers/PastAnswersSlice';
 
@@ -50,6 +51,7 @@ export default function Question(props) {
     const questionResponseItems = useSelector(selectQuestionResponseItems);
     const prevAnswers = useSelector(selectPreviousAnswers);
     const questionnnaireResponse = useSelector(selectQuestionnaireResponse);
+    const groupedPrevAnswers = useSelector(selectGroupedPrevAnswers);
     const edit = useSelector(selectEdit);
     const questionResponse = useSelector(selectQuestionResponse);
     const dispatch = useDispatch();
@@ -69,6 +71,7 @@ export default function Question(props) {
             }
             dispatch(updateQuestionResponses(item))
         }
+        dispatch(obtainAnsweredQuestions())
     }
 
     const onAnswerChangeHandler = (e) => {
@@ -90,7 +93,6 @@ export default function Question(props) {
     const obtainCurrentResponse = (step) => {
         if (questionsObjects.length > 0) {
             const foundQuestionObj = questionResponseItems.find((item) => item.linkId == questionsObjects[activeStep + step].linkId)
-            console.log(foundQuestionObj)
             if (foundQuestionObj) {
                 dispatch(setQuestionResponse(foundQuestionObj.answer[0].valueString))
                 dispatch(setDate(foundQuestionObj.answer[0].valueDateTime))
@@ -105,12 +107,12 @@ export default function Question(props) {
 
 
     const obtainPrevResponse = (step) => {
-        if (questionsObjects.length > 0 && prevAnswers.length > 0) {
-            const foundPrevObj = prevAnswers[0].answers.find((item) => item.linkId == questionsObjects[activeStep + step].linkId)
-            console.log(foundPrevObj)
+        if (questionsObjects.length > 0 && groupedPrevAnswers[activeStep]) {
+            // const foundPrevObj = prevAnswers[0].answers.find((item) => item.linkId == questionsObjects[activeStep + step].linkId)
+            const foundPrevObj = groupedPrevAnswers[activeStep][0]
             if (foundPrevObj) {
-                dispatch(setQuestionResponse(foundPrevObj.answer[0].valueString))
-                dispatch(setDate(foundPrevObj.answer[0].valueDateTime))
+                dispatch(setQuestionResponse(foundPrevObj.valueString))
+                dispatch(setDate(foundPrevObj.valueDateTime))
             } else {
                 dispatch(setQuestionResponse("")) && dispatch(setDate(""))
             }
@@ -129,6 +131,30 @@ export default function Question(props) {
             })
         }
         return latestPrevAnswer
+    }
+
+    const activeStepToLinkIdObj = {
+        0: "item1",
+        1: "item2",
+        2: "item3",
+        3: "item4"
+    }
+
+    const countNoOfPrevAnswers = () => {
+        // var noOfPrevAnswers = 0
+        // prevAnswers.map((prevAnswer) => {
+        //     const answers = prevAnswer.answers
+        //     answers.map((answerObj) => {
+        //         if (answerObj.linkId == activeStepToLinkIdObj[activeStep]) {
+        //             noOfPrevAnswers++
+        //         }
+        //     })
+        // })
+        // return noOfPrevAnswers
+        if (groupedPrevAnswers[activeStep]) {
+            return groupedPrevAnswers[activeStep].length
+        }
+        return 0
     }
 
 
@@ -194,11 +220,11 @@ export default function Question(props) {
                         expandIcon={<ExpandMoreIcon />}
                         aria-controls="panel1a-content">
                         <Typography>
-                            <u><b>Previous answers ({prevAnswers.length})</b></u>
+                            <u><b>Previous answers ({countNoOfPrevAnswers()})</b></u>
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                        <PastAnswers requestResources={props.requestResources} />
+                        <PastAnswers requestResources={props.requestResources} noOfPrevAnswers={countNoOfPrevAnswers()} />
                     </AccordionDetails>
                 </Accordion>
             </Grid>

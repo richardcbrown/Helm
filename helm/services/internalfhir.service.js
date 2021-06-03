@@ -26,6 +26,13 @@ function getQuestionnaire(config) {
         name: "what-matters-to-me",
         title: "HELM What Matters To Me",
         status: "active",
+        code: [
+            {
+                system: "http://snomed.info/sct",
+                code: "397608007",
+                display: "Health management finding (finding)"
+            }
+        ],
         identifier: [
             {
                 system,
@@ -34,6 +41,13 @@ function getQuestionnaire(config) {
         ],
         item: [
             {
+                code: [
+                    {
+                        system: "http://snomed.info/sct",
+                        code: "363882003",
+                        display: "Drive (observable entity)"
+                    }
+                ],
                 linkId: "item1",
                 type: "text",
                 id: "1",
@@ -48,6 +62,13 @@ function getQuestionnaire(config) {
 
             },
             {
+                code: [
+                    {
+                        system: "http://snomed.info/sct",
+                        code: "302160007",
+                        display: "Social / personal history observable (observable entity)"
+                    }
+                ],
                 linkId: "item2",
                 type: "text",
                 id: "2",
@@ -57,6 +78,13 @@ function getQuestionnaire(config) {
                 maxLength: 500
             },
             {
+                code: [
+                    {
+                        system: "http://snomed.info/sct",
+                        code: "711043000",
+                        display: "Evaluation procedure (procedure)"
+                    }
+                ],
                 linkId: "item3",
                 type: "text",
                 id: "3",
@@ -70,6 +98,11 @@ function getQuestionnaire(config) {
                 maxLength: 500
             },
             {
+                code: [{
+                    system: "http://snomed.info/sct",
+                    code: "713578002",
+                    display: "Identifying goals (procedure)"
+                }],
                 linkId: "item4",
                 type: "text",
                 id: "4",
