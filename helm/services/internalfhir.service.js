@@ -211,28 +211,31 @@ const InternalFhirService = {
         },
     },
     async started() {
-        try {
-            const storeConfig = await getFhirStoreConfig()
+        setTimeout(async () => {
+            try {
 
-            const authProvider = new InternalAuthProvider()
+                const storeConfig = await getFhirStoreConfig()
 
-            let tokenProvider = {
-                authorize: async (request) => {
-                    const token = await authProvider.authenticate({ sub: "internal" })
+                const authProvider = new InternalAuthProvider()
 
-                    request.auth = { bearer: token.access_token }
-                },
+                let tokenProvider = {
+                    authorize: async (request) => {
+                        const token = await authProvider.authenticate({ sub: "internal" })
+
+                        request.auth = { bearer: token.access_token }
+                    },
+                }
+
+                const fhirStore = new InternalFhirDataProvider(storeConfig, this.logger, tokenProvider)
+
+                const initialGenerator = new InitialInternalFhirStoreGenerator(fhirStore)
+
+                await initialGenerator.generate()
+            } catch (error) {
+                this.logger.error(error.stack || error.message)
+                throw error
             }
-
-            const fhirStore = new InternalFhirDataProvider(storeConfig, this.logger, tokenProvider)
-
-            const initialGenerator = new InitialInternalFhirStoreGenerator(fhirStore)
-
-            await initialGenerator.generate()
-        } catch (error) {
-            this.logger.error(error.stack || error.message)
-            throw error
-        }
+        }, 10000)
     },
 }
 

@@ -73,6 +73,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "webpack --watch",
+    "build:k8s": "webpack",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "k8s:cloud:dev:up": "gcloud config set project helm-development1 && gcloud auth configure-docker && npm run build && docker build --no-cache -t helm-ui . && docker tag helm-ui eu.gcr.io/helm-management/helm-ui:1.0.0 && docker push eu.gcr.io/helm-management/helm-ui:1.0.0 && gcloud container clusters get-credentials --zone=europe-west2-a helm-cluster && kubectl apply -f run/k8s && kubectl get all -l group=helm",
