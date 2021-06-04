@@ -1,6 +1,5 @@
 import { createMuiTheme } from "@material-ui/core/styles"
 
-
 const defaultLightPalette = {
     type: "light",
     mainColor: "#0D672F",
@@ -12,7 +11,6 @@ const defaultLightPalette = {
     toolbarColor: "#e5e5e5",
     fontColor: "#000",
 }
-
 
 function getBackground(isContrastMode, themeColor, imageName) {
     let result = themeColor
@@ -141,6 +139,5 @@ export function getCurrentTheme(isContrastMode) {
                 },
             },
         },
-    },
-    )
+    })
 }

@@ -20,7 +20,7 @@
     "deepmerge": "^3.2.0",
     "fhirpath": "^2.7.4",
     "jsonwebtoken": "^8.4.0",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "moment": "^2.23.0",
     "prop-types": "15.6.2",
     "pure-react-carousel": "^1.27.6",

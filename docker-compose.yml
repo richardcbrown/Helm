@@ -32,7 +32,7 @@ services:
     #image: "rabbitmq-delayed"
     build:
       context: "./rabbitmq"
-      dockerfile: "RabbitDockerfile"
+      dockerfile: "Dockerfile"
     ports:
         - "5672:5672"
 
