@@ -2,8 +2,8 @@ version: "3.7"
 
 services:
   helm-ui:
-    # build: "./client"
-    image: nginx
+    build: "./client"
+    #image: nginx
     ports:
     - "80:80"
     volumes:

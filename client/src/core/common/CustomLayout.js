@@ -3,7 +3,7 @@ import get from "lodash/get"
 import { connect } from "react-redux"
 import Layout from "./Layout"
 
-import { withStyles } from "@material-ui/core/styles"
+import { makeStyles } from "@material-ui/core/styles"
 
 import CustomSidebar from "./Sidebar"
 import CustomTopBar from "./Topbar"
@@ -13,7 +13,7 @@ import { getCurrentTheme } from "../config/styles"
 import { getPreferencesAction } from "../../version/actions/preferencesActions"
 import { Hidden } from "@material-ui/core"
 
-const styles = {
+const useStyles = makeStyles({
   root: {
     flexDirection: "column",
     zIndex: 1,
@@ -44,7 +44,7 @@ const styles = {
     flexBasis: 0,
     flexDirection: "column",
   },
-}
+})
 
 /**
  * This component returns custom layout
@@ -52,7 +52,9 @@ const styles = {
  * @author Bogdan Shcherban <bsc@piogroup.net>
  * @constructor
  */
-const CustomLayout = ({ classes, preferences, getPreferences, children, isSidebarOpen, ...rest }) => {
+const CustomLayout = ({ preferences, getPreferences, children, isSidebarOpen, ...rest }) => {
+  const classes = useStyles()
+
   const { data, loading } = preferences
 
   if (!data && !loading) {
@@ -97,4 +99,4 @@ const mapDispatchToProps = (dispatch) => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(CustomLayout))
+export default connect(mapStateToProps, mapDispatchToProps)(CustomLayout)

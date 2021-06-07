@@ -3,6 +3,43 @@ import { connect } from "react-redux"
 import { setSidebarVisibility } from "react-admin"
 import RunUserTour from "./fragments/RunTourButton"
 import { setAccessibilityMessage } from "../../../core/actions/accessibilityActions"
+import { withStyles } from "@material-ui/core"
+
+const styles = (theme) => ({
+  rightBlockItem: {
+    display: "inline-flex",
+    position: "relative",
+    minHeight: 54,
+    minWidth: 54,
+    justifyContent: "center",
+    alignItems: "center",
+    borderLeft: `1px solid ${theme.palette.borderColor}`,
+    "&:hover": {
+      backgroundColor: theme.palette.mainColor,
+    },
+    "&:active": {
+      backgroundColor: theme.palette.mainColor,
+    },
+    "&:hover button": {
+      color: "white",
+    },
+    "&:active button": {
+      color: "white",
+    },
+    "&:hover a": {
+      color: "white",
+    },
+    "&:active a": {
+      color: "white",
+    },
+  },
+  rightBlockButton: {
+    color: theme.palette.mainColor,
+    "&:hover": {
+      color: "white",
+    },
+  },
+})
 
 class UserTour extends Component {
   constructor(props) {
@@ -71,4 +108,4 @@ const mapDispatchToProps = (dispatch) => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(UserTour)
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(UserTour))

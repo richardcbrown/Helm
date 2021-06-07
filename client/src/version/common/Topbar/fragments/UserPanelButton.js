@@ -48,6 +48,39 @@ const styles = (theme) => ({
   icon: {
     marginLeft: 10,
   },
+  rightBlockItem: {
+    display: "inline-flex",
+    position: "relative",
+    minHeight: 54,
+    minWidth: 54,
+    justifyContent: "center",
+    alignItems: "center",
+    borderLeft: `1px solid ${theme.palette.borderColor}`,
+    "&:hover": {
+      backgroundColor: theme.palette.mainColor,
+    },
+    "&:active": {
+      backgroundColor: theme.palette.mainColor,
+    },
+    "&:hover button": {
+      color: "white",
+    },
+    "&:active button": {
+      color: "white",
+    },
+    "&:hover a": {
+      color: "white",
+    },
+    "&:active a": {
+      color: "white",
+    },
+  },
+  rightBlockButton: {
+    color: theme.palette.mainColor,
+    "&:hover": {
+      color: "white",
+    },
+  },
 })
 
 /**

@@ -40,8 +40,7 @@ import {
     obtainAnsweredQuestions,
 } from "../QuestionnaireSlice"
 import { selectGroupedPrevAnswers, selectPreviousAnswers } from "../pastAnswers/PastAnswersSlice"
-
-import { getDate } from "../Utils/Utils"
+import { ShadowFocus } from "../../Shadow/ShadowFocus"
 
 export default function Question(props) {
     const classes = useStyles()
@@ -109,7 +108,6 @@ export default function Question(props) {
 
     const obtainPrevResponse = (step) => {
         if (questionsObjects.length > 0 && groupedPrevAnswers[activeStep]) {
-            // const foundPrevObj = prevAnswers[0].answers.find((item) => item.linkId == questionsObjects[activeStep + step].linkId)
             const foundPrevObj = groupedPrevAnswers[activeStep][0]
             if (foundPrevObj) {
                 dispatch(setQuestionResponse(foundPrevObj.valueString))
@@ -142,16 +140,6 @@ export default function Question(props) {
     }
 
     const countNoOfPrevAnswers = () => {
-        // var noOfPrevAnswers = 0
-        // prevAnswers.map((prevAnswer) => {
-        //     const answers = prevAnswer.answers
-        //     answers.map((answerObj) => {
-        //         if (answerObj.linkId == activeStepToLinkIdObj[activeStep]) {
-        //             noOfPrevAnswers++
-        //         }
-        //     })
-        // })
-        // return noOfPrevAnswers
         if (groupedPrevAnswers[activeStep]) {
             return groupedPrevAnswers[activeStep].length
         }
@@ -160,54 +148,56 @@ export default function Question(props) {
 
     return (
         <Grid container direction="column" justify="flex-start" alignItems="stretch" spacing={2}>
-            <Grid item>
+            <Grid item xs={12}>
                 <Typography variant="h5">{questionsObjects[activeStep].prefix}</Typography>
             </Grid>
-            <Grid item>
+            <Grid item xs={12}>
                 <FormControl fullWidth>
                     <Typography>{questionsObjects[activeStep].text}</Typography>
-                    <TextField
-                        id="outlined-multiline-static"
-                        // label="Multiline"
-                        multiline
-                        rows={4}
-                        // defaultValue={getLatestPrevAnswer()}
-                        value={questionResponse}
-                        variant="outlined"
-                        helperText={displayDate}
-                        onChange={(e) => onAnswerChangeHandler(e)}
-                        disabled={!edit}
-                    />
+                    <ShadowFocus>
+                        {({ inputRef, focus }) => (
+                            <TextField
+                                id="outlined-multiline-static"
+                                multiline
+                                rows={4}
+                                value={questionResponse}
+                                helperText={displayDate}
+                                onChange={(e) => onAnswerChangeHandler(e)}
+                                disabled={!edit}
+                                className={focus ? "input--focused" : ""}
+                                InputProps={{
+                                    inputRef
+                                }}
+                            />
+                        )}
+                    </ShadowFocus>
                 </FormControl>
             </Grid>
-            <Grid item>
+            <Grid item xs={12}>
                 <div className={classes.buttonRight}>
-                    <Button
-                        variant="contained"
-                        color="primary"
+                    <IconButton
+                        className={"button--primary"}
                         onClick={() => {
                             dispatch(setEdit(!edit))
                             dispatch(setDate(new Date().toString()))
-                            // onUpdateAnswer().then(obtainCurrentResponse(0))
                         }}
-                        className={classes.button}
                     >
                         {edit ? (
-                            <div>
-                                <DoneIcon />
+                            <>
                                 Done
-                            </div>
+                                <DoneIcon />
+                            </>
                         ) : (
-                            <div>
-                                <EditIcon />
+                            <>
                                 Edit
-                            </div>
+                                <EditIcon />
+                            </>
                         )}
-                    </Button>
+                    </IconButton>
                 </div>
             </Grid>
 
-            <Grid item>
+            <Grid item xs={12}>
                 <Accordion>
                     <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content">
                         <Typography>
@@ -225,35 +215,31 @@ export default function Question(props) {
                 </Accordion>
             </Grid>
 
-            <Grid item>
+            <Grid item xs={12}>
                 <Grid container direction="row" justify="space-between" alignItems="flex-end">
-                    <Grid item>
+                    <Grid item xs={12}>
                         {activeStep > 0 ? (
-                            <Button
-                                variant="contained"
-                                color="primary"
+                            <IconButton
+                                className={"button--primary"}
                                 onClick={() => onBackClickHandler()}
-                                className={classes.button}
                             >
                                 <ArrowBackIosIcon />
                                 BACK
-                            </Button>
+                            </IconButton>
                         ) : null}
                     </Grid>
-                    <Grid item>
+                    <Grid item xs={12}>
                         {/* Ensuring button does not show after all questions answered */}
                         <div className={classes.buttonRight}>
-                            <Button
-                                variant="contained"
-                                color="primary"
+                            <IconButton
                                 onClick={() => {
                                     onNextClickHandler()
                                 }}
-                                className={classes.button}
+                                className={"button--primary"}
                             >
                                 {activeStep === questionsObjects.length - 1 ? "Finish" : "Next"}
                                 <NavigateNextIcon />
-                            </Button>
+                            </IconButton>
                         </div>
                     </Grid>
                 </Grid>

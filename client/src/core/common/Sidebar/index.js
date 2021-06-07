@@ -73,13 +73,13 @@ const CustomSidebar = ({ classes, isSidebarOpen, onMenuClick, location }) => {
     <>
       <Hidden mdUp>
         {isSidebarOpen ? null : (
-          <MobileMenu classes={classes} menuItems={menuItems} currentList={currentList} onMenuClick={onMenuClick} />
+          <MobileMenu menuItems={menuItems} currentList={currentList} onMenuClick={onMenuClick} />
         )}
       </Hidden>
       <Hidden smDown>
         {isSidebarOpen ? (
           <Sidebar className={classes.sidebarBlock}>
-            <MenuItems classes={classes} menuItems={menuItems} currentList={currentList} onMenuClick={onMenuClick} />
+            <MenuItems menuItems={menuItems} currentList={currentList} onMenuClick={onMenuClick} />
           </Sidebar>
         ) : null}
       </Hidden>

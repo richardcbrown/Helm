@@ -1,0 +1,15 @@
+:root {
+    --main-color: #000;
+    --danger-color: #da534f;
+    --contrast-color: #000;
+    --disabled-color: #e9e4e4;
+    --disabled-font-color: #A0A0A0;
+    --border-color: #000;
+    --input-border-color: #000;
+    --paper-color: #fff;
+    --toolbar-color: #fff;
+    --font-color: #000;
+    --table-head-color: #fff;
+    --view-button: #000;
+    --highlight-color: #FFA44D;
+}

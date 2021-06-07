@@ -1,12 +1,12 @@
 import React from "react"
 import { Link } from "react-router-dom"
 
-import { withStyles } from "@material-ui/core/styles"
+import { makeStyles } from "@material-ui/core/styles"
 import Typography from "@material-ui/core/Typography"
 import Grid from "@material-ui/core/Grid"
 import FeedbackButton from "../../version/common/Topbar/fragments/FeedbackButton"
 
-const styles = (theme) => ({
+const useStyles = makeStyles((theme) => ({
   breadcrumbsBlock: {
     display: "flex",
     height: 48,
@@ -33,16 +33,17 @@ const styles = (theme) => ({
     display: "flex",
     alignItems: "center",
   },
-})
+}))
 
 /**
  * This component returns breadcrumbs block
  *
  * @author Bogdan Shcherban <bsc@piogroup.net>
- * @param {shape} classes
  * @param {shape} resource
  */
-const Breadcrumbs = ({ classes, resource }) => {
+const Breadcrumbs = ({ resource }) => {
+  const classes = useStyles()
+
   return (
     <div className={classes.breadcrumbsBlock}>
       <Grid item xs={11} md={8} style={{ display: "flex", alignItems: "center" }}>
@@ -73,4 +74,4 @@ const Breadcrumbs = ({ classes, resource }) => {
   )
 }
 
-export default withStyles(styles)(Breadcrumbs)
+export default Breadcrumbs

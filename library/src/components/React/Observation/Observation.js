@@ -49,12 +49,12 @@ export default function Observation(props) {
             </Grid>
         </Paper>
     ) : (
-        <Grid container direction="column" justify="flex-start" alignItems="stretch" spacing={3}>
-            <Grid item>
+        <Grid container direction="column" justify="flex-start" alignItems="stretch" spacing={3} style={{ margin: 0, width: "100%" }}>
+            <Grid item xs={12} style={{ padding: 0 }}>
                 <ObservationTabs configuration={configuration} />
             </Grid>
-            <Grid item>
-                <Grid container direction="row" justify="space-evenly" alignItems="stretch" spacing={3}>
+            <Grid item xs={12}>
+                <Grid container spacing={3}>
                     <Grid item xs={12}>
                         <Content saveObservations={saveObservations} getObservations={getObservations} />
                     </Grid>

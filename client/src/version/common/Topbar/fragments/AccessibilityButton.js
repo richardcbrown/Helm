@@ -6,21 +6,41 @@ import Tooltip from "@material-ui/core/Tooltip"
 import { SvgIcon } from "@material-ui/core"
 import { ReactComponent as AccessibilityIcon } from "../../../images/Icons/Accesibility.svg"
 
-const styles = {
-  userPanel: {
-    minWidth: 220,
-    padding: 12,
+const styles = (theme) => ({
+  rightBlockItem: {
+    display: "inline-flex",
+    position: "relative",
+    minHeight: 54,
+    minWidth: 54,
+    justifyContent: "center",
+    alignItems: "center",
+    borderLeft: `1px solid ${theme.palette.borderColor}`,
+    "&:hover": {
+      backgroundColor: theme.palette.mainColor,
+    },
+    "&:active": {
+      backgroundColor: theme.palette.mainColor,
+    },
+    "&:hover button": {
+      color: "white",
+    },
+    "&:active button": {
+      color: "white",
+    },
+    "&:hover a": {
+      color: "white",
+    },
+    "&:active a": {
+      color: "white",
+    },
   },
-  userName: {
-    marginBottom: 7,
-    fontSize: 18,
-    fontWeight: 800,
+  rightBlockButton: {
+    color: theme.palette.mainColor,
+    "&:hover": {
+      color: "white",
+    },
   },
-  userRole: {
-    fontSize: 14,
-    marginBottom: 7,
-  },
-}
+})
 
 /**
  * This component returns Accessibility button

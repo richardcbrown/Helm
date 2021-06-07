@@ -1,143 +1,133 @@
 import { createMuiTheme } from "@material-ui/core/styles"
 
-const defaultLightPalette = {
-    type: "light",
-    mainColor: "#0D672F",
-    dangerColor: "#da534f",
-    viewButton: "#30ad57",
-    disabledColor: "#e9e4e4",
-    borderColor: "#e5e5e5",
-    paperColor: "#fff",
-    toolbarColor: "#e5e5e5",
-    fontColor: "#000",
-}
+function getCurrentPalette(target) {
+        return {
+            mainColor: getComputedStyle(target).getPropertyValue("--main-color").trim(),
+            dangerColor: getComputedStyle(target).getPropertyValue("--danger-color").trim(),
+            viewButton: getComputedStyle(target).getPropertyValue("--view-button").trim(),
+            disabledColor: getComputedStyle(target).getPropertyValue("--disabled-color").trim(),
+            borderColor: getComputedStyle(target).getPropertyValue("--border-color").trim(),
+            paperColor: getComputedStyle(target).getPropertyValue("--paper-color").trim(),
+            toolbarColor: getComputedStyle(target).getPropertyValue("--toolbar-color").trim(),
+            fontColor: getComputedStyle(target).getPropertyValue("--font-color").trim(),
+            primaryFont: getComputedStyle(target).getPropertyValue("--primary-font").trim(),
+            primaryFontSize: getComputedStyle(target).getPropertyValue("--primary-font-size").trim()
+        }
+    }
 
-function getBackground(isContrastMode, themeColor, imageName) {
-    let result = themeColor
-    return isContrastMode ? "#000" : result
-}
-export function getCurrentTheme(isContrastMode) {
+export function getCurrentTheme(target) {
+    const palette = getCurrentPalette(target)
+
     return createMuiTheme({
-        palette: defaultLightPalette,
+        palette: palette,
         typography: {
-            fontFamily: '"HK Grotesk Regular", Arial, sans-serif',
-            fontSize: 14,
-        },
-        tableHeader: {
-            tableHeaderBlock: {
-                background: getBackground(isContrastMode, defaultLightPalette.mainColor, "tableHeaderImage"),
-            },
-        },
-        patientSummaryPanel: {
-            container: {
-                // background: `url(${backgroundImage})`,
-            },
-            topBlock: {
-                background: getBackground(isContrastMode, defaultLightPalette.mainColor, "cardBackgroundImage"),
-            },
-        },
-        cardBackground: {
-            topBlock: {
-                background: getBackground(isContrastMode, defaultLightPalette.mainColor, "cardBackgroundImage"),
-            },
+        //   fontFamily: '"HK Grotesk Regular", Arial, sans-serif',
+        //   fontSize: 14,
+            fontFamily: palette.primaryFont,
+            fontSize: Number(palette.primaryFontSize),
         },
         overrides: {
-            MuiInput: {
-                root: {
-                    border: `2px solid ${defaultLightPalette.inputBorderColor}`,
-                    paddingLeft: "5px",
-                    paddingRight: "5px",
-                    "&.Mui-focused": {
-                        boxShadow: `0px 0px 0px 4px ${defaultLightPalette.highlightColor}`,
-                    },
-                    "&.Mui-disabled": {
-                        border: `2px solid ${defaultLightPalette.disabledFontColor}`,
-                    },
-                },
-                input: {
-                    "&:focus": {
-                        backgroundColor: "inherit !important",
-                    },
-                },
-                underline: {
-                    "&:before": {
-                        display: "none",
-                    },
-                    "&:after": {
-                        display: "none",
-                    },
-                },
+          MuiInput: {
+            root: {
+              //border: `2px solid ${palette.inputBorderColor}`,
+              border: "var(--input-border)",
+              paddingLeft: "5px",
+              paddingRight: "5px",
+              "&.Mui-focused": {
+                boxShadow: `0px 0px 0px 4px ${palette.highlightColor}`,
+              },
+              "&.Mui-disabled": {
+                border: `2px solid ${palette.disabledFontColor}`,
+              },
             },
-            MuiFormLabel: {
-                root: {
-                    lineHeight: 1.5,
-                    "&.Mui-focused": {
-                        color: defaultLightPalette.fontColor,
-                    },
-                },
+            input: {
+              "&:focus": {
+                backgroundColor: "inherit !important",
+              },
             },
-            MuiInputLabel: {
-                animated: {
-                    marginLeft: 5,
-                },
-                shrink: {
-                    "&.Mui-focused": {
-                        transform: "translate(0, -4px) scale(0.75)",
-                    },
-                },
+            underline: {
+              "&:before": {
+                display: "none",
+              },
+              "&:after": {
+                display: "none",
+              },
             },
-            MuiList: {
-                root: {
-                    backgroundColor: defaultLightPalette.paperColor,
-                },
+          },
+          MuiFormLabel: {
+            root: {
+              lineHeight: 1.5,
+              "&.Mui-focused": {
+                color: palette.fontColor,
+              },
             },
-            MuiPaper: {
-                elevation1: {
-                    boxShadow: "none",
-                    backgroundColor: defaultLightPalette.paperColor,
-                },
+          },
+          MuiInputLabel: {
+            animated: {
+              marginLeft: 5,
             },
-            MuiTable: {
-                root: {
-                    backgroundColor: defaultLightPalette.paperColor,
-                    border: `1px solid ${defaultLightPalette.borderColor}`,
-                },
+            shrink: {
+              "&.Mui-focused": {
+                transform: "translate(0, -4px) scale(0.75)",
+              },
             },
-            MuiTableHead: {
-                root: {
-                    backgroundColor: isContrastMode ? defaultLightPalette.paperColor : defaultLightPalette.borderColor,
-                    color: isContrastMode ? defaultLightPalette.paperColor : defaultLightPalette.fontColor,
-                },
+          },
+          MuiList: {
+            root: {
+              backgroundColor: palette.paperColor,
             },
-            MuiTableRow: {
-                head: {
-                    height: 48,
-                },
+          },
+          MuiPaper: {
+            elevation1: {
+              boxShadow: "none",
+              backgroundColor: palette.paperColor,
             },
-            MuiTableCell: {
-                head: {
-                    color: defaultLightPalette.fontColor,
-                    fontSize: 16,
-                    fontWeight: 800,
-                },
-                paddingNone: {
-                    paddingLeft: 10,
-                },
+          },
+          MuiTable: {
+            root: {
+              backgroundColor: palette.paperColor,
+              border: `var(--table-border)`,
             },
-            MuiTypography: {
-                root: {
-                    fontFamily: '"HK Grotesk SemiBold", Arial, sans-serif',
-                    fontSize: 17,
-                },
-                body1: {
-                    fontFamily: '"HK Grotesk Regular", Arial, sans-serif',
-                    fontSize: 14,
-                },
-                body2: {
-                    fontFamily: '"HK Grotesk SemiBold", Arial, sans-serif',
-                    fontSize: 14,
-                },
+          },
+          MuiTableHead: {
+            root: {
+                backgroundColor: "var(--table-background-color)", 
+              //backgroundColor: isContrastMode ? palette.paperColor : palette.borderColor,
+              color: "var(--table-head-color)",
             },
+          },
+          MuiTableRow: {
+            head: {
+              height: 48,
+            },
+          },
+          MuiTableCell: {
+            head: {
+              color: palette.fontColor,
+              fontSize: 16,
+              fontWeight: 800,
+            },
+            paddingNone: {
+              paddingLeft: 10,
+            },
+          },
+          MuiTypography: {
+            root: {
+              fontFamily: '"HK Grotesk SemiBold", Arial, sans-serif',
+              fontSize: 17,
+              color: palette.fontColor,
+            },
+            body1: {
+              fontFamily: '"HK Grotesk Regular", Arial, sans-serif',
+              fontSize: 14,
+              color: palette.fontColor,
+            },
+            body2: {
+              fontFamily: '"HK Grotesk SemiBold", Arial, sans-serif',
+              fontSize: 14,
+              color: palette.fontColor,
+            },
+          },
         },
-    })
+      })
 }

@@ -6,41 +6,41 @@ import { themeImages } from "../../version/config/theme.config"
 
 export const ITEMS_PER_PAGE = 10
 
-const defaultLightPalette = {
-  type: "light",
-  mainColor: "#0D672F",
-  dangerColor: "#da534f",
-  viewButton: "#30ad57",
-  disabledColor: "#e9e4e4",
-  borderColor: "#e5e5e5",
-  paperColor: "#fff",
-  toolbarColor: "#e5e5e5",
-  fontColor: "#000",
-}
+// const defaultLightPalette = {
+//   type: "light",
+//   mainColor: "#0D672F",
+//   dangerColor: "#da534f",
+//   viewButton: "#30ad57",
+//   disabledColor: "#e9e4e4",
+//   borderColor: "#e5e5e5",
+//   paperColor: "#fff",
+//   toolbarColor: "#e5e5e5",
+//   fontColor: "#000",
+// }
 
-const defaultDarkPalette = {
-  type: "dark",
-  mainColor: "#000",
-  dangerColor: "#000",
-  viewButton: "#000",
-  disabledColor: "#e9e4e4",
-  borderColor: "#000",
-  paperColor: "#fff",
-  fontColor: "#000",
-  toolbarColor: "#fff",
-  background: {
-    default: "#fff",
-    paper: "#fff",
-  },
-  text: {
-    primary: "#000",
-    secondary: "#000",
-    disabled: "#000",
-  },
-  // background: "#fff",
-  // text: "#000",
-  // divider: "#000",
-}
+// const defaultDarkPalette = {
+//   type: "dark",
+//   mainColor: "#000",
+//   dangerColor: "#000",
+//   viewButton: "#000",
+//   disabledColor: "#e9e4e4",
+//   borderColor: "#000",
+//   paperColor: "#fff",
+//   fontColor: "#000",
+//   toolbarColor: "#fff",
+//   background: {
+//     default: "#fff",
+//     paper: "#fff",
+//   },
+//   text: {
+//     primary: "#000",
+//     secondary: "#000",
+//     disabled: "#000",
+//   },
+//   // background: "#fff",
+//   // text: "#000",
+//   // divider: "#000",
+// }
 
 /**
  * This function defined background-rule for Patient Summary panels and for table headings
@@ -56,10 +56,23 @@ function getBackground(isContrastMode, themeColor, imageName) {
   return isContrastMode ? "#000" : result
 }
 
-function getCurrentPalette(isContrastMode) {
-  return isContrastMode
-    ? DeepMerge(defaultDarkPalette, window.config.darkPalette)
-    : DeepMerge(defaultLightPalette, window.config.lightPalette)
+function getCurrentPalette(target) {
+//   return isContrastMode
+//     ? DeepMerge(defaultDarkPalette, window.config.darkPalette)
+//     : DeepMerge(defaultLightPalette, window.config.lightPalette)
+
+    return {
+        mainColor: getComputedStyle(target).getPropertyValue("--main-color").trim(),
+        dangerColor: getComputedStyle(target).getPropertyValue("--danger-color").trim(),
+        viewButton: getComputedStyle(target).getPropertyValue("--view-button").trim(),
+        disabledColor: getComputedStyle(target).getPropertyValue("--disabled-color").trim(),
+        borderColor: getComputedStyle(target).getPropertyValue("--border-color").trim(),
+        paperColor: getComputedStyle(target).getPropertyValue("--paper-color").trim(),
+        toolbarColor: getComputedStyle(target).getPropertyValue("--toolbar-color").trim(),
+        fontColor: getComputedStyle(target).getPropertyValue("--font-color").trim(),
+        primaryFont: getComputedStyle(target).getPropertyValue("--primary-font").trim(),
+        primaryFontSize: getComputedStyle(target).getPropertyValue("--primary-font-size").trim()
+    }
 }
 
 /**
@@ -69,12 +82,14 @@ function getCurrentPalette(isContrastMode) {
  */
 export function getCurrentTheme(isContrastMode) {
   const backgroundImage = isContrastMode ? null : get(themeImages, "backgroundImage", null)
-  const palette = getCurrentPalette(isContrastMode)
+  const palette = getCurrentPalette(document.body)
   return createMuiTheme({
     palette: palette,
     typography: {
-      fontFamily: '"HK Grotesk Regular", Arial, sans-serif',
-      fontSize: 14,
+    //   fontFamily: '"HK Grotesk Regular", Arial, sans-serif',
+    //   fontSize: 14,
+        fontFamily: palette.primaryFont,
+        fontSize: palette.primaryFontSize
     },
     tableHeader: {
       tableHeaderBlock: {
@@ -97,7 +112,8 @@ export function getCurrentTheme(isContrastMode) {
     overrides: {
       MuiInput: {
         root: {
-          border: `2px solid ${palette.inputBorderColor}`,
+          //border: `2px solid ${palette.inputBorderColor}`,
+          border: "var(--input-border)",
           paddingLeft: "5px",
           paddingRight: "5px",
           "&.Mui-focused": {
@@ -153,13 +169,14 @@ export function getCurrentTheme(isContrastMode) {
       MuiTable: {
         root: {
           backgroundColor: palette.paperColor,
-          border: `1px solid ${palette.borderColor}`,
+          border: `var(--table-border)`,
         },
       },
       MuiTableHead: {
         root: {
-          backgroundColor: isContrastMode ? palette.paperColor : palette.borderColor,
-          color: isContrastMode ? palette.paperColor : palette.fontColor,
+            backgroundColor: "var(--table-background-color)", 
+          //backgroundColor: isContrastMode ? palette.paperColor : palette.borderColor,
+          color: "var(--table-head-color)",
         },
       },
       MuiTableRow: {

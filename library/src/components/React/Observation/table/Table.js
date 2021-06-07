@@ -17,9 +17,10 @@ import { Typography } from "@material-ui/core"
 
 const useStyles = makeStyles({
     table: {
-        minWidth: 800,
+        minWidth: "auto",
     },
 })
+
 export default function BasicTable() {
     const classes = useStyles()
     const headers = useSelector(selectHeaders)

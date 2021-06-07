@@ -22,13 +22,13 @@ export default function content(props) {
     }, [observations])
 
     return (
-        <Grid container direction="column" justify="flex-start" alignItems="stretch" spacing={3}>
-            <Grid item>
-                <Grid container direction="row" justify="space-evenly" alignItems="stretch" spacing={3}>
-                    <Grid item xs={5}>
+        <Grid container direction="column" justify="flex-start" alignItems="stretch" spacing={2}>
+            <Grid item xs={12}>
+                <Grid container direction="row" justify="space-evenly" alignItems="stretch" spacing={2}>
+                    <Grid item xs={12} md={6}>
                         <ObservationForm saveObservations={saveObservations} getObservations={getObservations} />
                     </Grid>
-                    <Grid item xs={5}>
+                    <Grid item xs={12} md={6}>
                         <Typography variant="h4">
                             {informationArray.length > 0 ? informationArray[value].header : null}
                         </Typography>
@@ -45,19 +45,19 @@ export default function content(props) {
                 </Grid>
             </Grid>
             <Divider />
-            <Grid item>
-                <Grid container direction="row" justify="space-evenly" alignItems="stretch" spacing={3}>
-                    <Grid item xs={5}>
+            <Grid item xs={12}>
+                <Grid container direction="row" justify="space-evenly" alignItems="stretch" spacing={2}>
+                    <Grid item xs={12} md={6}>
                         <Table />
                     </Grid>
-                    <Grid item xs={5}>
+                    <Grid item xs={12} md={6}>
                         <ObeservationGraph />
                     </Grid>
                 </Grid>
             </Grid>
-            <Grid item>
-                <Grid container direction="row" justify="space-evenly" alignItems="stretch" spacing={3}>
-                    <Grid item xs={10}>
+            <Grid item xs={12}>
+                <Grid container direction="row" justify="space-evenly" alignItems="stretch" spacing={2}>
+                    <Grid item xs={12}>
                         {informationArray.length > 0 ? (
                             <div>
                                 <Typography>{informationArray[value].footer.header}</Typography>

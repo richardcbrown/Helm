@@ -5,8 +5,8 @@ function getManifest(env) {
 
     const dependencies = {
         "synrb-panel-library": {
-            index: "./node_modules/synrb-panel-library/src/index.js",
-            package: "./node_modules/synrb-panel-library/package.json",
+            index: "./node_modules/@synrichardbrown/synrb-panel-library-test/src/index.js",
+            package: "./node_modules/@synrichardbrown/synrb-panel-library-test/package.json",
         },
         react: {
             index: "./node_modules/react/index.js",
@@ -58,7 +58,7 @@ function getManifest(env) {
                 webpackPath: "./src/components/CustomElements/ObservationComponent.js",
                 metadataPath: "",
                 tagName: "helm-observation-component",
-            }
+            },
         },
         libraries,
     }

@@ -1,6 +1,4 @@
 import React from "react"
-import { ThemeProvider, Typography } from "@material-ui/core"
-import { getCurrentTheme } from "./Styles"
 import { Provider } from "react-redux"
 import { store } from "../app/observationStore"
 import { withCanvas, withResource, withSubmit, withResourceRoot, withConfiguration } from "synrb-panel-library"
@@ -11,21 +9,17 @@ class ObservationComponent extends ReactMaterialComponentBase {
     constructor() {
         super()
         this.jsxRootComponent = () => {
-            console.log(this.resources)
-            console.log(this.configuration)
             const configuration = this.configuration || null
             const observations = this.resources["Observation"] || []
 
             return (
                 <Provider store={store}>
-                    <ThemeProvider theme={getCurrentTheme()}>
-                        <Observation
-                            configuration={configuration}
-                            observations={observations}
-                            getObservations={(codes) => this.refreshResources(codes)}
-                            saveObservations={(observations) => this.saveResources(observations)}
-                        />
-                    </ThemeProvider>
+                    <Observation
+                        configuration={configuration}
+                        observations={observations}
+                        getObservations={(codes) => this.refreshResources(codes)}
+                        saveObservations={(observations) => this.saveResources(observations)}
+                    />
                 </Provider>
             )
         }

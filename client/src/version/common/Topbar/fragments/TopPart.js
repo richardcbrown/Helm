@@ -1,7 +1,7 @@
 import React, { Component } from "react"
 import { Link } from "react-router-dom"
 
-import { withStyles } from "@material-ui/core/styles"
+import { makeStyles } from "@material-ui/core/styles"
 import CardMedia from "@material-ui/core/CardMedia"
 import HomeIcon from "@material-ui/icons/Home"
 import Toolbar from "@material-ui/core/Toolbar"
@@ -13,7 +13,7 @@ import ContrastMode from "../../../features/ContrastMode"
 import UserPanelButton from "./UserPanelButton"
 import AccessibilityButton from "./AccessibilityButton"
 
-const styles = (theme) => ({
+const useStyles = makeStyles((theme) => ({
   topPart: {
     display: "flex",
     backgroundColor: "white",
@@ -84,14 +84,16 @@ const styles = (theme) => ({
   emptyBlock: {
     flexGrow: 1,
   },
-})
+}))
 
 /**
  * This component returns Top part of Helm Topbar
  *
  * @author Bogdan Shcherban <bsc@piogroup.net>
  */
-const TopPart = ({ classes, logout, location, history, noUserJourney }) => {
+const TopPart = ({ logout, location, history, noUserJourney }) => {
+  const classes = useStyles()
+
   return (
     <Toolbar className={classes.topPart}>
       <div className={classes.homeButtonItem}>
@@ -121,12 +123,12 @@ const TopPart = ({ classes, logout, location, history, noUserJourney }) => {
         image={nhsLogo}
         title="NHS Logo"
       />
-      {noUserJourney ? null : <UserTour classes={classes} location={location} />}
-      <ContrastMode classes={classes} />
-      <UserPanelButton classes={classes} history={history} />
-      <AccessibilityButton classes={classes} history={history} />
+      {noUserJourney ? null : <UserTour location={location} />}
+      <ContrastMode />
+      <UserPanelButton history={history} />
+      <AccessibilityButton history={history} />
     </Toolbar>
   )
 }
 
-export default withStyles(styles)(TopPart)
+export default TopPart

@@ -59,7 +59,6 @@ export default function PastAnswers(props) {
                                         multiline
                                         rows={3}
                                         value={item.valueString}
-                                        variant="outlined"
                                         disabled
                                         helperText={obtainFormattedDate(item.valueDateTime)}
                                     />

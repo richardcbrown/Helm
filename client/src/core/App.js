@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import get from "lodash/get"
 import { Admin, Resource } from "react-admin"
 
@@ -21,6 +21,10 @@ import { makeStyles } from "@material-ui/core"
 import { createHashHistory } from "history"
 import { Provider, connect } from "react-redux"
 import createStore from "./Store"
+
+import "../styles/theme.css"
+import "../styles/light.css"
+import "../styles/dark.css"
 
 const plugins = corePlugins.concat(nonCorePlugins)
 const Homepage = get(themeCommonElements, "homePage")
@@ -75,6 +79,44 @@ const ConnectedAccessibilityNotice = connect(mapStateToProps, null)(Accessibilit
 
 const history = createHashHistory()
 
+const StyleLoader = ({ contrastMode }) => {
+    const theme = useRef(new CSSStyleSheet())
+    
+    useEffect(() => {
+        const themeStyles = document.getElementById("theme")
+
+        const additionalStyles = contrastMode ? document.getElementById("dark") : document.getElementById("light")
+
+        theme.current.replaceSync(`${themeStyles.innerHTML} ${additionalStyles.innerHTML}`)
+
+        document.adoptedStyleSheets = [theme.current]
+    }, [])
+
+    useEffect(() => {
+        const themeStyles = document.getElementById("theme")
+
+        const additionalStyles = contrastMode ? document.getElementById("dark") : document.getElementById("light")
+
+        theme.current.replaceSync(`${themeStyles.innerHTML} ${additionalStyles.innerHTML}`)
+    }, [contrastMode])
+
+    return null
+}
+
+const mapStyleStateToProps = (state) => {
+    const preferences = get(state, "custom.preferences", {})
+  
+    const userPrefs = (preferences && preferences.data && preferences.data.preferences) || {}
+  
+    const contrastMode = get(userPrefs, "general.preferences.contrastMode", false)
+  
+    return {
+      contrastMode: contrastMode,
+    }
+  }
+
+const ConnectedStyleLoader = connect(mapStyleStateToProps)(StyleLoader)
+
 const App = () => {
   return (
     <Provider
@@ -86,6 +128,7 @@ const App = () => {
         customReducers: { custom: customReducers },
       })}
     >
+      <ConnectedStyleLoader />
       <ConnectedAccessibilityNotice />
       <Admin
         history={history}

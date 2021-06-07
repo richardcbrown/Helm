@@ -8,6 +8,43 @@ import Tooltip from "@material-ui/core/Tooltip"
 import { get } from "lodash"
 import { savePreferencesAction } from "../../actions/preferencesActions"
 import { setAccessibilityMessage } from "../../../core/actions/accessibilityActions"
+import { withStyles } from "@material-ui/core"
+
+const styles = (theme) => ({
+  rightBlockItem: {
+    display: "inline-flex",
+    position: "relative",
+    minHeight: 54,
+    minWidth: 54,
+    justifyContent: "center",
+    alignItems: "center",
+    borderLeft: `1px solid ${theme.palette.borderColor}`,
+    "&:hover": {
+      backgroundColor: theme.palette.mainColor,
+    },
+    "&:active": {
+      backgroundColor: theme.palette.mainColor,
+    },
+    "&:hover button": {
+      color: "white",
+    },
+    "&:active button": {
+      color: "white",
+    },
+    "&:hover a": {
+      color: "white",
+    },
+    "&:active a": {
+      color: "white",
+    },
+  },
+  rightBlockButton: {
+    color: theme.palette.mainColor,
+    "&:hover": {
+      color: "white",
+    },
+  },
+})
 
 /**
  * Thic component returns Contrast Mode button
@@ -76,4 +113,4 @@ const mapDispatchToProps = (dispatch) => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ContrastMode)
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(ContrastMode))

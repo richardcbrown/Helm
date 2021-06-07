@@ -25,74 +25,88 @@
         const script = document.createElement("script")
         script.src = isIE() ? "./bootstrapie.js" : "./bootstrap.js"
         document.head.appendChild(script)
+
+        // const theme = new CSSStyleSheet()
+
+        // theme.replaceSync(`
+        //     @font-face {
+        //         font-family: 'HK Grotesk SemiBold';
+        //         font-weight: normal;
+        //         font-style: normal;
+        //         src: url('./fonts/HKGrotesk-SemiBold.otf'), url('./fonts/HKGrotesk-SemiBold.eot');
+        //     }
+
+        //     @font-face {
+        //         font-family: 'HK Grotesk Medium';
+        //         font-weight: normal;
+        //         font-style: normal;
+        //         src: url('./fonts/HKGrotesk-Medium.otf'), url('./fonts/HKGrotesk-Medium.eot');
+        //     }
+
+        //     @font-face {
+        //         font-family: 'HK Grotesk Regular';
+        //         font-weight: normal;
+        //         font-style: normal;
+        //         src: url('./fonts/HKGrotesk-Regular.otf'), url('./fonts/HKGrotesk-Regular.eot');
+        //     }
+
+        //     #root {
+        //         height: 100%;
+        //     }
+
+        //     #root > div {
+        //         height: 100%;
+        //     }
+
+        //     .MuiFocus-visible,
+        //     *:focus:not(.MuiBackdrop-root):not(.MuiDialog-container):not(.MuiInput-input):not(.MuiPopover-paper),
+        //     .MuiButtonBase-root:focus {
+        //         color: #000000 !important;
+        //         background-color: #FFA44D !important;
+        //         outline-style: none;
+        //     }
+
+        //     .Mui-focusVisible.MuiRadio-root .MuiSvgIcon-root,
+        //     .Mui-focusVisible.MuiCheckbox-root .MuiSvgIcon-root {
+        //         color: #FFA44D !important;
+        //         border-color: #FFA44D !important;
+        //     }
+
+        //     .Mui-focusVisible.MuiButtonBase-root .MuiTouchRipple-root,
+        //     .Mui-focusVisible.MuiButtonBase-root .MuiCardActionArea-focusHighlight,
+        //     .Mui-focusVisible.MuiCheckbox-root .MuiTouchRipple-root {
+        //         display: none;
+        //     }
+
+        //     *:focus:not(.MuiBackdrop-root):not(.MuiDialog-container):not(.MuiInput-input):not(.MuiPopover-paper) {
+        //         padding: 5px;
+        //     }
+
+        //     .Mui-focusVisible span,
+        //     *:focus:not(.MuiBackdrop-root):not(.MuiDialog-container):not(.MuiInput-input):not(.MuiPopover-paper) span,
+        //     .MuiButtonBase-root:focus,
+        //     *:focus:not(.MuiBackdrop-root):not(.MuiDialog-container):not(.MuiInput-input):not(.MuiPopover-paper) {
+        //         color: #000000 !important;
+        //     }
+
+        //     .Mui-focusVisible.MuiRadio-root .MuiTouchRipple-root,
+        //     .Mui-focusVisible.MuiCheckbox-root .MuiTouchRipple-root,
+        //     .MuiFocus-visible .MuiTouchRipple-root,
+        //     *:focus .MuiTouchRipple-root,
+        //     .MuiButtonBase-root:focus .MuiTouchRipple-root {
+        //         display: none;
+        //     }
+
+        //     .input--focused {
+        //         box-shadow: 0px 0px 0px 4px #FFA44D;
+        //     }
+        // `)
+
+        // document.adoptedStyleSheets = [theme]
     </script>
 
 	<style>
-		@font-face {
-			font-family: 'HK Grotesk SemiBold';
-			font-weight: normal;
-			font-style: normal;
-			src: url('./fonts/HKGrotesk-SemiBold.otf'), url('./fonts/HKGrotesk-SemiBold.eot');
-        }
-		@font-face {
-			font-family: 'HK Grotesk Medium';
-			font-weight: normal;
-			font-style: normal;
-			src: url('./fonts/HKGrotesk-Medium.otf'), url('./fonts/HKGrotesk-Medium.eot');
-		}
-		@font-face {
-			font-family: 'HK Grotesk Regular';
-			font-weight: normal;
-			font-style: normal;
-			src: url('./fonts/HKGrotesk-Regular.otf'), url('./fonts/HKGrotesk-Regular.eot');
-		}
 
-    #root {
-        height: 100%;
-    }
-
-    #root > div {
-        height: 100%;
-    }
-
-    .MuiFocus-visible,
-    *:focus:not(.MuiBackdrop-root):not(.MuiDialog-container):not(.MuiInput-input):not(.MuiPopover-paper),
-    .MuiButtonBase-root:focus {
-      color: #000000 !important;
-      background-color: #FFA44D !important;
-      outline-style: none;
-    }
-
-    .Mui-focusVisible.MuiRadio-root .MuiSvgIcon-root,
-    .Mui-focusVisible.MuiCheckbox-root .MuiSvgIcon-root {
-      color: #FFA44D !important;
-      border-color: #FFA44D !important;
-    }
-
-    .Mui-focusVisible.MuiButtonBase-root .MuiTouchRipple-root,
-    .Mui-focusVisible.MuiButtonBase-root .MuiCardActionArea-focusHighlight,
-    .Mui-focusVisible.MuiCheckbox-root .MuiTouchRipple-root {
-      display: none;
-    }
-
-    *:focus:not(.MuiBackdrop-root):not(.MuiDialog-container):not(.MuiInput-input):not(.MuiPopover-paper) {
-      padding: 5px;
-    }
-
-    .Mui-focusVisible span,
-    *:focus:not(.MuiBackdrop-root):not(.MuiDialog-container):not(.MuiInput-input):not(.MuiPopover-paper) span,
-    .MuiButtonBase-root:focus,
-    *:focus:not(.MuiBackdrop-root):not(.MuiDialog-container):not(.MuiInput-input):not(.MuiPopover-paper) {
-      color: #000000 !important;
-    }
-
-    .Mui-focusVisible.MuiRadio-root .MuiTouchRipple-root,
-    .Mui-focusVisible.MuiCheckbox-root .MuiTouchRipple-root,
-    .MuiFocus-visible .MuiTouchRipple-root,
-    *:focus .MuiTouchRipple-root,
-    .MuiButtonBase-root:focus .MuiTouchRipple-root {
-      display: none;
-    }
 
     /* main {
         max-width: 100%;

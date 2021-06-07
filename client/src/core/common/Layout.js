@@ -30,6 +30,7 @@ const styles = (theme) =>
       [theme.breakpoints.down("xs")]: {
         marginTop: theme.spacing(7),
       },
+      overflow: "hidden"
     },
     contentWithSidebar: {
       display: "flex",

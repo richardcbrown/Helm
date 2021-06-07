@@ -1,5 +1,5 @@
-import { FormControl, InputAdornment, Button, Grid, TextField, Typography } from "@material-ui/core"
-import React, { useEffect, useState } from "react"
+import { FormControl, InputAdornment, Grid, TextField, Typography, IconButton } from "@material-ui/core"
+import React, { useContext, useEffect, useRef, useState } from "react"
 import SaveIcon from "@material-ui/icons/Save"
 
 import { useSelector, useDispatch } from "react-redux"
@@ -16,6 +16,7 @@ import {
     setOpen,
 } from "./ObservationFormSlice"
 import ObservationDialog from "../Dialog/ObservationDialog"
+import { ShadowFocus } from "../../Shadow/ShadowFocus"
 
 export default function ObservationForm(props) {
     const observations = useSelector(selectObservations)
@@ -226,6 +227,8 @@ export default function ObservationForm(props) {
         return (fieldsValue[value]["Weight"].value / (fieldsValue[value]["Height"].value / 100) ** 2).toFixed(2)
     }
 
+    console.log(document.activeElement)
+
     return (
         <div>
             <FormControl margin="normal">
@@ -233,26 +236,34 @@ export default function ObservationForm(props) {
                     ? getFieldsArrayForTab().map((fieldObj) =>
                           fieldObj.display ? (
                               <Grid container direction="row" justify="flex-start" alignItems="center" spacing={3}>
-                                  <Grid item>
-                                      <TextField
-                                          color="primary"
-                                          label={fieldsValue[value][fieldObj.text].error ? fieldObj.text : null}
-                                          variant="outlined"
-                                          value={fieldsValue[value][fieldObj.text].value}
-                                          onChange={(e) => onFieldValueChange(e, fieldObj.text)}
-                                          helperText={
-                                              fieldsValue[value][fieldObj.text].error
-                                                  ? fieldsValue[value][fieldObj.text].errorMessage
-                                                  : fieldObj.text
-                                          }
-                                          error={fieldsValue[value][fieldObj.text].error}
-                                          type={fieldObj.type === "Quantity" && "number"}
-                                          InputProps={{
-                                              endAdornment: (
-                                                  <InputAdornment position="end">{fieldObj.unit}</InputAdornment>
-                                              ),
-                                          }}
-                                      />
+                                  <Grid item xs={12}>
+                                      <ShadowFocus>
+                                          {({ inputRef, focus }) => (
+                                              <TextField
+                                                  color="primary"
+                                                  fullWidth={true}
+                                                  className={focus ? "input--focused" : ""}
+                                                  label={fieldsValue[value][fieldObj.text].error ? fieldObj.text : null}
+                                                  value={fieldsValue[value][fieldObj.text].value}
+                                                  onChange={(e) => onFieldValueChange(e, fieldObj.text)}
+                                                  helperText={
+                                                      fieldsValue[value][fieldObj.text].error
+                                                          ? fieldsValue[value][fieldObj.text].errorMessage
+                                                          : fieldObj.text
+                                                  }
+                                                  error={fieldsValue[value][fieldObj.text].error}
+                                                  type={(fieldObj.type === "Quantity" && "number") || ""}
+                                                  InputProps={{
+                                                      endAdornment: (
+                                                          <InputAdornment position="end">
+                                                              {fieldObj.unit}
+                                                          </InputAdornment>
+                                                      ),
+                                                      inputRef,
+                                                  }}
+                                              />
+                                          )}
+                                      </ShadowFocus>
                                   </Grid>
                                   <Grid item>
                                       {prevResponses[value][fieldObj.text].values.length > 0 ? (
@@ -272,45 +283,56 @@ export default function ObservationForm(props) {
                     : null}
 
                 {fieldsArray.length > 0 ? (
-                    <TextField
-                        id="date"
-                        type="date"
-                        variant="outlined"
-                        onChange={(e) => onDateNoteValueChange(e, "Date")}
-                        error={fieldsValue[value]["Date"].error}
-                        helperText={fieldsValue[value]["Date"].error ? fieldsValue[value]["Date"].errorMessage : "Date"}
-                        // defaultValue={fieldsValue.length > 0 && getDateNow()}
-                        value={fieldsArray.length > 0 && fieldsValue[value]["Date"].value}
-                        InputLabelProps={{
-                            shrink: false,
-                        }}
-                    />
+                    <ShadowFocus>
+                        {({ inputRef, focus }) => (
+                            <TextField
+                                id="date"
+                                type="date"
+                                className={focus ? "input--focused" : ""}
+                                onChange={(e) => onDateNoteValueChange(e, "Date")}
+                                error={fieldsValue[value]["Date"].error}
+                                helperText={fieldsValue[value]["Date"].error ? fieldsValue[value]["Date"].errorMessage : "Date"}
+                                value={fieldsArray.length > 0 && fieldsValue[value]["Date"].value}
+                                InputLabelProps={{
+                                    shrink: false,
+                                }}
+                                InputProps={{
+                                    inputRef
+                                }}
+                            />
+                        )}
+                    </ShadowFocus>
                 ) : null}
             </FormControl>
-            <Grid container directino="row" justify="flex-start" alignItems="center" spacing={3}>
-                <Grid item xs={10}>
+            <Grid container direction="row" justify="flex-start" alignItems="center" spacing={3}>
+                <Grid item xs={9}>
                     <FormControl fullWidth>
-                        <TextField
-                            fullWidth
-                            helperText="Notes"
-                            variant="outlined"
-                            onChange={(e) => onDateNoteValueChange(e, "Notes")}
-                            value={fieldsArray.length > 0 && fieldsValue[value]["Notes"].value}
-                            multiline
-                            rowsMax={3}
-                        />
+                    <ShadowFocus>
+                        {({ inputRef, focus }) => (
+                            <TextField
+                                fullWidth
+                                helperText="Notes"
+                                className={focus ? "input--focused" : ""}
+                                onChange={(e) => onDateNoteValueChange(e, "Notes")}
+                                value={fieldsArray.length > 0 && fieldsValue[value]["Notes"].value}
+                                multiline
+                                rowsMax={3}
+                                InputProps={{
+                                    inputRef
+                                }}
+                            />
+                        )}
+                    </ShadowFocus>
                     </FormControl>
                 </Grid>
-                <Grid item xs={2}>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        size="large"
+                <Grid item xs={3}>
+                    <IconButton
+                        className={"button--primary"}
                         onClick={() => onClickSaveButton()}
-                        startIcon={<SaveIcon />}
                     >
                         Save
-                    </Button>
+                        <SaveIcon />
+                    </IconButton>
                 </Grid>
             </Grid>
             <ObservationDialog

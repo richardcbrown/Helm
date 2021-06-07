@@ -43,6 +43,7 @@ const useStyles = makeStyles((theme) => ({
         display: "none",
         [theme.breakpoints.up("md")]: {
             display: "flex",
+            justifyContent: "center"
         },
     },
     sectionMobile: {
@@ -149,7 +150,6 @@ export default function VerticalLinearStepper(props) {
                         </Stepper>
                         {activeStep === steps.length && (
                             <Paper square elevation={0} className={classes.resetContainer}>
-                                {/* <Typography>All steps completed - you&apos;re finished</Typography> */}
                                 <Button
                                     onClick={() => {
                                         obtainPrevResponse(0)

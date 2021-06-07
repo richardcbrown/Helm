@@ -1,6 +1,4 @@
 import React from "react"
-import { ThemeProvider, Typography } from "@material-ui/core"
-import { getCurrentTheme } from "./Styles"
 import { Provider } from "react-redux"
 import { store } from "../app/questionnaireStore"
 import { withCanvas, withResource, withSubmit, withResourceRoot } from "synrb-panel-library"
@@ -18,15 +16,13 @@ class QuestionnaireComponent extends ReactMaterialComponentBase {
             console.log(top3ThingsQuestionnaire)
             return (
                 <Provider store={store}>
-                    <ThemeProvider theme={getCurrentTheme()}>
-                        <Questionnaire
-                            resources={this.resources}
-                            submit={(changedResource) => this.submit([changedResource])}
-                            requestResources={(questionResponse, queryParams, bodyParams) =>
-                                this.requestResources(questionResponse, queryParams, bodyParams)
-                            }
-                        />
-                    </ThemeProvider>
+                    <Questionnaire
+                        resources={this.resources}
+                        submit={(changedResource) => this.submit([changedResource])}
+                        requestResources={(questionResponse, queryParams, bodyParams) =>
+                            this.requestResources(questionResponse, queryParams, bodyParams)
+                        }
+                    />
                 </Provider>
             )
         }

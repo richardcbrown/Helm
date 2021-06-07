@@ -44,6 +44,7 @@
     "@material-ui/pickers": "^3.3.10",
     "@material-ui/styles": "^4.11.4",
     "@reduxjs/toolkit": "^1.5.1",
+    "@synrichardbrown/synrb-panel-library-test": "^1.0.31",
     "build": "^0.1.4",
     "chart.js": "^3.3.0",
     "cors": "^2.8.5",

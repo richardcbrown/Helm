@@ -1,13 +1,13 @@
 import React, { Component } from "react"
 
-import { withStyles } from "@material-ui/core/styles"
+import { makeStyles } from "@material-ui/core/styles"
 import CardMedia from "@material-ui/core/CardMedia"
 import Toolbar from "@material-ui/core/Toolbar"
 
 import helmLogo from "../../../images/helm-logo.png"
 import nhsLogo from "../../../images/nhs.png"
 
-const styles = (theme) => ({
+const useStyles = makeStyles((theme) => ({
   topPart: {
     display: "flex",
     backgroundColor: "white",
@@ -33,14 +33,16 @@ const styles = (theme) => ({
   emptyBlock: {
     flexGrow: 1,
   },
-})
+}))
 
 /**
  * This component returns Top part of Helm Topbar
  *
  * @author Bogdan Shcherban <bsc@piogroup.net>
  */
-const TopPart = ({ classes }) => {
+const TopPart = () => {
+  const classes = useStyles()
+
   return (
     <Toolbar className={classes.topPart}>
       <div className={classes.mainLogoItem}>
@@ -67,4 +69,4 @@ const TopPart = ({ classes }) => {
   )
 }
 
-export default withStyles(styles)(TopPart)
+export default TopPart

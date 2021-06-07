@@ -1,11 +1,11 @@
 import React from "react"
 import { translate } from "react-admin"
 
-import { withStyles } from "@material-ui/core/styles"
+import { makeStyles } from "@material-ui/core/styles"
 import Typography from "@material-ui/core/Typography"
 import clsx from "clsx"
 
-const styles = (theme) => ({
+const useStyles = makeStyles((theme) => ({
   tableHeaderBlock: {
     background: theme.tableHeader.tableHeaderBlock.background,
     backgroundSize: "cover",
@@ -27,16 +27,17 @@ const styles = (theme) => ({
     marginTop: 10,
     color: "#fff",
   },
-})
+}))
 
 /**
  * This component returns header for table
  *
  * @author Bogdan Shcherban <bsc@piogroup.net>
- * @param {shape}  classes
  * @param {string} resource
  */
-const TableHeader = ({ classes, resource, translate }) => {
+const TableHeader = ({ resource, translate }) => {
+  const classes = useStyles()
+
   const title = translate("tableHeaders." + resource + ".title")
   let description = translate("tableHeaders." + resource + ".description")
   let subText = translate("tableHeaders." + resource + ".subText")
@@ -64,4 +65,4 @@ const TableHeader = ({ classes, resource, translate }) => {
   )
 }
 
-export default withStyles(styles)(translate(TableHeader))
+export default translate(TableHeader)

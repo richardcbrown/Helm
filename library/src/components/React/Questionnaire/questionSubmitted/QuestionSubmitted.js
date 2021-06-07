@@ -36,7 +36,6 @@ export default function QuestionSubmitted(props) {
                                 rows={4}
                                 defaultValue="prev answer 1"
                                 value={getAnswer(question.linkId)}
-                                variant="outlined"
                                 disabled
                             />
                         </FormControl>

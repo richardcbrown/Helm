@@ -1,16 +1,60 @@
 import React, { Component } from "react"
 
-import { withStyles } from "@material-ui/core/styles"
+import { makeStyles } from "@material-ui/core/styles"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCircle } from "@fortawesome/free-solid-svg-icons"
 import { List, ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core"
 import { NavLink } from "react-router-dom"
 
-const styles = (theme) => ({
+const useStyles = makeStyles((theme) => ({
   menuBlock: {
     border: `1px solid ${theme.palette.borderColor}`,
   },
-})
+  sidebarBlock: {
+    maxWidth: 240,
+    backgroundColor: "#fff",
+    "& div": {
+      marginTop: 0,
+      marginBottom: 0,
+    },
+  },
+  mobileSidebar: {
+    width: "100%",
+    position: "absolute",
+    backgroundColor: "transparent",
+    zIndex: 3,
+  },
+  menuBlock: {
+    border: `1px solid ${theme.palette.borderColor}`,
+  },
+  menuItem: {
+    padding: "16px !important",
+    color: `${theme.palette.mainColor} !important`,
+    borderBottom: `1px solid ${theme.palette.borderColor}`,
+    "&:hover": {
+      backgroundColor: theme.palette.mainColor,
+      color: "#fff !important",
+    },
+    "& .MuiListItemIcon-root": {
+      color: "inherit",
+      minWidth: 20,
+      marginTop: -2,
+    },
+  },
+  menuItemSelected: {
+    padding: "16px !important",
+    backgroundColor: theme.palette.mainColor + "! important",
+    color: "#fff !important",
+    borderBottom: `1px solid ${theme.palette.borderColor}`,
+    "& .MuiListItemIcon-root": {
+      color: "inherit",
+      minWidth: 20,
+      margin: -2,
+    },
+  },
+  menuItemIcon: { color: "inherit" },
+  menuItemIconSelected: { color: "inherit" },
+}))
 
 class NavLinkMui extends Component {
   render() {
@@ -19,7 +63,9 @@ class NavLinkMui extends Component {
   }
 }
 
-const MenuItems = ({ classes, menuItems, currentList, onMenuClick }) => {
+const MenuItems = ({ menuItems, currentList, onMenuClick }) => {
+  const classes = useStyles()
+
   return (
     <nav className={classes.menuBlock}>
       <List style={{ padding: 0 }}>
@@ -57,4 +103,4 @@ const MenuItems = ({ classes, menuItems, currentList, onMenuClick }) => {
   )
 }
 
-export default withStyles(styles)(MenuItems)
+export default MenuItems

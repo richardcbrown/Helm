@@ -1,13 +1,13 @@
 import React from "react"
 import { Link } from "react-router-dom"
 
-import { withStyles } from "@material-ui/core/styles"
+import { makeStyles } from "@material-ui/core/styles"
 import Typography from "@material-ui/core/Typography"
 import CardMedia from "@material-ui/core/CardMedia"
 
 import footerLogo from "../../images/ripple-foundation-logo-footer.png"
 
-const styles = (theme) => ({
+const useStyles = makeStyles((theme) => ({
   footerBlock: {
     display: "flex",
     flexDirection: "row",
@@ -38,14 +38,16 @@ const styles = (theme) => ({
   emptyBlock: {
     flexGrow: 1,
   },
-})
+}))
 
 /**
  * This component returns custom default footer
  *
  * @author Bogdan Shcherban <bsc@piogroup.net>
  */
-const DefaultFooter = ({ classes }) => {
+const DefaultFooter = () => {
+  const classes = useStyles()
+
   return (
     <footer className={classes.footerBlock}>
       <Typography className={classes.copyright}>Transforming Usability</Typography>
@@ -67,4 +69,4 @@ const DefaultFooter = ({ classes }) => {
   )
 }
 
-export default withStyles(styles)(DefaultFooter)
+export default DefaultFooter
